@@ -1,0 +1,32 @@
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* sm ≥ 640px */
+@media (min-width: 640px) {
+  .container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* tablet: 768px → 1279px */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* xl ≥ 1280px */
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1340px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
