@@ -1,2 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+@import './_variables.css';
 @import 'tailwindcss';
+@import './container.css';
 /* @import 'shadcn/tailwind.css'; */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+}

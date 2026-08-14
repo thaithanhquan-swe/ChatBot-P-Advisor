@@ -1,11 +1,69 @@
-function Header() {
+import { useEffect, useState } from 'react';
+import Logo from './components/Logo';
+import Nav from './components/Nav';
+
+const navItems = [
+  {
+    label: 'Trang chủ',
+    href: '#',
+    active: true,
+  },
+  {
+    label: 'Thông tin tuyển sinh',
+    href: '#',
+    dropdown: true,
+  },
+  {
+    label: 'Ngành đào tạo',
+    href: '#',
+    dropdown: true,
+  },
+  {
+    label: 'Học phí - Học bổng',
+    href: '#',
+  },
+  {
+    label: 'Tin tức',
+    href: '#',
+  },
+  {
+    label: 'Liên hệ',
+    href: '#',
+  },
+];
+
+const Navbar = () => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const isAtTop = currentScrollY < 10;
+
+      setIsVisible(isAtTop || currentScrollY < previousScrollY);
+      previousScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header>
-      <div>
-        <h1>Header public layout</h1>
+    <header
+      className={`sticky top-0 z-50 w-full border-b border-gray-100 bg-white transition-all duration-700 ease-out ${
+        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className='mx-auto flex h-21.5 max-w-350 items-center justify-between px-8'>
+        <Logo />
+
+        <Nav navItems={navItems} />
       </div>
     </header>
   );
-}
+};
 
-export default Header;
+export default Navbar;
