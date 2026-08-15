@@ -1,26 +1,23 @@
-import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-
-import AdminHeader from '@/layouts/AdminLayout/components/AdminHeader';
-import AdminSidebar from '@/layouts/AdminLayout/components/AdminSidebar';
-
-import '@/styles/admin.css';
-import { Toaster } from '@/components/ui/sonner';
+import AdminSidebar from './components/AdminSidebar/AdminSidebar';
+import AdminFooter from './components/AdminFooter/AdminFooter';
+import AdminHeader from './components/AdminHeader/AdminHeader';
 
 function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const userRole = 'ADMIN';
 
   return (
-    <div className='fixed inset-0 flex overflow-hidden admin-font bg-background text-foreground'>
-      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className='min-h-screen bg-[#FAFAFA]'>
+      <AdminSidebar />
 
-      <div className='flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden'>
-        <AdminHeader onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
+      <div className='min-h-screen pl-67.5'>
+        <AdminHeader role={userRole} />
 
-        <main className='flex-1 min-h-0 p-4 overflow-y-auto md:p-5 lg:p-6'>
+        <main className='min-h-[calc(100vh-134px)] px-8 py-6'>
           <Outlet />
         </main>
-        <Toaster />
+
+        <AdminFooter />
       </div>
     </div>
   );

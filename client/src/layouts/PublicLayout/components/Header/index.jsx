@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+
+import { CircleQuestionMark, House, MessageCircleMore, User } from 'lucide-react';
 import Logo from './components/Logo';
 import Nav from './components/Nav';
 
@@ -7,28 +9,22 @@ const navItems = [
     label: 'Trang chủ',
     href: '#',
     active: true,
+    icon: House,
   },
   {
-    label: 'Thông tin tuyển sinh',
+    label: 'Trang chat',
     href: '#',
-    dropdown: true,
+    icon: MessageCircleMore,
   },
   {
-    label: 'Ngành đào tạo',
+    label: 'FAQ',
     href: '#',
-    dropdown: true,
+    icon: CircleQuestionMark,
   },
   {
-    label: 'Học phí - Học bổng',
+    label: 'Yêu cầu tư vấn',
     href: '#',
-  },
-  {
-    label: 'Tin tức',
-    href: '#',
-  },
-  {
-    label: 'Liên hệ',
-    href: '#',
+    icon: User,
   },
 ];
 
@@ -53,11 +49,11 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-gray-100 bg-white transition-all duration-700 ease-out ${
+      className={`sticky top-0 z-50 w-full  bg-white transition-all duration-700 ease-out ${
         isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className='mx-auto flex h-21.5 max-w-350 items-center justify-between px-8'>
+      <div className='mx-auto flex h-18.75 max-w-350 items-center justify-between px-8'>
         <Logo />
 
         <Nav navItems={navItems} />

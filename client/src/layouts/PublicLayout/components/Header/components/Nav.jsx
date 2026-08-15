@@ -1,8 +1,9 @@
-import { ChevronDown } from 'lucide-react';
+import { MessageCircleMore } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Nav = ({ navItems }) => {
   return (
-    <nav className='hidden h-full items-center gap-8 lg:flex'>
+    <nav className='h-full items-center gap-8 flex'>
       {navItems.map((item) => (
         <div
           key={item.label}
@@ -10,35 +11,29 @@ const Nav = ({ navItems }) => {
             item.active ? 'text-(--primary-color)' : 'text-gray-800'
           }`}
         >
-          <a
-            href={item.href}
+          <Link
+            to={item.href}
             className={`flex h-full items-center gap-1.5 whitespace-nowrap text-[14px] transition-colors ${
               item.active ? 'font-semibold' : 'font-medium hover:text-(--primary-color)'
             }`}
           >
+            {item.icon && <item.icon size={16} />}
             {item.label}
-
-            {item.dropdown && (
-              <ChevronDown
-                size={14}
-                strokeWidth={1.8}
-                className='transition-transform duration-200 group-hover:rotate-180'
-              />
-            )}
-          </a>
+          </Link>
 
           {item.active && (
-            <span className='absolute bottom-0 left-0 h-0.75 w-full rounded-t bg-(--primary-color)' />
+            <span className='absolute bottom-3.75 left-0 h-0.5 w-full rounded bg-(--primary-color)' />
           )}
         </div>
       ))}
 
-      <a
-        href='#'
-        className='flex h-11 items-center justify-center text-white rounded-lg bg-(--primary-color) px-5 text-[13px] font-semibold transition-all duration-200 hover:shadow-lg'
+      <Link
+        to='/chat'
+        className='flex h-11 items-center justify-center gap-2 text-white rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold transition-all duration-200 hover:shadow-lg'
       >
-        Tuyển sinh 2026
-      </a>
+        <MessageCircleMore size={16} />
+        Bắt đầu trò chuyện
+      </Link>
     </nav>
   );
 };
