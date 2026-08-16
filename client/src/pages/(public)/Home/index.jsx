@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom';
-import Hero from './components/Hero';
-import FaqSection from './components/FaqSection';
-import WhyUseSection from './components/WhyUseSection';
-import FloatingChatPromo from './components/FloatingChatPromo';
+import Hero from './components/Hero/Hero';
+import FaqSection from './components/FaqSection/FaqSection';
+import WhyUseSection from './components/WhyUseSection/WhyUseSection';
+import FloatingChatPromo from './components/FloatingChatPromo/FloatingChatPromo';
 
 function Home() {
   return (

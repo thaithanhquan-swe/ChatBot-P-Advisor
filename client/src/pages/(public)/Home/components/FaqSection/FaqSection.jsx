@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRightIcon, MessageCircleQuestionIcon } from '@/assets/icons';
-import { popularQuestions } from '../data';
+import { popularQuestions } from '../../../../../data/data';
 
 const FaqSection = () => {
   return (
