@@ -1,6 +1,24 @@
 :root {
   /* Brand */
   --primary-color: #c8102e;
+  --primary-color-soft: #fdecee;          /* nền nhạt cho icon/badge */
+  --primary-color-soft-hover: #fbdde1;
+  --primary-color-border: #f7c9ce;    /* viền khi hover */
+  
+  /* Neutral text */
+  --text-secondary: #6b7280;          /* màu chữ phụ */
+  --text-tertiary: #9ca3af;
+  --surface-muted: #f9fafb;           /* nền section xám nhạt */
+  --border-subtle: #f1f1f1;
+
+  /* Shape */
+  --radius-card: 1rem;                /* bo góc thẻ câu hỏi */
+  --radius-panel: 1.5rem;             /* bo góc khối lớn (hero, feature) */
+  --radius-pill: 999px;               /* badge, nút tròn */
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-card-hover: 0 8px 20px -6px rgb(0 0 0 / 0.1);
 
   /* Typography */
   --font-sans: 'Be Vietnam Pro', Arial, sans-serif;
