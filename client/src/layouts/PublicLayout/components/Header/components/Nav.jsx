@@ -1,4 +1,4 @@
-import { MessageCircleMore } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Nav = ({ navItems }) => {
@@ -31,8 +31,8 @@ const Nav = ({ navItems }) => {
         to='/chat'
         className='flex h-11 items-center justify-center gap-2 text-white rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold transition-all duration-200 hover:shadow-lg'
       >
-        <MessageCircleMore size={16} />
-        Bắt đầu trò chuyện
+        <LogIn size={16} />
+        Đăng nhập
       </Link>
     </nav>
   );
