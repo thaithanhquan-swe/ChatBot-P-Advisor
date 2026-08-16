@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageCircleIcon } from '@/assets/icons';
+import { MessageCircle } from 'lucide-react';
 
 const FloatingChatPromo = () => {
   const [dismissed, setDismissed] = useState(false);
@@ -22,7 +22,7 @@ const FloatingChatPromo = () => {
         aria-label='Mở chatbot tư vấn tuyển sinh'
         className='flex h-14 w-14 items-center justify-center rounded-full bg-(--primary-color) text-white shadow-(--shadow-card-hover) transition-transform hover:scale-105'
       >
-        <MessageCircleIcon size={24} />
+        <MessageCircle size={24} />
       </Link>
     </div>
   );

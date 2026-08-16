@@ -1,23 +1,23 @@
-import { HeartHandshakeIcon, ShieldCheckIcon, UsersIcon, ZapIcon } from '@/assets/icons';
+import { HeartHandshake, ShieldCheck, Users, Zap } from 'lucide-react';
 
 const reasons = [
   {
-    icon: ZapIcon,
+    icon: Zap,
     title: 'Trả lời nhanh chóng',
     desc: 'Chatbot hoạt động 24/7, trả lời tức thì mọi thắc mắc của bạn.',
   },
   {
-    icon: ShieldCheckIcon,
+    icon: ShieldCheck,
     title: 'Thông tin chính xác',
     desc: 'Nguồn thông tin được cập nhật từ Học viện Công nghệ Bưu chính Viễn thông.',
   },
   {
-    icon: UsersIcon,
+    icon: Users,
     title: 'Dành cho tất cả',
     desc: 'Hỗ trợ thí sinh, phụ huynh và mọi người quan tâm đến tuyển sinh PTIT.',
   },
   {
-    icon: HeartHandshakeIcon,
+    icon: HeartHandshake,
     title: 'Tư vấn tận tâm',
     desc: 'Chatbot đồng hành, giải đáp và hướng dẫn bạn trong suốt quá trình tìm hiểu.',
   },

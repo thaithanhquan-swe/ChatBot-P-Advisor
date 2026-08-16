@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ChevronRightIcon, MessageCircleQuestionIcon } from '@/assets/icons';
 import { popularQuestions } from '../../../../../data/data';
+import { ChevronRight, MessageCircle } from 'lucide-react';
 
 const FaqSection = () => {
   return (
@@ -8,7 +8,7 @@ const FaqSection = () => {
       <div className='container'>
         <div className='mx-auto max-w-140 text-center'>
           <div className='mx-auto flex h-11 w-11 items-center justify-center rounded-(--radius-card) bg-(--primary-color-soft)'>
-            <MessageCircleQuestionIcon size={20} className='text-(--primary-color)' />
+            <MessageCircle size={20} className='text-(--primary-color)' />
           </div>
           <h2 className='mt-4 text-[24px] font-bold text-gray-900 sm:text-[28px]'>
             Câu hỏi phổ biến
@@ -37,7 +37,7 @@ const FaqSection = () => {
                 </p>
               </div>
 
-              <ChevronRightIcon
+              <ChevronRight
                 size={18}
                 className='mt-1 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-(--primary-color)'
               />
@@ -51,7 +51,7 @@ const FaqSection = () => {
             className='inline-flex items-center gap-2 rounded-xl border border-(--primary-color) px-6 py-3 text-[13.5px] font-semibold text-(--primary-color) transition-colors hover:bg-(--primary-color-soft)'
           >
             Xem tất cả câu hỏi thường gặp
-            <ChevronRightIcon size={16} />
+            <ChevronRight size={16} />
           </Link>
         </div>
       </div>

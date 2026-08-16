@@ -1,13 +1,6 @@
 import { Link } from 'react-router-dom';
-import {
-  ArrowRightIcon,
-  BotIcon,
-  MessageCircleIcon,
-  ShieldCheckIcon,
-  UserCheckIcon,
-  ZapIcon,
-} from '@/assets/icons';
 import { images } from '@/assets/images';
+import { ArrowRight, Bot, MessageCircle, ShieldCheck, UserCheck, Zap } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -17,7 +10,7 @@ const Hero = () => {
           {/* Left: copy */}
           <div>
             <span className='inline-flex items-center gap-2 rounded-(--radius-pill) border border-(--primary-color-border) bg-(--primary-color-soft) px-4 py-2 text-[13px] font-semibold text-(--primary-color)'>
-              <BotIcon size={15} />
+              <Bot size={15} />
               Chatbot tư vấn tuyển sinh PTIT
             </span>
 
@@ -36,22 +29,22 @@ const Hero = () => {
               to='/chatai'
               className='mt-8 inline-flex items-center gap-2.5 rounded-xl bg-(--primary-color) px-6 py-3.5 text-[14.5px] font-semibold text-white shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)'
             >
-              <MessageCircleIcon size={18} />
+              <MessageCircle size={18} />
               Bắt đầu trò chuyện ngay
-              <ArrowRightIcon size={16} />
+              <ArrowRight size={16} />
             </Link>
 
             <div className='mt-9 flex flex-wrap items-center gap-x-7 gap-y-3'>
               <div className='flex items-center gap-2 text-[13px] font-medium text-gray-600'>
-                <ZapIcon size={16} className='text-(--primary-color)' />
+                <Zap size={16} className='text-(--primary-color)' />
                 Trả lời nhanh 24/7
               </div>
               <div className='flex items-center gap-2 text-[13px] font-medium text-gray-600'>
-                <ShieldCheckIcon size={16} className='text-(--primary-color)' />
+                <ShieldCheck size={16} className='text-(--primary-color)' />
                 Thông tin chính xác
               </div>
               <div className='flex items-center gap-2 text-[13px] font-medium text-gray-600'>
-                <UserCheckIcon size={16} className='text-(--primary-color)' />
+                <UserCheck size={16} className='text-(--primary-color)' />
                 Hỗ trợ tận tình
               </div>
             </div>
