@@ -1,31 +1,42 @@
 import { LogIn } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const Nav = ({ navItems }) => {
+  const { pathname } = useLocation();
   return (
     <nav className='h-full items-center gap-8 flex'>
-      {navItems.map((item) => (
-        <div
-          key={item.label}
-          className={`group relative flex h-full items-center ${
-            item.active ? 'text-(--primary-color)' : 'text-gray-800'
-          }`}
-        >
-          <Link
-            to={item.href}
-            className={`flex h-full items-center gap-1.5 whitespace-nowrap text-[14px] transition-colors ${
-              item.active ? 'font-semibold' : 'font-medium hover:text-(--primary-color)'
+      {navItems.map((item) => {
+        const isActive =
+          item.href !== '#' &&
+          (item.href === '/'
+            ? pathname === '/'
+            : pathname === item.href || pathname.startsWith(`${item.href}/`));
+
+        return (
+          <div
+            key={item.label}
+            className={`group relative flex h-full items-center ${
+              isActive ? 'text-(--primary-color)' : 'text-gray-800'
             }`}
           >
-            {item.icon && <item.icon size={16} />}
-            {item.label}
-          </Link>
+            <Link
+              to={item.href}
+              className={`flex h-full items-center gap-1.5 whitespace-nowrap text-[14px] transition-colors duration-300 ${
+                isActive ? 'font-semibold' : 'font-medium hover:text-(--primary-color)'
+              }`}
+            >
+              {item.icon && <item.icon size={16} />}
+              {item.label}
+            </Link>
 
-          {item.active && (
-            <span className='absolute bottom-3.75 left-0 h-0.5 w-full rounded bg-(--primary-color)' />
-          )}
-        </div>
-      ))}
+            <span
+              className={`absolute bottom-3.75 left-0 h-0.5 w-full origin-center rounded bg-(--primary-color) transition-all duration-300 ease-out ${
+                isActive ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
+              }`}
+            />
+          </div>
+        );
+      })}
 
       <Link
         to='/chat'

@@ -7,13 +7,12 @@ import Nav from './components/Nav';
 const navItems = [
   {
     label: 'Trang chủ',
-    href: '#',
-    active: true,
+    href: '/',
     icon: House,
   },
   {
     label: 'Trang chat',
-    href: '#',
+    href: '/chatai',
     icon: MessageCircleMore,
   },
   {

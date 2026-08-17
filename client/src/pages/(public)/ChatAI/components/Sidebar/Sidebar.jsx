@@ -1,7 +1,7 @@
-import { MessageSquareText, Plus, X } from 'lucide-react';
+import { MessageSquareText, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
 import { conversationHistory } from '@/data/data';
 
-const Sidebar = ({ open, onClose, activeId, onSelect, onNewChat }) => {
+const Sidebar = ({ open, collapsed, onClose, onToggleCollapse, activeId, onSelect, onNewChat }) => {
   return (
     <>
       {open && (
@@ -13,23 +13,30 @@ const Sidebar = ({ open, onClose, activeId, onSelect, onNewChat }) => {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-(--border-subtle) bg-white transition-transform duration-300 ease-out lg:static lg:z-auto lg:w-64 lg:translate-x-0 ${
-          open ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-(--border-subtle) bg-white transition-all duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
+          collapsed ? 'lg:w-16' : 'lg:w-64'
+        } ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className='flex items-center justify-between px-4 py-4 lg:px-4'>
-          <h2 className='text-[13.5px] font-semibold text-gray-900'>Lịch sử hội thoại</h2>
+          <h2
+            className={`text-[13.5px] font-semibold whitespace-nowrap text-gray-900 ${
+              collapsed ? 'lg:hidden' : ''
+            }`}
+          >
+            Lịch sử hội thoại
+          </h2>
           <button
             type='button'
-            onClick={onClose}
-            className='rounded-(--radius-card) p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden'
-            aria-label='Đóng'
+            onClick={onToggleCollapse}
+            className='hidden rounded-(--radius-card) cursor-pointer p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-(--primary-color) lg:flex'
+            aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+            title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
           >
-            <X size={18} />
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           </button>
         </div>
 
-        <div className='px-4 pb-3 lg:px-4'>
+        <div className={`px-4 pb-3 lg:px-4 ${collapsed ? 'lg:hidden' : ''}`}>
           <button
             type='button'
             onClick={onNewChat}
@@ -40,7 +47,11 @@ const Sidebar = ({ open, onClose, activeId, onSelect, onNewChat }) => {
           </button>
         </div>
 
-        <div className='min-h-0 flex-1 overflow-y-auto px-2 pb-4 lg:px-2'>
+        <div
+          className={`min-h-0 flex-1 overflow-y-auto px-2 pb-4 lg:px-2 ${
+            collapsed ? 'lg:hidden' : ''
+          }`}
+        >
           {conversationHistory.length === 0 ? (
             <p className='px-3 py-6 text-center text-[13px] text-(--text-tertiary)'>
               Chưa có cuộc hội thoại nào.
@@ -67,7 +78,11 @@ const Sidebar = ({ open, onClose, activeId, onSelect, onNewChat }) => {
           )}
         </div>
 
-        <div className='flex items-start gap-2.5 border-t border-(--border-subtle) px-4 py-4 lg:px-4'>
+        <div
+          className={`flex items-start gap-2.5 border-t border-(--border-subtle) px-4 py-4 lg:px-4 ${
+            collapsed ? 'lg:hidden' : ''
+          }`}
+        >
           <MessageSquareText size={15} className='mt-0.5 shrink-0 text-(--primary-color)' />
           <p className='text-[11.5px] leading-relaxed text-(--text-secondary)'>
             Trợ lý AI dựa trên dữ liệu tuyển sinh chính thức của PTIT.

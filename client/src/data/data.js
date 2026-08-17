@@ -1,4 +1,3 @@
-
 // "iconKey" chỉ là một cái tên để component tự chọn icon tương ứng khi hiển thị.
 export const popularQuestions = [
   { number: '01', iconKey: 'ClipboardList', question: 'Điều kiện xét tuyển vào PTIT là gì?' },
@@ -54,8 +53,16 @@ const answerBank = [
           'Xét tuyển kết hợp theo đề án riêng của Học viện',
         ],
       },
-      { type: 'highlight', content: 'Mỗi phương thức có chỉ tiêu và điều kiện riêng, thí sinh có thể đăng ký đồng thời nhiều phương thức.' },
-      { type: 'link', label: 'Xem chi tiết đề án tuyển sinh 2026', href: 'https://tuyensinh.ptit.edu.vn/' },
+      {
+        type: 'highlight',
+        content:
+          'Mỗi phương thức có chỉ tiêu và điều kiện riêng, thí sinh có thể đăng ký đồng thời nhiều phương thức.',
+      },
+      {
+        type: 'link',
+        label: 'Xem chi tiết đề án tuyển sinh 2026',
+        href: 'https://tuyensinh.ptit.edu.vn/',
+      },
     ],
     source: 'Đề án tuyển sinh PTIT 2026',
     followUps: ['Hỏi về phương thức xét tuyển học bạ', 'Xem điểm chuẩn'],
@@ -83,7 +90,11 @@ const answerBank = [
   {
     match: ['điểm chuẩn', 'điểm sàn'],
     blocks: [
-      { type: 'text', content: 'Điểm chuẩn 2025 theo kết quả thi tốt nghiệp THPT (thang 30), một số ngành tiêu biểu:' },
+      {
+        type: 'text',
+        content:
+          'Điểm chuẩn 2025 theo kết quả thi tốt nghiệp THPT (thang 30), một số ngành tiêu biểu:',
+      },
       {
         type: 'table',
         columns: ['Ngành', 'Cơ sở Hà Nội', 'Cơ sở TP.HCM'],
@@ -93,7 +104,11 @@ const answerBank = [
           ['Marketing số', '24.5', '23.8'],
         ],
       },
-      { type: 'highlight', content: 'Điểm chuẩn theo học bạ và các phương thức khác được công bố riêng, thường thấp hơn 1–2 điểm.' },
+      {
+        type: 'highlight',
+        content:
+          'Điểm chuẩn theo học bạ và các phương thức khác được công bố riêng, thường thấp hơn 1–2 điểm.',
+      },
     ],
     source: 'Thông báo điểm chuẩn PTIT 2025',
     followUps: ['Điểm chuẩn theo học bạ là bao nhiêu?', 'Xem các ngành đào tạo'],
@@ -111,7 +126,10 @@ const answerBank = [
           ['Liên kết quốc tế', '55 – 65 triệu'],
         ],
       },
-      { type: 'highlight', content: 'Học phí được điều chỉnh theo lộ trình hằng năm theo quy định của Nhà nước.' },
+      {
+        type: 'highlight',
+        content: 'Học phí được điều chỉnh theo lộ trình hằng năm theo quy định của Nhà nước.',
+      },
     ],
     source: 'Thông báo học phí PTIT năm học 2025–2026',
     followUps: ['Tìm hiểu học bổng', 'Học phí ngành CNTT bao nhiêu?'],
@@ -130,8 +148,16 @@ const answerBank = [
           'Ảnh thẻ 3x4',
         ],
       },
-      { type: 'text', content: 'Hồ sơ nộp trực tuyến qua cổng tuyển sinh hoặc trực tiếp tại Học viện trong thời gian quy định.' },
-      { type: 'link', label: 'Nộp hồ sơ trực tuyến tại đây', href: 'https://tuyensinh.ptit.edu.vn/' },
+      {
+        type: 'text',
+        content:
+          'Hồ sơ nộp trực tuyến qua cổng tuyển sinh hoặc trực tiếp tại Học viện trong thời gian quy định.',
+      },
+      {
+        type: 'link',
+        label: 'Nộp hồ sơ trực tuyến tại đây',
+        href: 'https://tuyensinh.ptit.edu.vn/',
+      },
     ],
     source: 'Hướng dẫn hồ sơ tuyển sinh PTIT 2026',
     followUps: ['Thời hạn nộp hồ sơ đến khi nào?', 'Xem các phương thức xét tuyển'],
@@ -148,7 +174,11 @@ const answerBank = [
           'Học bổng doanh nghiệp tài trợ (FPT, Viettel, VNPT...)',
         ],
       },
-      { type: 'highlight', content: 'Tổng giá trị học bổng toàn khóa có thể lên đến 100% học phí với sinh viên xuất sắc.' },
+      {
+        type: 'highlight',
+        content:
+          'Tổng giá trị học bổng toàn khóa có thể lên đến 100% học phí với sinh viên xuất sắc.',
+      },
     ],
     source: 'Quy chế học bổng PTIT 2025–2026',
     followUps: ['Học phí PTIT bao nhiêu?', 'Điều kiện nhận học bổng tài năng?'],
@@ -168,11 +198,11 @@ const fallbackAnswer = {
   isFallback: true,
 };
 
-export function getAnswerFor(question) {
-  const q = question.toLowerCase();
-  const found = answerBank.find((entry) => entry.match.some((keyword) => q.includes(keyword)));
-  const answer = found ?? fallbackAnswer;
-  return { ...answer, time: formatTime() };
-}
+export const getAnswerFor = (question) => ({
+  ...(answerBank.find(({ match }) =>
+    match.some((keyword) => question.toLowerCase().includes(keyword))
+  ) ?? fallbackAnswer),
+  time: formatTime(),
+});
 
 export const nowTime = formatTime;

@@ -9,64 +9,66 @@ import ChatInput from './components/ChatInput/ChatInput';
 import TrustNote from './components/TrustNote/TrustNote';
 import { getAnswerFor, nowTime } from '@/data/data';
 
-let messageIdCounter = 0;
-const nextId = () => {
-  messageIdCounter += 1;
-  return `m${messageIdCounter}`;
-};
+const MOCK_REPLY_DELAY = 900;
+const createMessageId = () => crypto.randomUUID();
 
 function ChatAI() {
   const location = useLocation();
+
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState(null);
-
   const scrollAnchorRef = useRef(null);
 
+  // Tự động cuộn xuống tin nhắn mới nhất.
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages, isTyping]);
 
-  const sendMessage = (text) => {
+  const handleSendMessage = (text) => {
     const question = text.trim();
     if (!question || isTyping) return;
 
     setMessages((prev) => [
       ...prev,
-      { id: nextId(), role: 'user', content: question, time: nowTime() },
+      {
+        id: createMessageId(),
+        role: 'user',
+        content: question,
+        time: nowTime(),
+      },
     ]);
     setInput('');
     setIsTyping(true);
 
-    // Simulated AI latency — swap for a real API call to the /server backend.
+    // Giả lập thời gian chatbot trả lời từ dữ liệu hard-code.
     setTimeout(() => {
       const answer = getAnswerFor(question);
+
       setMessages((prev) => [
         ...prev,
         {
-          id: nextId(),
+          id: createMessageId(),
           role: 'assistant',
-          blocks: answer.blocks,
-          source: answer.source,
-          followUps: answer.followUps,
-          isFallback: answer.isFallback,
-          time: answer.time,
+          ...answer,
         },
       ]);
       setIsTyping(false);
-    }, 900);
+    }, MOCK_REPLY_DELAY);
   };
 
-  // Arriving from a "popular question" card on the Home page sends the
-  // question straight away instead of just filling the input.
+  // Gửi luôn câu hỏi được chọn từ trang chủ.
   useEffect(() => {
     const prefill = location.state?.prefill;
-    if (prefill) {
-      sendMessage(prefill);
-      window.history.replaceState({}, document.title);
-    }
+    if (!prefill) return;
+
+    const timer = setTimeout(() => handleSendMessage(prefill), 0);
+    window.history.replaceState({}, document.title);
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -82,7 +84,6 @@ function ChatAI() {
   };
 
   const handleSelectConversation = (id) => {
-    // In a real app this would fetch and load the conversation's messages.
     setActiveConversationId(id);
     setSidebarOpen(false);
   };
@@ -91,7 +92,9 @@ function ChatAI() {
     <div className='flex h-[calc(100dvh-86px)] w-full overflow-hidden bg-white'>
       <Sidebar
         open={sidebarOpen}
+        collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
+        onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
         activeId={activeConversationId}
         onSelect={handleSelectConversation}
         onNewChat={handleNewChat}
@@ -107,11 +110,11 @@ function ChatAI() {
 
         <div className='min-h-0 flex-1 overflow-y-auto'>
           {messages.length === 0 ? (
-            <WelcomeIntro onPickQuestion={sendMessage} />
+            <WelcomeIntro onPickQuestion={handleSendMessage} />
           ) : (
             <div className='mx-auto flex max-w-160 flex-col gap-5 px-4 py-6 sm:px-6'>
               {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} onFollowUp={sendMessage} />
+                <MessageBubble key={message.id} message={message} onFollowUp={handleSendMessage} />
               ))}
               {isTyping && <TypingIndicator />}
               <div ref={scrollAnchorRef} />
@@ -123,7 +126,7 @@ function ChatAI() {
         <ChatInput
           value={input}
           onChange={setInput}
-          onSubmit={() => sendMessage(input)}
+          onSubmit={() => handleSendMessage(input)}
           disabled={isTyping || input.trim().length === 0}
         />
       </div>
