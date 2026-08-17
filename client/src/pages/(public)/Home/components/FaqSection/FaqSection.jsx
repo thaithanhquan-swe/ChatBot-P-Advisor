@@ -1,6 +1,24 @@
 import { Link } from 'react-router-dom';
 import { popularQuestions } from '../../../../../data/data';
-import { ChevronRight, MessageCircle } from 'lucide-react';
+import {
+  Award,
+  Building2,
+  CalendarClock,
+  ChevronRight,
+  ClipboardList,
+  GraduationCap,
+  MessageCircle,
+  Wallet,
+} from 'lucide-react';
+
+const ICONS = {
+  ClipboardList,
+  Wallet,
+  GraduationCap,
+  CalendarClock,
+  Award,
+  Building2,
+};
 
 const FaqSection = () => {
   return (
@@ -19,7 +37,9 @@ const FaqSection = () => {
         </div>
 
         <div className='mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-          {popularQuestions.map(({ number, icon: Icon, question }) => (
+          {popularQuestions.map(({ number, iconKey, question }) => {
+            const Icon = ICONS[iconKey];
+            return (
             <Link
               key={number}
               to='/chatai'
@@ -42,7 +62,8 @@ const FaqSection = () => {
                 className='mt-1 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-(--primary-color)'
               />
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         <div className='mt-9 text-center'>
