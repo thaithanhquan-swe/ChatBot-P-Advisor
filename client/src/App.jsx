@@ -6,6 +6,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
 import PendingQuestions from './pages/(admin)/PendingQuestions';
+import FAQPublic from './pages/(public)/FAQ';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path='/' element={<PublicLayout />}>
         <Route index element={<Home />} />
         <Route path='chatai' element={<ChatAI />} />
+        <Route path='/faq' element={<FAQPublic />} />
       </Route>
 
       <Route path='/admin' element={<AdminLayout />}>
