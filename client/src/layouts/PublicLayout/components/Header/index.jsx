@@ -17,7 +17,7 @@ const navItems = [
   },
   {
     label: 'FAQ',
-    href: '#',
+    href: '/faq',
     icon: CircleQuestionMark,
   },
   {
