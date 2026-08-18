@@ -1,4 +1,7 @@
 package com.example.server.enums;
 
-public class Role {
+public enum Role {
+    ADMIN,
+    ADVISOR,
+    USER,
 }
