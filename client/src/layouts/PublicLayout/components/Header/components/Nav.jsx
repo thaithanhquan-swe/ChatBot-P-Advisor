@@ -39,7 +39,7 @@ const Nav = ({ navItems }) => {
       })}
 
       <Link
-        to='/chat'
+        to='/login'
         className='flex h-11 items-center justify-center gap-2 text-white rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold transition-all duration-200 hover:shadow-lg'
       >
         <LogIn size={16} />
