@@ -26,7 +26,7 @@ const AuthCard = ({ children }) => {
         ))}
       </div>
 
-      <div className='p-7 sm:p-10'>{children}</div>
+      <div className='p-7'>{children}</div>
     </div>
   );
 };
