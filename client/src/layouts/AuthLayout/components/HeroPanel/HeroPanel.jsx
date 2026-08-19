@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Clock, FileText, MessageCircleMore, ShieldCheck } from 'lucide-react';
 
 import { images } from '@/assets/images';
@@ -27,11 +27,8 @@ const features = [
 ];
 
 const HeroPanel = () => {
-  const { pathname } = useLocation();
-  const isRegister = pathname === '/register';
-
   return (
-    <aside className='relative hidden overflow-hidden bg-[#fffdfd] lg:flex lg:w-[47%] lg:shrink-0 lg:flex-col lg:justify-center lg:px-12 xl:px-16'>
+    <aside className='relative hidden overflow-hidden bg-[#fffdfd] lg:block lg:w-[47%] lg:shrink-0 lg:px-12 xl:px-16'>
       {/* Decorative blobs */}
       <div className='pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#fdeef0] blur-3xl' />
       <div className='pointer-events-none absolute -right-16 -bottom-28 h-80 w-80 rounded-full bg-[#fdeef0] blur-3xl' />
@@ -44,24 +41,16 @@ const HeroPanel = () => {
         className='pointer-events-none absolute -bottom-2 left-[-8%] w-[150%] max-w-none opacity-[0.22]'
       />
 
-      <div className='relative z-10'>
+      <div className='relative z-10 flex mt-5 flex-col justify-center'>
         <Link to='/' className='inline-flex items-center gap-3'>
           <img
             src={images.Logo_PTIT_University}
             alt='PTIT'
-            className='h-[82px] w-[82px] object-contain'
+            className='h-20.5 w-20.5 object-contain'
           />
-          {isRegister && (
-            <span className='border-l border-[#eee] pl-3 text-[15px] font-bold leading-relaxed text-(--primary-color)'>
-              PTIT Admission Chatbot
-              <small className='mt-0.5 block text-[11px] font-normal text-(--text-secondary)'>
-                Trợ lý tư vấn tuyển sinh thông minh
-              </small>
-            </span>
-          )}
         </Link>
 
-        <h1 className={`text-[27px] leading-snug font-bold text-gray-900 xl:text-[31px] ${isRegister ? 'mt-14' : 'mt-10'}`}>
+        <h1 className='text-[27px] leading-snug font-bold text-gray-900 xl:text-[31px] mt-10'>
           Chào mừng bạn đến với
           <br />
           <span className='text-(--primary-color)'>PTIT Admission Chatbot</span>

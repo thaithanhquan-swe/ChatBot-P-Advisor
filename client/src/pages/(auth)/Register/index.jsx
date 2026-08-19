@@ -112,7 +112,7 @@ const Register = () => {
 
         <button
           type='submit'
-          className='flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--primary-color) text-[14.5px] font-semibold text-white shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)'
+          className='flex cursor-pointer h-12 w-full items-center justify-center gap-2 rounded-xl bg-(--primary-color) text-[14.5px] font-semibold text-white shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)'
         >
           Đăng ký
           <ArrowRight size={17} />
