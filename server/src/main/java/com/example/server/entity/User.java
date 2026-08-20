@@ -28,6 +28,10 @@ public class User {
     String password;
     String phone;
 
+    @Builder.Default
+    @Column(nullable = false)
+    boolean emailVerified = false;
+
     @CreationTimestamp
     Instant created_at;
 

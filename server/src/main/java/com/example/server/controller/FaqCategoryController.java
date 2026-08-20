@@ -3,6 +3,7 @@ package com.example.server.controller;
 import com.example.server.dto.ApiResponse;
 import com.example.server.dto.request.FaqCategoryRequest;
 import com.example.server.dto.response.FaqCategoryResponse;
+import com.example.server.dto.response.PageResponse;
 import com.example.server.service.FaqCategoryService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/faq-categories")
@@ -36,9 +36,11 @@ public class FaqCategoryController {
     }
 
     @GetMapping
-    public ApiResponse<List<FaqCategoryResponse>> getAll() {
-        return ApiResponse.<List<FaqCategoryResponse>>builder()
-                .result(faqCategoryService.getAll())
+    public ApiResponse<PageResponse<FaqCategoryResponse>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<FaqCategoryResponse>>builder()
+                .result(faqCategoryService.getAll(page, size))
                 .build();
     }
 

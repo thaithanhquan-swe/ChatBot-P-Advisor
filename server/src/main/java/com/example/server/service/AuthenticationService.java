@@ -5,6 +5,7 @@ import com.example.server.dto.response.AuthenticationResponse;
 import com.example.server.dto.response.IntrospectResponse;
 import com.example.server.dto.response.UserResponse;
 import com.example.server.entity.InvalidatedToken;
+import com.example.server.entity.EmailVerificationToken;
 import com.example.server.entity.PasswordResetToken;
 import com.example.server.entity.Role;
 import com.example.server.entity.User;
@@ -13,6 +14,7 @@ import com.example.server.exception.ErrorCode;
 import com.example.server.mapper.UserMapper;
 import com.example.server.mail.MailService;
 import com.example.server.repository.InvalidatedTokenRepository;
+import com.example.server.repository.EmailVerificationTokenRepository;
 import com.example.server.repository.PasswordResetTokenRepository;
 import com.example.server.repository.RoleRepository;
 import com.example.server.repository.UserRepository;
@@ -50,6 +52,7 @@ public class AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     PasswordResetTokenRepository passwordResetTokenRepository;
+    EmailVerificationTokenRepository emailVerificationTokenRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
@@ -71,8 +74,13 @@ public class AuthenticationService {
     @Value("${app.password-reset.expiration-minutes:15}")
     protected long PASSWORD_RESET_EXPIRATION_MINUTES;
 
+    @NonFinal
+    @Value("${app.email-verification.expiration-minutes:1440}")
+    protected long EMAIL_VERIFICATION_EXPIRATION_MINUTES;
+
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
+    @Transactional
     public UserResponse register(UserRegisterRequest request) {
         User user = userMapper.toUser(request);
         user.setEmail(request.getEmail().trim().toLowerCase());
@@ -89,7 +97,29 @@ public class AuthenticationService {
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+        String rawToken = generateResetToken();
+        emailVerificationTokenRepository.save(EmailVerificationToken.builder()
+                .tokenHash(hashResetToken(rawToken))
+                .user(user)
+                .expiresAt(Instant.now().plus(EMAIL_VERIFICATION_EXPIRATION_MINUTES, ChronoUnit.MINUTES))
+                .build());
+        mailService.sendVerificationEmail(user.getEmail(), user.getUsername(), rawToken,
+                EMAIL_VERIFICATION_EXPIRATION_MINUTES);
         return userMapper.toUserResponse(user);
+    }
+
+    @Transactional
+    public void verifyEmail(String rawToken) {
+        EmailVerificationToken token = emailVerificationTokenRepository
+                .findByTokenHash(hashResetToken(rawToken))
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_VERIFICATION_TOKEN));
+        if (!token.getExpiresAt().isAfter(Instant.now())) {
+            throw new AppException(ErrorCode.INVALID_VERIFICATION_TOKEN);
+        }
+        User user = token.getUser();
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        emailVerificationTokenRepository.deleteAllByUser(user);
     }
 
     public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
@@ -113,6 +143,9 @@ public class AuthenticationService {
 
         if (!authentiacated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        if (!user.isEmailVerified()) {
+            throw new AppException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         var token = generateToken(user);
