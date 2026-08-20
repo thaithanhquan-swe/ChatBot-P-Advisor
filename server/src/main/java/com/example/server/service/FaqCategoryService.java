@@ -2,6 +2,7 @@ package com.example.server.service;
 
 import com.example.server.dto.request.FaqCategoryRequest;
 import com.example.server.dto.response.FaqCategoryResponse;
+import com.example.server.dto.response.PageResponse;
 import com.example.server.entity.FaqCategory;
 import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
@@ -11,9 +12,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -25,14 +28,17 @@ public class FaqCategoryService {
     @Transactional
     public FaqCategoryResponse create(FaqCategoryRequest request) {
         FaqCategory category = faqCategoryMapper.toFaqCategory(request);
+        LocalDateTime now = LocalDateTime.now();
+        category.setCreatedAt(now);
+        category.setUpdatedAt(now);
         return faqCategoryMapper.toFaqCategoryResponse(faqCategoryRepository.save(category));
     }
 
     @Transactional(readOnly = true)
-    public List<FaqCategoryResponse> getAll() {
-        return faqCategoryRepository.findAll().stream()
-                .map(faqCategoryMapper::toFaqCategoryResponse)
-                .toList();
+    public PageResponse<FaqCategoryResponse> getAll(int page, int size) {
+        var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return PageResponse.of(faqCategoryRepository.findAll(pageable)
+                .map(faqCategoryMapper::toFaqCategoryResponse));
     }
 
     @Transactional(readOnly = true)
@@ -44,6 +50,7 @@ public class FaqCategoryService {
     public FaqCategoryResponse update(String id, FaqCategoryRequest request) {
         FaqCategory category = findById(id);
         faqCategoryMapper.updateFaqCategory(category, request);
+        category.setUpdatedAt(LocalDateTime.now());
         return faqCategoryMapper.toFaqCategoryResponse(faqCategoryRepository.save(category));
     }
 
