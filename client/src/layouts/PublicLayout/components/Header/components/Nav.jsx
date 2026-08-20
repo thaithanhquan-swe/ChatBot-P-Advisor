@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 const Nav = ({ navItems }) => {
   const { pathname } = useLocation();
+
   return (
-    <nav className='h-full items-center gap-8 flex'>
+    <nav className='flex h-full items-center gap-8'>
       {navItems.map((item) => {
         const isActive =
           item.href !== '#' &&
@@ -40,7 +41,7 @@ const Nav = ({ navItems }) => {
 
       <Link
         to='/login'
-        className='flex h-11 items-center justify-center gap-2 text-white rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold transition-all duration-200 hover:shadow-lg'
+        className='flex h-11 items-center justify-center gap-2 rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold text-white transition-all duration-200 hover:shadow-lg'
       >
         <LogIn size={16} />
         Đăng nhập
