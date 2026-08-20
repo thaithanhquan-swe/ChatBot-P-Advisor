@@ -12,6 +12,7 @@ import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
 import PendingQuestions from './pages/(admin)/PendingQuestions';
 import FAQPublic from './pages/(public)/FAQ';
+import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path='chatai' element={<ChatAI />} />
         <Route path='/faq' element={<FAQPublic />} />
+        <Route path='consultation-request' element={<ConsultationRequestPage />} />
       </Route>
 
       <Route element={<AuthLayout />}>

@@ -40,28 +40,28 @@ const FaqSection = () => {
           {popularQuestions.map(({ number, iconKey, question }) => {
             const Icon = ICONS[iconKey];
             return (
-            <Link
-              key={number}
-              to='/chatai'
-              state={{ prefill: question }}
-              className='group flex items-start gap-4 rounded-(--radius-card) border border-(--border-subtle) bg-white p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:border-(--primary-color-border) hover:shadow-(--shadow-card-hover)'
-            >
-              <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--primary-color-soft)'>
-                <Icon size={20} className='text-(--primary-color)' strokeWidth={1.8} />
-              </div>
+              <Link
+                key={number}
+                to='/chatai'
+                state={{ prefill: question }}
+                className='group flex items-start gap-4 rounded-(--radius-card) border border-(--border-subtle) bg-white p-5 shadow-(--shadow-card) transition-all hover:-translate-y-0.5 hover:border-(--primary-color-border) hover:shadow-(--shadow-card-hover)'
+              >
+                <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--primary-color-soft)'>
+                  <Icon size={20} className='text-(--primary-color)' strokeWidth={1.8} />
+                </div>
 
-              <div className='min-w-0 flex-1'>
-                <span className='text-[12px] font-semibold text-gray-300'>{number}</span>
-                <p className='mt-0.5 text-[14.5px] leading-snug font-semibold text-gray-800'>
-                  {question}
-                </p>
-              </div>
+                <div className='min-w-0 flex-1'>
+                  <span className='text-[12px] font-semibold text-gray-300'>{number}</span>
+                  <p className='mt-0.5 text-[14.5px] leading-snug font-semibold text-gray-800'>
+                    {question}
+                  </p>
+                </div>
 
-              <ChevronRight
-                size={18}
-                className='mt-1 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-(--primary-color)'
-              />
-            </Link>
+                <ChevronRight
+                  size={18}
+                  className='mt-1 shrink-0 text-gray-300 transition-all group-hover:translate-x-0.5 group-hover:text-(--primary-color)'
+                />
+              </Link>
             );
           })}
         </div>

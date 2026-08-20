@@ -32,6 +32,12 @@ public class AuthenticationController {
                 .build();
     }
 
+    @PostMapping("/verify-email")
+    ApiResponse<Void> verifyEmail(@RequestBody @Valid VerifyEmailRequest request) {
+        authService.verifyEmail(request.getToken());
+        return ApiResponse.<Void>builder().message("Email verified successfully.").build();
+    }
+
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         return ApiResponse.<AuthenticationResponse>builder()

@@ -21,6 +21,24 @@ public class MailService {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
+    public void sendVerificationEmail(String email, String username, String token, long expirationMinutes) {
+        String verificationUrl = UriComponentsBuilder.fromUriString(frontendUrl)
+                .path("/verify-email")
+                .queryParam("token", token)
+                .build().encode().toUriString();
+
+        String content = """
+                Xin chào %s,
+
+                Cảm ơn bạn đã đăng ký ChatBot P-Advisor.
+                Vui lòng xác thực email bằng liên kết sau:
+                %s
+
+                Liên kết có hiệu lực trong %d phút.
+                """.formatted(username, verificationUrl, expirationMinutes);
+        send(email, "Xác thực email ChatBot P-Advisor", content);
+    }
+
     public void sendResetPasswordEmail(String email, String username, String token, long expirationMinutes) {
         String resetUrl = UriComponentsBuilder.fromUriString(frontendUrl)
                 .path("/reset-password")
@@ -41,11 +59,15 @@ public class MailService {
                 Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.
                 """.formatted(username, resetUrl, expirationMinutes);
 
+        send(email, "Đặt lại mật khẩu ChatBot P-Advisor", content);
+    }
+
+    private void send(String email, String subject, String content) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(from);
             message.setTo(email);
-            message.setSubject("Đặt lại mật khẩu ChatBot P-Advisor");
+            message.setSubject(subject);
             message.setText(content);
             mailSender.send(message);
         } catch (MailException exception) {

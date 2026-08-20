@@ -2,6 +2,7 @@ package com.example.server.service;
 
 import com.example.server.dto.request.RoleRequest;
 import com.example.server.dto.response.RoleResponse;
+import com.example.server.dto.response.PageResponse;
 import com.example.server.entity.Role;
 import com.example.server.mapper.RoleMapper;
 import com.example.server.repository.RoleRepository;
@@ -10,8 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +27,9 @@ public class RoleService {
         return roleMapper.toRoleResponse(savedRole);
     }
 
-    public List<RoleResponse> getAll(){
-        return roleRepository.findAll().stream().map(role -> roleMapper.toRoleResponse(role)).toList();
+    public PageResponse<RoleResponse> getAll(int page, int size){
+        return PageResponse.of(roleRepository.findAll(PageRequest.of(page, size))
+                .map(roleMapper::toRoleResponse));
     }
 
     public void delete(String roleId) {

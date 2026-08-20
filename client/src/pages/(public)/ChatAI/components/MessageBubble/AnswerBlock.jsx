@@ -9,7 +9,10 @@ const AnswerBlock = ({ block }) => {
       return (
         <ul className='flex flex-col gap-1.5'>
           {block.items.map((item) => (
-            <li key={item} className='flex items-start gap-2 text-[14px] leading-relaxed text-gray-700'>
+            <li
+              key={item}
+              className='flex items-start gap-2 text-[14px] leading-relaxed text-gray-700'
+            >
               <CheckCircle2 size={15} className='mt-0.5 shrink-0 text-(--primary-color)' />
               <span>{item}</span>
             </li>

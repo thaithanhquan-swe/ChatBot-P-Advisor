@@ -31,6 +31,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->request
                 .requestMatchers(HttpMethod.POST,
                         "/auth/register",
+                        "/auth/verify-email",
                         "/auth/login",
                         "/auth/refresh_token",
                         "/auth/introspect",
@@ -42,7 +43,9 @@ public class SecurityConfig {
                 .requestMatchers(
                         HttpMethod.GET,
                         "/faq-categories",
-                        "/faq-categories/{id}"
+                        "/faq-categories/{id}",
+                        "/faqs",
+                        "/faqs/{id}"
                 ).permitAll()
                 .anyRequest()
                 .authenticated());
