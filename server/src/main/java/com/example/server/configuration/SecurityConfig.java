@@ -38,6 +38,12 @@ public class SecurityConfig {
                         "/auth/forgot-password",
                         "/auth/reset-password"
                 ).permitAll()
+
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/faq-categories",
+                        "/faq-categories/{id}"
+                ).permitAll()
                 .anyRequest()
                 .authenticated());
 
