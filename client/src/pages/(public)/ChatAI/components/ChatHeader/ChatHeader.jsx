@@ -42,7 +42,9 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages }) => {
       <div className='flex shrink-0 items-center gap-2'>
         {confirmingClear ? (
           <div className='flex animate-fade-in-up items-center gap-1.5 rounded-(--radius-card) bg-gray-50 py-1 pr-1 pl-2.5'>
-            <span className='hidden text-[12px] font-medium text-gray-600 sm:inline'>Xoá đoạn chat?</span>
+            <span className='hidden text-[12px] font-medium text-gray-600 sm:inline'>
+              Xoá đoạn chat?
+            </span>
             <button
               type='button'
               onClick={handleConfirm}

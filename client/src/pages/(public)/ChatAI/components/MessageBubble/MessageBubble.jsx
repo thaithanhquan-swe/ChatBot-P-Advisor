@@ -25,7 +25,9 @@ const MessageBubble = ({ message, onFollowUp }) => {
         <div className='max-w-115 rounded-(--radius-card) rounded-tr-sm bg-(--primary-color) px-4 py-2.5 text-[14.5px] leading-relaxed text-white'>
           {message.content}
         </div>
-        {message.time && <span className='px-1 text-[11px] text-(--text-tertiary)'>{message.time}</span>}
+        {message.time && (
+          <span className='px-1 text-[11px] text-(--text-tertiary)'>{message.time}</span>
+        )}
       </div>
     );
   }
@@ -54,7 +56,9 @@ const MessageBubble = ({ message, onFollowUp }) => {
         </div>
 
         <div className='flex items-center gap-3 px-1'>
-          {message.time && <span className='text-[11px] text-(--text-tertiary)'>{message.time}</span>}
+          {message.time && (
+            <span className='text-[11px] text-(--text-tertiary)'>{message.time}</span>
+          )}
           <button
             type='button'
             onClick={handleCopy}

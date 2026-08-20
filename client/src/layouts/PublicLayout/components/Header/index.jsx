@@ -21,7 +21,7 @@ const navItems = [
   },
   {
     label: 'Yêu cầu tư vấn',
-    href: '/yeu-cau-tu-van',
+    href: '/consultation-request',
     icon: User,
   },
 ];
@@ -48,9 +48,7 @@ const Navbar = () => {
   return (
     <header
       className={`sticky top-0 z-50 w-full bg-white transition-all duration-700 ease-out ${
-        isVisible
-          ? 'translate-y-0 opacity-100'
-          : '-translate-y-full opacity-0 pointer-events-none'
+        isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
       }`}
     >
       <div className='mx-auto flex h-18.75 max-w-350 items-center justify-between px-8'>
