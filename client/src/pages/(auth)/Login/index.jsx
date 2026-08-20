@@ -47,7 +47,7 @@ const Login = () => {
         </AuthField>
 
         <div className='flex justify-end'>
-          <Link to='#' className='text-[13px] font-medium text-(--primary-color) hover:underline'>
+          <Link to='/forgot-password' className='text-[13px] font-medium text-(--primary-color) hover:underline'>
             Quên mật khẩu?
           </Link>
         </div>
