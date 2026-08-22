@@ -11,6 +11,7 @@ import FAQ from './pages/(admin)/FAQ';
 import PendingQuestions from './pages/(admin)/PendingQuestions';
 import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
+import UserManagement from './pages/(admin)/UserManagement/index.jsx';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path='faq' element={<FAQ />} />
         <Route path='pending-questions' element={<PendingQuestions />} />
+        <Route path="usermanagement" element={<UserManagement />} />
       </Route>
     </Routes>
   );
