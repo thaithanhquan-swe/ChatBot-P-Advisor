@@ -1,6 +1,6 @@
 package com.example.server.entity;
 
-import com.example.server.enums.FaqStatus;
+import com.example.server.enums.DocumentStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,32 +29,40 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @Entity
-@Table(name = "faqs")
-public class Faq {
+@Table(name = "documents")
+public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(nullable = false, length = 500)
-    String question;
+    @Column(nullable = false, length = 255)
+    String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    String answer;
+    @Column(columnDefinition = "TEXT")
+    String description;
+
+    @Column(name = "file_name", nullable = false, length = 255)
+    String fileName;
+
+    @Column(name = "file_url", nullable = false, length = 1000)
+    String fileUrl;
+
+    @Column(name = "file_type", nullable = false, length = 100)
+    String fileType;
+
+    @Column(name = "file_size", nullable = false)
+    Long fileSize;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    FaqStatus status = FaqStatus.DRAFT;
+    DocumentStatus status = DocumentStatus.DRAFT;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "faq_category_id", nullable = false)
-    FaqCategory faqCategory;
+    @JoinColumn(name = "uploaded_by", nullable = false)
+    User uploadedBy;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_by", nullable = false)
-    User createdBy;
-
-    @CreationTimestamp  
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
