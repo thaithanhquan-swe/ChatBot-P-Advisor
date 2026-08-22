@@ -5,6 +5,8 @@ import Home from './pages/(public)/Home';
 import ChatAI from './pages/(public)/ChatAI';
 import Login from './pages/(auth)/Login';
 import Register from './pages/(auth)/Register';
+import ForgotPassword from './pages/(auth)/ForgotPassword';
+import ResetPassword from './pages/(auth)/ResetPassword';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
@@ -26,6 +28,9 @@ function App() {
         <Route path='login' element={<Login />} />
         <Route path='register' element={<Register />} />
       </Route>
+      
+      <Route path='/forgot-password' element={<ForgotPassword />}/>
+      <Route path='/reset-password' element={<ResetPassword />}/>
 
       <Route path='/admin' element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
