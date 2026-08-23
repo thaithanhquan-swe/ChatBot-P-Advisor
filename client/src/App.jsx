@@ -32,7 +32,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path='faq' element={<FAQ />} />
         <Route path='pending-questions' element={<PendingQuestions />} />
-        <Route path="usermanagement" element={<UserManagement />} />
+        <Route path='users' element={<UserManagement />} />
       </Route>
     </Routes>
   );
