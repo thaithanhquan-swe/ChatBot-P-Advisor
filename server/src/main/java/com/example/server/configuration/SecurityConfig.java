@@ -37,7 +37,9 @@ public class SecurityConfig {
                         "/auth/introspect",
                         "/auth/logout",
                         "/auth/forgot-password",
-                        "/auth/reset-password"
+                        "/auth/reset-password",
+                        "/chat-sessions",
+                        "/chat-sessions/*/questions"
                 ).permitAll()
 
                 .requestMatchers(
@@ -45,8 +47,10 @@ public class SecurityConfig {
                         "/faq-categories",
                         "/faq-categories/{id}",
                         "/faqs",
-                        "/faqs/{id}"
+                        "/faqs/{id}",
+                        "/chat-sessions/*"
                 ).permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/chat-sessions/*").permitAll()
                 .anyRequest()
                 .authenticated());
 
