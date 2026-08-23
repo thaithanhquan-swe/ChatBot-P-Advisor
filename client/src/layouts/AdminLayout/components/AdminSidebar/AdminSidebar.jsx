@@ -19,7 +19,7 @@ function AdminSidebar() {
     },
     {
       label: 'Quản lý người dùng',
-      path: '/admin/users',
+      path: 'users',
       icon: Users,
     },
     {
