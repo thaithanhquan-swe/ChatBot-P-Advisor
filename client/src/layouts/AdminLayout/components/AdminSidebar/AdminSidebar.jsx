@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { BarChart3, BookOpen, CircleHelp, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, Settings, Users } from 'lucide-react';
 function AdminSidebar() {
   const menuItems = [
     {
@@ -8,9 +8,14 @@ function AdminSidebar() {
       icon: LayoutDashboard,
     },
     {
-      label: 'Quản lý FAQ / Tài liệu',
+      label: 'Quản lý FAQ',
       path: '/admin/faq',
       icon: BookOpen,
+    },
+    {
+      label: 'Quản lý tài liệu',
+      path: '/admin/documents',
+      icon: FileText,
     },
     {
       label: 'Câu hỏi tồn đọng',
