@@ -1,142 +1,83 @@
-import { Edit, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-const UserTable = () => {
-  // Chuyển dữ liệu tĩnh thành state để có thể tương tác Xóa/Sửa
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: 'Nguyễn Văn A',
-      email: 'nva@student.ptit.edu.vn',
-      role: 'USER',
-      status: 'ACTIVE',
-      createdAt: '22/08/2026',
-      updatedAt: '22/08/2026',
-    },
-    {
-      id: 2,
-      name: 'Trần Thị B',
-      email: 'ttb@ptit.edu.vn',
-      role: 'ADVISOR',
-      status: 'ACTIVE',
-      createdAt: '20/08/2026',
-      updatedAt: '21/08/2026',
-    },
-    {
-      id: 3,
-      name: 'Lê Văn C',
-      email: 'lvc@admin.ptit.edu.vn',
-      role: 'ADMIN',
-      status: 'INACTIVE',
-      createdAt: '15/08/2026',
-      updatedAt: '18/08/2026',
-    },
-  ]);
+const initialUsers = [
+  { id: 1, name: 'Nguyễn Văn A', email: 'nva@student.ptit.edu.vn', role: 'USER', status: 'ACTIVE', createdAt: '22/08/2026', updatedAt: '22/08/2026' },
+  { id: 2, name: 'Trần Thị B', email: 'ttb@ptit.edu.vn', role: 'ADVISOR', status: 'ACTIVE', createdAt: '20/08/2026', updatedAt: '21/08/2026' },
+  { id: 3, name: 'Lê Văn C', email: 'lvc@admin.ptit.edu.vn', role: 'ADMIN', status: 'INACTIVE', createdAt: '15/08/2026', updatedAt: '18/08/2026' },
+];
 
-  const getRoleColor = (role) => {
-    switch (role) {
-      case 'ADMIN':
-        return 'bg-purple-100 text-purple-800';
-      case 'ADVISOR':
-        return 'bg-blue-100 text-blue-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+const roleStyles = {
+  ADMIN: 'bg-red-50 text-[#D71920]',
+  ADVISOR: 'bg-orange-50 text-orange-600',
+  USER: 'bg-blue-50 text-blue-600',
+};
 
-  const getStatusColor = (status) => {
-    return status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-  };
+function UserTable() {
+  const [users, setUsers] = useState(initialUsers);
 
-  // Logic xử lý Xóa
   const handleDelete = (id, name) => {
     if (window.confirm(`Bạn có chắc chắn muốn vô hiệu hóa/xóa tài khoản của "${name}" không?`)) {
-      const updatedUsers = users.filter((user) => user.id !== id);
-      setUsers(updatedUsers);
+      setUsers((currentUsers) => currentUsers.filter((user) => user.id !== id));
     }
   };
 
-  // Logic xử lý Chỉnh sửa (Hiện tại đang gọi Alert để demo, sau này có thể mở Modal tại đây)
   const handleEdit = (user) => {
-    alert(`Mở bảng chỉnh sửa cho tài khoản: ${user.name} (${user.email})`);
-    // Logic set state cho form/modal chỉnh sửa sẽ nằm ở đây
+    window.alert(`Mở bảng chỉnh sửa cho tài khoản: ${user.name} (${user.email})`);
   };
 
   return (
-    <div className='overflow-x-auto'>
-      <table className='w-full text-left text-sm text-gray-500'>
-        <thead className='bg-gray-50 text-xs uppercase text-gray-700'>
-          <tr>
-            <th className='px-4 py-3'>Họ và tên</th>
-            <th className='px-4 py-3'>Email</th>
-            <th className='px-4 py-3'>Vai trò</th>
-            <th className='px-4 py-3'>Trạng thái</th>
-            <th className='px-4 py-3'>Ngày tạo</th>
-            <th className='px-4 py-3'>Cập nhật</th>
-            <th className='px-4 py-3 text-center'>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.length > 0 ? (
-            users.map((user) => (
-              <tr key={user.id} className='border-b hover:bg-gray-50'>
-                <td className='cursor-pointer px-4 py-3 font-medium text-gray-900 hover:text-red-600'>
-                  {user.name}
-                </td>
-                <td className='px-4 py-3'>{user.email}</td>
-                <td className='px-4 py-3'>
-                  <span
-                    className={`rounded px-2.5 py-0.5 text-xs font-medium ${getRoleColor(
-                      user.role
-                    )}`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-                <td className='px-4 py-3'>
-                  <span
-                    className={`rounded px-2.5 py-0.5 text-xs font-medium ${getStatusColor(
-                      user.status
-                    )}`}
-                  >
-                    {user.status}
-                  </span>
-                </td>
-                <td className='px-4 py-3'>{user.createdAt}</td>
-                <td className='px-4 py-3'>{user.updatedAt}</td>
-                <td className='px-4 py-3'>
-                  <div className='flex items-center justify-center space-x-3'>
-                    {/* Nút Chỉnh sửa */}
-                    <button
-                      onClick={() => handleEdit(user)}
-                      className='text-gray-500 hover:text-orange-500'
-                      title='Chỉnh sửa'
-                    >
-                      <Edit className='h-4 w-4' />
-                    </button>
-                    {/* Nút Xóa */}
-                    <button
-                      onClick={() => handleDelete(user.id, user.name)}
-                      className='text-gray-500 hover:text-red-600'
-                      title='Xóa'
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          ) : (
+    <div className='overflow-hidden rounded-lg border border-slate-200'>
+      <div className='overflow-x-auto'>
+        <table className='w-full min-w-[900px] text-left'>
+          <thead className='bg-slate-50/70 text-[10px] font-semibold text-slate-600'>
             <tr>
-              <td colSpan='7' className='px-4 py-8 text-center text-gray-500'>
-                Không có dữ liệu người dùng.
-              </td>
+              <th className='px-4 py-3'>Người dùng</th><th className='px-4 py-3'>Email</th>
+              <th className='px-4 py-3'>Vai trò</th><th className='px-4 py-3'>Trạng thái</th>
+              <th className='px-4 py-3'>Ngày tạo</th><th className='px-4 py-3'>Cập nhật</th>
+              <th className='px-4 py-3 text-right'>Thao tác</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.length ? users.map((user) => (
+              <tr key={user.id} className='border-b border-slate-100 text-[10px] hover:bg-slate-50/70'>
+                <td className='px-4 py-3'><p className='font-semibold text-slate-800'>{user.name}</p><p className='mt-1 text-[9px] text-slate-400'>UID-{String(user.id).padStart(4, '0')}</p></td>
+                <td className='px-4 py-3 text-slate-600'>{user.email}</td>
+                <td className='px-4 py-3'><Badge className={roleStyles[user.role]}>{user.role}</Badge></td>
+                <td className='px-4 py-3'><Badge className={user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'} dot>{user.status === 'ACTIVE' ? 'Hoạt động' : 'Vô hiệu hóa'}</Badge></td>
+                <td className='px-4 py-3 text-slate-600'>{user.createdAt}</td>
+                <td className='px-4 py-3 text-slate-600'>{user.updatedAt}</td>
+                <td className='px-4 py-3'><div className='flex justify-end gap-1'>
+                  <ActionButton title='Xem chi tiết'><Eye size={14} /></ActionButton>
+                  <ActionButton title='Chỉnh sửa' onClick={() => handleEdit(user)}><Edit size={14} /></ActionButton>
+                  <ActionButton title='Vô hiệu hóa' onClick={() => handleDelete(user.id, user.name)}><Trash2 size={14} /></ActionButton>
+                  <ActionButton title='Thêm thao tác'><MoreVertical size={14} /></ActionButton>
+                </div></td>
+              </tr>
+            )) : <tr><td colSpan='7' className='px-4 py-8 text-center text-[11px] text-slate-500'>Không có dữ liệu người dùng.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      <div className='flex flex-col items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-[10px] text-slate-500 sm:flex-row'>
+        <span>Hiển thị 1 - {users.length} trong tổng số 1,248 người dùng</span>
+        <div className='flex items-center gap-1'>
+          <PageButton><ChevronLeft size={14} /></PageButton><PageButton active>1</PageButton><PageButton>2</PageButton><PageButton>3</PageButton><PageButton><ChevronRight size={14} /></PageButton>
+        </div>
+      </div>
     </div>
   );
-};
+}
+
+function Badge({ children, className, dot = false }) {
+  return <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[9px] font-medium ${className}`}>{dot && <span className='h-1.5 w-1.5 rounded-full bg-current' />}{children}</span>;
+}
+
+function ActionButton({ children, title, onClick }) {
+  return <button type='button' title={title} onClick={onClick} className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'>{children}</button>;
+}
+
+function PageButton({ children, active = false }) {
+  return <button type='button' className={`flex h-8 w-8 items-center justify-center rounded-md ${active ? 'bg-[#D71920] font-semibold text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>{children}</button>;
+}
 
 export default UserTable;
