@@ -1,90 +1,30 @@
-import { EllipsisVertical, Eye, FileText, Pencil } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
-function FAQTableRow({ document }) {
-  const categoryClass = {
-    'Tuyển sinh': 'bg-red-50 text-[#D71920]',
-    'Học phí – Học bổng': 'bg-orange-50 text-orange-600',
-    'Ngành học': 'bg-blue-50 text-blue-600',
-    Khác: 'bg-slate-100 text-slate-600',
-  };
+const statusClass = { PUBLISHED: 'bg-emerald-50 text-emerald-700', DRAFT: 'bg-amber-50 text-amber-700', HIDDEN: 'bg-slate-100 text-slate-600' };
 
-  const statusClass = {
-    'Đã xuất bản': 'bg-emerald-50 text-emerald-600',
-    'Bản nháp': 'bg-orange-50 text-orange-600',
-    'Đã lưu trữ': 'bg-red-50 text-red-600',
-  };
-
+function FAQTableRow({ faq, category, onView, onEdit, onDelete, onStatusChange }) {
   return (
-    <tr className='border-b border-slate-100 last:border-0 hover:bg-slate-50/50'>
-      {/* Title */}
-      <td className='px-3 py-3'>
-        <div className='flex items-center gap-3'>
-          <FileText size={18} strokeWidth={1.7} className='shrink-0 text-slate-700' />
-
-          <div className='min-w-0'>
-            <p className='text-[11px] font-medium text-slate-800'>{document.title}</p>
-
-            <p className='mt-1 text-[9px] text-slate-400'>Mã: {document.code}</p>
-          </div>
-        </div>
-      </td>
-
-      {/* Category */}
-      <td className='px-3 py-3'>
-        <span
-          className={`inline-flex rounded-md px-2 py-1 text-[9px] font-medium ${categoryClass[document.category]}`}
+    <tr className='border-b border-slate-100 last:border-0 hover:bg-slate-50/60'>
+      <td className='max-w-[360px] px-4 py-4'><button type='button' onClick={() => onView(faq)} className='text-left text-[11px] font-semibold leading-5 text-slate-800 hover:text-[#D71920]'>{faq.question}</button><p className='mt-1 line-clamp-1 text-[9px] text-slate-400'>{faq.answer}</p></td>
+      <td className='px-4 py-4'><span className='inline-flex rounded-md bg-red-50 px-2 py-1 text-[9px] font-medium text-[#D71920]'>{category?.name ?? '—'}</span></td>
+      <td className='px-4 py-4'>
+        <select
+          aria-label={`Đổi trạng thái FAQ: ${faq.question}`}
+          value={faq.status}
+          onChange={(event) => onStatusChange(faq.id, event.target.value)}
+          className={`h-7 rounded-md border-0 px-2 py-1 text-[9px] font-semibold outline-none ring-1 ring-inset ring-current/10 ${statusClass[faq.status]}`}
         >
-          {document.category}
-        </span>
+          <option value='DRAFT'>DRAFT</option>
+          <option value='HIDDEN'>HIDDEN</option>
+          <option value='PUBLISHED'>PUBLISHED</option>
+        </select>
       </td>
-
-      {/* Status */}
-      <td className='px-3 py-3'>
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[9px] font-medium ${statusClass[document.status]}`}
-        >
-          <span className='h-1.5 w-1.5 rounded-full bg-current' />
-          {document.status}
-        </span>
-      </td>
-
-      {/* Views */}
-      <td className='px-3 py-3 text-[11px] font-medium text-slate-700'>{document.views}</td>
-
-      {/* Updated */}
-      <td className='px-3 py-3'>
-        <p className='text-[10px] text-slate-700'>{document.updatedAt}</p>
-
-        <p className='mt-1 text-[9px] text-slate-400'>{document.updatedBy}</p>
-      </td>
-
-      {/* Actions */}
-      <td className='px-3 py-3'>
-        <div className='flex justify-end gap-1'>
-          <button
-            type='button'
-            className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'
-          >
-            <Eye size={14} />
-          </button>
-
-          <button
-            type='button'
-            className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'
-          >
-            <Pencil size={14} />
-          </button>
-
-          <button
-            type='button'
-            className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'
-          >
-            <EllipsisVertical size={14} />
-          </button>
-        </div>
-      </td>
+      <td className='px-4 py-4 text-[10px] text-slate-600'>{faq.creator}</td>
+      <td className='px-4 py-4 text-[10px] text-slate-600'>{faq.createdAt}</td>
+      <td className='px-4 py-4 text-[10px] text-slate-600'>{faq.updatedAt}</td>
+      <td className='px-4 py-4'><div className='flex justify-end gap-1'><Action title='Xem chi tiết' onClick={() => onView(faq)}><Eye size={14}/></Action><Action title='Chỉnh sửa' onClick={() => onEdit(faq)}><Pencil size={14}/></Action><Action title='Xóa' danger onClick={() => onDelete(faq)}><Trash2 size={14}/></Action></div></td>
     </tr>
   );
 }
-
+function Action({ children, onClick, danger, title }) { return <button type='button' title={title} onClick={onClick} className={`flex h-8 w-8 items-center justify-center rounded-md border transition ${danger ? 'border-slate-200 text-slate-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600' : 'border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'}`}>{children}</button>; }
 export default FAQTableRow;
