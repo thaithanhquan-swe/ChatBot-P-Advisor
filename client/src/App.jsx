@@ -10,6 +10,7 @@ import ResetPassword from './pages/(auth)/ResetPassword';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
+import Documents from './pages/(admin)/Documents';
 import PendingQuestions from './pages/(admin)/PendingQuestions';
 import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
@@ -35,6 +36,7 @@ function App() {
       <Route path='/admin' element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path='faq' element={<FAQ />} />
+        <Route path='documents' element={<Documents />} />
         <Route path='pending-questions' element={<PendingQuestions />} />
       </Route>
     </Routes>

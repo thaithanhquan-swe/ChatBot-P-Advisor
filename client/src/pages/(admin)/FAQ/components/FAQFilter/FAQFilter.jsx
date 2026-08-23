@@ -1,127 +1,25 @@
-import { CalendarDays, ChevronDown, RotateCcw, Search } from 'lucide-react';
+import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
 
-function FAQFilter() {
+function FAQFilter({ filters, categories, onChange, onReset }) {
+  const set = (key, value) => onChange((current) => ({ ...current, [key]: value }));
+  const inputClass = 'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-[11px] text-slate-700 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50';
   return (
-    <aside className='h-fit rounded-xl border border-slate-200 bg-white p-4'>
-      <h2 className='mb-5 text-[15px] font-bold text-slate-900'>Bộ lọc</h2>
-
-      {/* Search */}
-      <div className='mb-4'>
-        <label className='mb-2 block text-[11px] font-medium text-slate-700'>Tìm kiếm</label>
-
-        <div className='relative'>
-          <input
-            type='text'
-            placeholder='Nhập từ khóa...'
-            className='h-9 w-full rounded-lg border border-slate-200 pl-3 pr-9 text-[10px] outline-none focus:border-red-300'
-          />
-
-          <Search size={14} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-400' />
-        </div>
-      </div>
-
-      {/* Category */}
-      <FilterSelect label='Danh mục' />
-
-      {/* Status */}
-      <FilterSelect label='Trạng thái' />
-
-      {/* Type */}
-      <FilterSelect label='Loại tài liệu' />
-
-      {/* Date */}
-      <div className='mb-5'>
-        <label className='mb-2 block text-[11px] font-medium text-slate-700'>Ngày cập nhật</label>
-
-        <div className='grid grid-cols-2 gap-2'>
-          <div className='relative'>
-            <input
-              type='text'
-              placeholder='Từ ngày'
-              className='h-9 w-full rounded-lg border border-slate-200 px-2 pr-7 text-[9px] outline-none focus:border-red-300'
-            />
-
-            <CalendarDays
-              size={13}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-slate-400'
-            />
-          </div>
-
-          <div className='relative'>
-            <input
-              type='text'
-              placeholder='Đến ngày'
-              className='h-9 w-full rounded-lg border border-slate-200 px-2 pr-7 text-[9px] outline-none focus:border-red-300'
-            />
-
-            <CalendarDays
-              size={13}
-              className='absolute right-2 top-1/2 -translate-y-1/2 text-slate-400'
-            />
-          </div>
-        </div>
-      </div>
-
-      <button
-        type='button'
-        className='flex h-9 w-full items-center justify-center rounded-lg bg-[#D71920] text-[11px] font-semibold text-white hover:bg-[#b9151b]'
-      >
-        Áp dụng bộ lọc
-      </button>
-
-      <button
-        type='button'
-        className='mt-2 flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 text-[11px] text-slate-600 hover:border-red-200 hover:text-[#D71920]'
-      >
-        <RotateCcw size={13} />
-        Xóa bộ lọc
-      </button>
-
-      {/* Categories */}
-      <div className='mt-6 border-t border-slate-100 pt-5'>
-        <h3 className='mb-4 text-[13px] font-bold text-slate-900'>Danh mục tài liệu</h3>
-
-        <div className='space-y-3 text-[10px]'>
-          <CategoryItem color='bg-[#D71920]' label='Tuyển sinh' value='128' />
-
-          <CategoryItem color='bg-orange-500' label='Học phí – Học bổng' value='96' />
-
-          <CategoryItem color='bg-blue-500' label='Ngành học' value='84' />
-
-          <CategoryItem color='bg-slate-400' label='Khác' value='50' />
-        </div>
+    <aside className='h-fit rounded-xl border border-slate-200 bg-white p-4 xl:sticky xl:top-24'>
+      <div className='mb-5 flex items-center gap-2'><SlidersHorizontal size={16} className='text-[#D71920]' /><h2 className='text-[14px] font-bold text-slate-900'>Bộ lọc FAQ</h2></div>
+      <div className='space-y-4'>
+        <div><label className='mb-2 block text-[11px] font-medium text-slate-600'>Tìm kiếm</label><div className='relative'><Search size={14} className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400'/><input className={`${inputClass} pl-9`} value={filters.search} onChange={(e) => set('search', e.target.value)} placeholder='Nhập nội dung câu hỏi...' /></div></div>
+        <Select label='Trạng thái' value={filters.status} onChange={(value) => set('status', value)} options={[['ALL','Tất cả trạng thái'],['PUBLISHED','PUBLISHED'],['DRAFT','DRAFT'],['HIDDEN','HIDDEN']]} />
+        <Select label='Danh mục' value={filters.categoryId} onChange={(value) => set('categoryId', value)} options={[['ALL','Tất cả danh mục'], ...categories.map((item) => [String(item.id), item.name])]} />
+        <div><label className='mb-2 block text-[11px] font-medium text-slate-600'>Ngày cập nhật</label><div className='grid grid-cols-1 gap-2'><input type='date' className={inputClass} value={filters.fromDate} onChange={(e) => set('fromDate', e.target.value)} /><input type='date' className={inputClass} value={filters.toDate} onChange={(e) => set('toDate', e.target.value)} /></div></div>
+        <Select label='Sắp xếp theo' value={filters.sortBy} onChange={(value) => set('sortBy', value)} options={[['updatedAt','Cập nhật lần cuối'],['createdAt','Ngày tạo'],['question','Câu hỏi'],['status','Trạng thái'],['category','Danh mục'],['creator','Người tạo']]} />
+        <Select label='Thứ tự sắp xếp' value={filters.sortOrder} onChange={(value) => set('sortOrder', value)} options={[['DESC','DESC - Giảm dần'],['ASC','ASC - Tăng dần']]} />
+        <button type='button' onClick={onReset} className='flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-600 hover:border-red-200 hover:text-[#D71920]'><RotateCcw size={14}/> Xóa bộ lọc</button>
       </div>
     </aside>
   );
 }
 
-function FilterSelect({ label }) {
-  return (
-    <div className='mb-4'>
-      <label className='mb-2 block text-[11px] font-medium text-slate-700'>{label}</label>
-
-      <button
-        type='button'
-        className='flex h-9 w-full items-center justify-between rounded-lg border border-slate-200 px-3 text-[10px] text-slate-600'
-      >
-        <span>Tất cả {label.toLowerCase()}</span>
-
-        <ChevronDown size={14} />
-      </button>
-    </div>
-  );
+function Select({ label, value, onChange, options }) {
+  return <div><label className='mb-2 block text-[11px] font-medium text-slate-600'>{label}</label><select value={value} onChange={(e) => onChange(e.target.value)} className='h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-[11px] text-slate-700 outline-none focus:border-red-300'>{options.map(([key,text]) => <option key={key} value={key}>{text}</option>)}</select></div>;
 }
-
-function CategoryItem({ color, label, value }) {
-  return (
-    <div className='flex items-center gap-2'>
-      <span className={`h-2 w-2 rounded-full ${color}`} />
-
-      <span className='flex-1 text-slate-600'>{label}</span>
-
-      <span className='font-medium text-slate-500'>{value}</span>
-    </div>
-  );
-}
-
 export default FAQFilter;
