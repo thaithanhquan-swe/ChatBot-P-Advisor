@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/chat-sessions")
@@ -61,6 +62,49 @@ public class ChatSessionController {
     public ApiResponse<ChatSessionResponse> consumeQuestion(@PathVariable String sessionToken) {
         return ApiResponse.<ChatSessionResponse>builder()
                 .result(chatSessionService.consumeQuestion(sessionToken))
+                .build();
+    }
+
+    @PostMapping("/{sessionToken}/request-staff")
+    public ApiResponse<ChatSessionResponse> requestStaff(@PathVariable String sessionToken) {
+        return ApiResponse.<ChatSessionResponse>builder()
+                .result(chatSessionService.requestStaff(sessionToken))
+                .build();
+    }
+
+    @GetMapping("/staff/waiting")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public ApiResponse<PageResponse<ChatSessionResponse>> getWaitingForStaff(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.<PageResponse<ChatSessionResponse>>builder()
+                .result(chatSessionService.getWaitingForStaff(page, size))
+                .build();
+    }
+
+    @GetMapping("/staff/assigned-to-me")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public ApiResponse<PageResponse<ChatSessionResponse>> getAssignedToMe(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.<PageResponse<ChatSessionResponse>>builder()
+                .result(chatSessionService.getAssignedToCurrentStaff(page, size))
+                .build();
+    }
+
+    @PostMapping("/staff/{sessionId}/assign")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public ApiResponse<ChatSessionResponse> assign(@PathVariable String sessionId) {
+        return ApiResponse.<ChatSessionResponse>builder()
+                .result(chatSessionService.assignToCurrentStaff(sessionId))
+                .build();
+    }
+
+    @PostMapping("/staff/{sessionId}/return-to-bot")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public ApiResponse<ChatSessionResponse> returnToBot(@PathVariable String sessionId) {
+        return ApiResponse.<ChatSessionResponse>builder()
+                .result(chatSessionService.returnToBot(sessionId))
                 .build();
     }
 

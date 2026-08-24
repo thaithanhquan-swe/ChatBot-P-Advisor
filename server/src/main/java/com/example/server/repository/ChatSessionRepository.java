@@ -1,6 +1,7 @@
 package com.example.server.repository;
 
 import com.example.server.entity.ChatSession;
+import com.example.server.enums.ChatSessionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,7 +23,15 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, String
     @Query("select session from ChatSession session where session.sessionToken = :sessionToken")
     Optional<ChatSession> findBySessionTokenForUpdate(@Param("sessionToken") String sessionToken);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select session from ChatSession session where session.id = :id")
+    Optional<ChatSession> findByIdForUpdate(@Param("id") String id);
+
     Page<ChatSession> findAllByUserId(String userId, Pageable pageable);
+
+    Page<ChatSession> findAllByStatus(ChatSessionStatus status, Pageable pageable);
+
+    Page<ChatSession> findAllByAssignedStaffId(String assignedStaffId, Pageable pageable);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

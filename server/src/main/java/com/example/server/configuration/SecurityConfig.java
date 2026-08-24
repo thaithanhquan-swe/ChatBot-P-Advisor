@@ -39,7 +39,8 @@ public class SecurityConfig {
                         "/auth/forgot-password",
                         "/auth/reset-password",
                         "/chat-sessions",
-                        "/chat-sessions/*/questions"
+                        "/chat-sessions/*/questions",
+                        "/chat-sessions/*/request-staff"
                 ).permitAll()
 
                 .requestMatchers(

@@ -1,7 +1,10 @@
 package com.example.server.entity;
 
+import com.example.server.enums.ChatSessionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,6 +44,18 @@ public class ChatSession {
 
     @Column(length = 255)
     String title;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    ChatSessionStatus status = ChatSessionStatus.BOT_HANDLING;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_staff_id")
+    User assignedStaff;
+
+    @Column(name = "assigned_at")
+    LocalDateTime assignedAt;
 
     @Builder.Default
     @Column(name = "guest_question_count", nullable = false)

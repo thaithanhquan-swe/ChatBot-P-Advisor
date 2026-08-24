@@ -5,6 +5,7 @@ import com.example.server.dto.response.ChatSessionResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.entity.ChatSession;
 import com.example.server.entity.User;
+import com.example.server.enums.ChatSessionStatus;
 import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.repository.ChatSessionRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -97,6 +99,72 @@ public class ChatSessionService {
     }
 
     @Transactional
+    public ChatSessionResponse requestStaff(String sessionToken) {
+        ChatSession session = chatSessionRepository.findBySessionTokenForUpdate(sessionToken)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+        validateSessionAccess(session);
+        if (session.getStatus() != ChatSessionStatus.BOT_HANDLING) {
+            throw new AppException(ErrorCode.INVALID_CHAT_SESSION_STATUS);
+        }
+        session.setStatus(ChatSessionStatus.WAITING_FOR_STAFF);
+        session.setAssignedStaff(null);
+        session.setAssignedAt(null);
+        return toResponse(chatSessionRepository.save(session));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<ChatSessionResponse> getWaitingForStaff(int page, int size) {
+        Page<ChatSession> sessions = chatSessionRepository.findAllByStatus(
+                ChatSessionStatus.WAITING_FOR_STAFF,
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "updatedAt")));
+        return PageResponse.of(sessions.map(this::toResponse));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<ChatSessionResponse> getAssignedToCurrentStaff(int page, int size) {
+        User staff = requireCurrentUser();
+        Page<ChatSession> sessions = chatSessionRepository.findAllByAssignedStaffId(
+                staff.getId(),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+        return PageResponse.of(sessions.map(this::toResponse));
+    }
+
+    @Transactional
+    public ChatSessionResponse assignToCurrentStaff(String sessionId) {
+        User staff = requireCurrentUser();
+        ChatSession session = chatSessionRepository.findByIdForUpdate(sessionId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+        if (session.getAssignedStaff() != null) {
+            throw new AppException(ErrorCode.CHAT_SESSION_ALREADY_ASSIGNED);
+        }
+        if (session.getStatus() != ChatSessionStatus.WAITING_FOR_STAFF) {
+            throw new AppException(ErrorCode.INVALID_CHAT_SESSION_STATUS);
+        }
+        session.setStatus(ChatSessionStatus.STAFF_HANDLING);
+        session.setAssignedStaff(staff);
+        session.setAssignedAt(LocalDateTime.now());
+        return toResponse(chatSessionRepository.save(session));
+    }
+
+    @Transactional
+    public ChatSessionResponse returnToBot(String sessionId) {
+        User staff = requireCurrentUser();
+        ChatSession session = chatSessionRepository.findByIdForUpdate(sessionId)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+        if (session.getStatus() != ChatSessionStatus.STAFF_HANDLING) {
+            throw new AppException(ErrorCode.INVALID_CHAT_SESSION_STATUS);
+        }
+        if (session.getAssignedStaff() == null
+                || !session.getAssignedStaff().getId().equals(staff.getId())) {
+            throw new AppException(ErrorCode.CHAT_SESSION_NOT_ASSIGNED_TO_YOU);
+        }
+        session.setStatus(ChatSessionStatus.BOT_HANDLING);
+        session.setAssignedStaff(null);
+        session.setAssignedAt(null);
+        return toResponse(chatSessionRepository.save(session));
+    }
+
+    @Transactional
     public void delete(String sessionToken) {
         ChatSession session = findByToken(sessionToken);
         if (session.getUser() != null) {
@@ -111,6 +179,16 @@ public class ChatSessionService {
     private ChatSession findByToken(String sessionToken) {
         return chatSessionRepository.findBySessionToken(sessionToken)
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+    }
+
+    private void validateSessionAccess(ChatSession session) {
+        if (session.getUser() == null) {
+            return;
+        }
+        User currentUser = requireCurrentUser();
+        if (!session.getUser().getId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
+        }
     }
 
     private Optional<User> getCurrentUser() {
@@ -146,6 +224,9 @@ public class ChatSessionService {
                 .sessionToken(session.getSessionToken())
                 .userId(session.getUser() == null ? null : session.getUser().getId())
                 .title(session.getTitle())
+                .status(session.getStatus())
+                .assignedStaffId(session.getAssignedStaff() == null ? null : session.getAssignedStaff().getId())
+                .assignedAt(session.getAssignedAt())
                 .guestQuestionCount(session.getGuestQuestionCount())
                 .remainingGuestQuestions(remainingQuestions)
                 .createdAt(session.getCreatedAt())
