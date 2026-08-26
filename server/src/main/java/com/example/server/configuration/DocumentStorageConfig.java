@@ -10,10 +10,13 @@ import java.nio.file.Path;
 @Configuration
 public class DocumentStorageConfig implements WebMvcConfigurer {
     private final String storageLocation;
+    private final String chatMessageStorageLocation;
 
     public DocumentStorageConfig(
-            @Value("${app.document.storage-location}") String storageLocation) {
+            @Value("${app.document.storage-location}") String storageLocation,
+            @Value("${app.chat-message.storage-location}") String chatMessageStorageLocation) {
         this.storageLocation = storageLocation;
+        this.chatMessageStorageLocation = chatMessageStorageLocation;
     }
 
     @Override
@@ -21,5 +24,9 @@ public class DocumentStorageConfig implements WebMvcConfigurer {
         String resourceLocation = Path.of(storageLocation).toAbsolutePath().normalize().toUri().toString();
         registry.addResourceHandler("/uploads/documents/**")
                 .addResourceLocations(resourceLocation);
+        String chatMessageResourceLocation = Path.of(chatMessageStorageLocation)
+                .toAbsolutePath().normalize().toUri().toString();
+        registry.addResourceHandler("/uploads/chat-messages/**")
+                .addResourceLocations(chatMessageResourceLocation);
     }
 }
