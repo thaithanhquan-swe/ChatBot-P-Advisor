@@ -3,6 +3,7 @@ package com.example.server.mapper;
 import com.example.server.dto.request.UserRegisterRequest;
 import com.example.server.dto.request.UserUpdateRequest;
 import com.example.server.dto.response.UserResponse;
+import com.example.server.dto.response.CurrentUserResponse;
 import com.example.server.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -15,6 +16,8 @@ public interface UserMapper {
     User toUser(UserRegisterRequest request);
 
     UserResponse toUserResponse (User user);
+
+    CurrentUserResponse toCurrentUserResponse(User user);
 
     List<UserResponse> toUserResponseList(List<User> users);
 

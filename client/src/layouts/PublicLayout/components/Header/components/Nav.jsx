@@ -1,8 +1,39 @@
-import { LogIn } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { LogIn, LogOut, UserRound } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { authStorage } from '@/lib/auth-storage';
+import { getCurrentUser, logout } from '@/services/auth-service';
 
 const Nav = ({ navItems }) => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    if (!authStorage.getToken()) return;
+
+    let active = true;
+    getCurrentUser()
+      .then((user) => {
+        if (active) setCurrentUser(user);
+      })
+      .catch(() => {
+        if (active) setCurrentUser(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      setCurrentUser(null);
+      navigate('/', { replace: true });
+    }
+  };
 
   return (
     <nav className='flex h-full items-center gap-8'>
@@ -39,13 +70,30 @@ const Nav = ({ navItems }) => {
         );
       })}
 
-      <Link
-        to='/login'
-        className='flex h-11 items-center justify-center gap-2 rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold text-white transition-all duration-200 hover:shadow-lg'
-      >
-        <LogIn size={16} />
-        Đăng nhập
-      </Link>
+      {currentUser ? (
+        <div className='flex items-center gap-3'>
+          <span className='flex h-11 items-center gap-2 rounded-lg bg-gray-100 px-4 text-[14px] font-semibold text-gray-800'>
+            <UserRound size={17} className='text-(--primary-color)' />
+            {currentUser.username}
+          </span>
+          <button
+            type='button'
+            onClick={handleLogout}
+            className='flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold text-white transition-all duration-200 hover:shadow-lg'
+          >
+            <LogOut size={16} />
+            Đăng xuất
+          </button>
+        </div>
+      ) : (
+        <Link
+          to='/login'
+          className='flex h-11 items-center justify-center gap-2 rounded-lg bg-(--primary-color) px-5 text-[14px] font-semibold text-white transition-all duration-200 hover:shadow-lg'
+        >
+          <LogIn size={16} />
+          Đăng nhập
+        </Link>
+      )}
     </nav>
   );
 };
