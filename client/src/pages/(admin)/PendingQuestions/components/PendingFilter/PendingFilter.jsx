@@ -9,12 +9,13 @@ import {
 
 function PendingFilter() {
   return (
-    <aside className='h-fit overflow-hidden rounded-xl border border-slate-200 bg-white p-4'>
-      <div className='mb-5 flex items-center justify-between'>
+    <aside className='mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white p-4'>
+      <div className='mb-4 flex items-center justify-between'>
         <h2 className='text-[15px] font-bold text-slate-900'>Bộ lọc</h2>
         <SlidersHorizontal size={18} />
       </div>
 
+      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.5fr)_repeat(3,minmax(140px,1fr))_minmax(220px,1.2fr)_auto_auto]'>
       <FilterLabel label='Tìm kiếm'>
         <SearchInput placeholder='Nhập từ khóa...' />
       </FilterLabel>
@@ -28,26 +29,29 @@ function PendingFilter() {
         <Select text='Tất cả ưu tiên' />
       </FilterLabel>
 
-      <p className='mb-2 text-[11px] font-medium text-slate-700'>Ngày tạo</p>
-      <div className='mb-4 grid grid-cols-2 gap-2'>
-        <DateInput text='Từ ngày' />
-        <DateInput text='Đến ngày' />
+      <div>
+        <p className='mb-2 text-[11px] font-medium text-slate-700'>Ngày tạo</p>
+        <div className='grid grid-cols-2 gap-2'>
+          <DateInput text='Từ ngày' />
+          <DateInput text='Đến ngày' />
+        </div>
       </div>
 
       <button
         type='button'
-        className='flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#D71920] text-[11px] font-semibold text-white'
+        className='flex h-9 w-full items-center justify-center gap-2 rounded-lg bg-[#D71920] px-4 text-[11px] font-semibold text-white xl:w-auto'
       >
         <Send size={13} />
         Áp dụng bộ lọc
       </button>
       <button
         type='button'
-        className='mt-2 flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 text-[11px] text-slate-600'
+        className='flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] text-slate-600 xl:w-auto'
       >
         Xóa bộ lọc
         <RotateCcw size={13} />
       </button>
+      </div>
 
       <CategoryStatistics />
     </aside>
@@ -56,7 +60,7 @@ function PendingFilter() {
 
 function CategoryStatistics() {
   return (
-    <div className='mt-5 border-t border-slate-100 pt-4'>
+    <div className='mt-4 border-t border-slate-100 pt-4'>
       <h3 className='mb-4 text-[13px] font-bold text-slate-900'>Thống kê theo danh mục</h3>
       <div className='flex items-center gap-3'>
         <div
@@ -104,7 +108,7 @@ function Select({ text }) {
 }
 function FilterLabel({ label, children }) {
   return (
-    <div className='mb-4'>
+    <div>
       <p className='mb-2 text-[11px] font-medium text-slate-700'>{label}</p>
       {children}
     </div>

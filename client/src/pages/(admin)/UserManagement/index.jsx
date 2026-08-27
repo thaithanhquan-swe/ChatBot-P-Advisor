@@ -9,13 +9,10 @@ function UserManagement() {
     <div className='mx-auto max-w-[1600px]'>
       <UserHeader />
       <UserStatistics />
-
-      <div className='mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_250px]'>
-        <div className='min-w-0 rounded-xl border border-slate-200 bg-white p-5'>
-          <UserToolbar />
-          <UserTable />
-        </div>
-        <UserFilter />
+      <UserFilter />
+      <div className='mt-5 min-w-0 rounded-xl border border-slate-200 bg-white p-5'>
+        <UserToolbar />
+        <UserTable />
       </div>
     </div>
   );

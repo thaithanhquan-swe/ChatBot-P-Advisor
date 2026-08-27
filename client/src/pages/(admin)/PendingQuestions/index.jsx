@@ -8,10 +8,9 @@ function PendingQuestions() {
     <div className='mx-auto max-w-[1600px]'>
       <PendingHeader />
       <PendingStatistics />
-
-      <div className='mt-5 grid grid-cols-[minmax(0,1fr)_254px] gap-5'>
+      <PendingFilter />
+      <div className='mt-5'>
         <PendingQuestionTable />
-        <PendingFilter />
       </div>
     </div>
   );

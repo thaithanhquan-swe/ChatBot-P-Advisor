@@ -1,5 +1,6 @@
 import { MessageCircle } from 'lucide-react';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb/AdminBreadcrumb';
+import { Button } from '@/components/ui/button';
 
 function PendingHeader() {
   return (
@@ -13,13 +14,10 @@ function PendingHeader() {
         </p>
       </div>
 
-      <button
-        type='button'
-        className='flex h-10 items-center gap-2 rounded-lg bg-[#D71920] px-4 text-[12px] font-semibold text-white shadow-sm hover:bg-[#b9151b]'
-      >
+      <Button>
         <MessageCircle size={16} />
         Trả lời hàng loạt
-      </button>
+      </Button>
     </div>
   );
 }

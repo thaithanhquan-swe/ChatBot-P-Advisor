@@ -1,16 +1,19 @@
 import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
+import { DOCUMENT_FILE_TYPES, DOCUMENT_STATUS_OPTIONS } from '../../constants/document';
 
-function FAQFilter({ filters, categories, onChange, onReset }) {
+function DocumentFilter({ filters, onChange, onReset }) {
   const set = (key, value) => onChange((current) => ({ ...current, [key]: value }));
   const inputClass =
     'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-[11px] text-slate-700 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50';
+
   return (
     <aside className='mt-5 rounded-xl border border-slate-200 bg-white p-4'>
       <div className='mb-4 flex items-center gap-2'>
         <SlidersHorizontal size={16} className='text-[#D71920]' />
-        <h2 className='text-[14px] font-bold text-slate-900'>Bộ lọc FAQ</h2>
+        <h2 className='text-[14px] font-bold text-slate-900'>Bộ lọc tài liệu</h2>
       </div>
-      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.6fr)_repeat(2,minmax(140px,1fr))_minmax(220px,1.4fr)_repeat(2,minmax(150px,1fr))_auto]'>
+
+      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(150px,1fr))_auto]'>
         <div>
           <label className='mb-2 block text-[11px] font-medium text-slate-600'>Tìm kiếm</label>
           <div className='relative'>
@@ -18,48 +21,32 @@ function FAQFilter({ filters, categories, onChange, onReset }) {
             <input
               className={`${inputClass} pl-9`}
               value={filters.search}
-              onChange={(e) => set('search', e.target.value)}
-              placeholder='Nhập nội dung câu hỏi...'
+              onChange={(event) => set('search', event.target.value)}
+              placeholder='Tên tài liệu, tên file...'
             />
           </div>
         </div>
+
         <Select
           label='Trạng thái'
           value={filters.status}
           onChange={(value) => set('status', value)}
           options={[
             ['ALL', 'Tất cả trạng thái'],
-            ['PUBLISHED', 'PUBLISHED'],
-            ['DRAFT', 'DRAFT'],
-            ['HIDDEN', 'HIDDEN'],
+            ...DOCUMENT_STATUS_OPTIONS.map((status) => [status, status]),
           ]}
         />
+
         <Select
-          label='Danh mục'
-          value={filters.categoryId}
-          onChange={(value) => set('categoryId', value)}
+          label='Loại file'
+          value={filters.fileType}
+          onChange={(value) => set('fileType', value)}
           options={[
-            ['ALL', 'Tất cả danh mục'],
-            ...categories.map((item) => [String(item.id), item.name]),
+            ['ALL', 'Tất cả loại file'],
+            ...DOCUMENT_FILE_TYPES.map((type) => [type, type]),
           ]}
         />
-        <div>
-          <label className='mb-2 block text-[11px] font-medium text-slate-600'>Ngày cập nhật</label>
-          <div className='grid grid-cols-2 gap-2'>
-            <input
-              type='date'
-              className={inputClass}
-              value={filters.fromDate}
-              onChange={(e) => set('fromDate', e.target.value)}
-            />
-            <input
-              type='date'
-              className={inputClass}
-              value={filters.toDate}
-              onChange={(e) => set('toDate', e.target.value)}
-            />
-          </div>
-        </div>
+
         <Select
           label='Sắp xếp theo'
           value={filters.sortBy}
@@ -67,12 +54,13 @@ function FAQFilter({ filters, categories, onChange, onReset }) {
           options={[
             ['updatedAt', 'Cập nhật lần cuối'],
             ['createdAt', 'Ngày tạo'],
-            ['question', 'Câu hỏi'],
+            ['title', 'Tên tài liệu'],
+            ['fileName', 'Tên file'],
+            ['fileType', 'Loại file'],
             ['status', 'Trạng thái'],
-            ['category', 'Danh mục'],
-            ['creator', 'Người tạo'],
           ]}
         />
+
         <Select
           label='Thứ tự sắp xếp'
           value={filters.sortOrder}
@@ -82,10 +70,11 @@ function FAQFilter({ filters, categories, onChange, onReset }) {
             ['ASC', 'ASC - Tăng dần'],
           ]}
         />
+
         <button
           type='button'
           onClick={onReset}
-          className='flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] font-semibold text-slate-600 hover:border-red-200 hover:text-[#D71920] xl:w-auto'
+          className='flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] font-semibold text-slate-600 transition hover:border-red-200 hover:text-[#D71920] xl:w-auto'
         >
           <RotateCcw size={14} /> Xóa bộ lọc
         </button>
@@ -100,7 +89,7 @@ function Select({ label, value, onChange, options }) {
       <label className='mb-2 block text-[11px] font-medium text-slate-600'>{label}</label>
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(event) => onChange(event.target.value)}
         className='h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-[11px] text-slate-700 outline-none focus:border-red-300'
       >
         {options.map(([key, text]) => (
@@ -112,4 +101,5 @@ function Select({ label, value, onChange, options }) {
     </div>
   );
 }
-export default FAQFilter;
+
+export default DocumentFilter;

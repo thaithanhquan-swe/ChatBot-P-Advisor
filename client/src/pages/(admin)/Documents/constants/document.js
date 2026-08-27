@@ -1,0 +1,10 @@
+export const DOCUMENT_STATUS = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  PROCESSING: 'PROCESSING',
+  FAILED: 'FAILED',
+};
+
+export const DOCUMENT_STATUS_OPTIONS = Object.values(DOCUMENT_STATUS);
+
+export const DOCUMENT_FILE_TYPES = ['PDF', 'DOCX', 'TXT'];

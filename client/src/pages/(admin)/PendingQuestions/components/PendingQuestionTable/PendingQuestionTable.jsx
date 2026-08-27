@@ -1,4 +1,9 @@
-import { ChevronDown, Download, Eye, MoreVertical, Reply, Search } from 'lucide-react';
+import { Download, Eye, MoreVertical, Reply, Search } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 
 const questions = [
   [
@@ -113,19 +118,16 @@ const styles = {
 
 function PendingQuestionTable() {
   return (
-    <section className='overflow-hidden rounded-xl border border-slate-200 bg-white'>
+    <Card className='overflow-hidden'>
       <div className='flex items-center gap-3 border-b border-slate-200 p-5'>
         <SearchInput className='w-65' placeholder='Tìm kiếm câu hỏi, email, từ khóa...' />
-        <Select text='Tất cả danh mục' className='w-38' />
-        <Select text='Tất cả trạng thái' className='w-38' />
-        <Select text='Tất cả ưu tiên' className='w-38' />
-        <button
-          type='button'
-          className='ml-auto flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] font-medium text-slate-700'
-        >
+        <FilterSelect label='Tất cả danh mục' className='w-38' />
+        <FilterSelect label='Tất cả trạng thái' className='w-38' />
+        <FilterSelect label='Tất cả ưu tiên' className='w-38' />
+        <Button variant='outline' size='sm' className='ml-auto text-[11px]'>
           <Download size={15} />
           Xuất Excel
-        </button>
+        </Button>
       </div>
 
       <table className='w-full table-fixed border-collapse'>
@@ -172,7 +174,8 @@ function PendingQuestionTable() {
                   <Badge className={styles.priority[priority]}>{priority}</Badge>
                 </td>
                 <td className='px-2 py-3 align-top'>
-                  <Badge className={styles.status[status]} dot>
+                  <Badge className={styles.status[status]}>
+                    <span className='mr-1.5 h-1.5 w-1.5 rounded-full bg-current' />
                     {status}
                   </Badge>
                 </td>
@@ -182,15 +185,15 @@ function PendingQuestionTable() {
                 </td>
                 <td className='px-2 py-3 align-top'>
                   <div className='flex justify-center gap-2 text-slate-500'>
-                    <button type='button'>
+                    <Button variant='ghost' size='icon' className='h-7 w-7'>
                       <Eye size={15} />
-                    </button>
-                    <button type='button'>
+                    </Button>
+                    <Button variant='ghost' size='icon' className='h-7 w-7'>
                       <Reply size={15} />
-                    </button>
-                    <button type='button'>
+                    </Button>
+                    <Button variant='ghost' size='icon' className='h-7 w-7'>
                       <MoreVertical size={15} />
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -200,41 +203,26 @@ function PendingQuestionTable() {
       </table>
 
       <Pagination />
-    </section>
+    </Card>
   );
 }
 
 function SearchInput({ className = '', placeholder }) {
   return (
     <div className={`relative ${className}`}>
-      <input
-        type='text'
+      <Input
         placeholder={placeholder}
-        className='h-9 w-full rounded-lg border border-slate-200 px-3 pr-8 text-[10px] outline-none focus:border-red-300'
+        className='h-9 pr-8 text-[10px]'
       />
       <Search size={15} className='absolute right-3 top-1/2 -translate-y-1/2 text-slate-500' />
     </div>
   );
 }
-function Select({ text, className = '' }) {
+function FilterSelect({ label, className = '' }) {
   return (
-    <button
-      type='button'
-      className={`flex h-9 w-full items-center justify-between rounded-lg border border-slate-200 px-3 text-[10px] text-slate-600 ${className}`}
-    >
-      <span>{text}</span>
-      <ChevronDown size={14} />
-    </button>
-  );
-}
-function Badge({ children, className, dot = false }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1 text-[9px] font-medium ${className}`}
-    >
-      {dot && <span className='h-1.5 w-1.5 rounded-full bg-current' />}
-      {children}
-    </span>
+    <Select aria-label={label} className={`h-9 text-[10px] ${className}`}>
+      <option>{label}</option>
+    </Select>
   );
 }
 function Pagination() {
@@ -242,22 +230,24 @@ function Pagination() {
     <div className='flex items-center justify-between p-4 text-[10px] text-slate-500'>
       <span>Hiển thị: 1 - 8 trong tổng số 86 câu hỏi</span>
       <div className='flex items-center gap-2'>
-        <button className='h-9 w-9 rounded-lg border border-slate-200 text-lg'>‹</button>
+        <Button variant='outline' size='icon'>‹</Button>
         {['1', '2', '3', '4', '5', '…', '11'].map((page) => (
-          <button
+          <Button
             key={page}
-            className={`h-8 w-7 rounded-md ${page === '1' ? 'bg-[#D71920] text-white' : 'text-slate-700'}`}
+            variant={page === '1' ? 'default' : 'ghost'}
+            size='sm'
+            className='h-8 min-w-7 px-2'
           >
             {page}
-          </button>
+          </Button>
         ))}
-        <button className='h-9 w-9 rounded-lg border border-slate-200 text-lg'>›</button>
+        <Button variant='outline' size='icon'>›</Button>
       </div>
       <div>
         Hiển thị{' '}
-        <button className='ml-1 rounded border border-slate-200 px-3 py-2 text-slate-700'>
+        <Button variant='outline' size='sm' className='ml-1'>
           8⌄
-        </button>{' '}
+        </Button>{' '}
         mục/trang
       </div>
     </div>

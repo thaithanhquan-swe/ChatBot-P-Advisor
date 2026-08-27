@@ -201,8 +201,13 @@ function FAQ() {
       />
 
       <FAQStatistics faqs={faqs} />
-
-      <div className='mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px]'>
+      <FAQFilter
+        filters={filters}
+        categories={categories}
+        onChange={setFilters}
+        onReset={() => setFilters(emptyFilters)}
+      />
+      <div className='mt-5'>
         <FAQTable
           faqs={filteredFaqs}
           categoryMap={categoryMap}
@@ -210,13 +215,6 @@ function FAQ() {
           onEdit={(item) => setFaqModal({ open: true, item })}
           onDelete={handleDeleteFaq}
           onStatusChange={handleStatusChange}
-        />
-
-        <FAQFilter
-          filters={filters}
-          categories={categories}
-          onChange={setFilters}
-          onReset={() => setFilters(emptyFilters)}
         />
       </div>
 
