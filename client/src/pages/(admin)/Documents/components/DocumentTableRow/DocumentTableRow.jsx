@@ -1,4 +1,7 @@
 import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { TableCell, TableRow } from '@/components/ui/table';
 
 const statusClass = {
   ACTIVE: 'border-emerald-200 bg-emerald-50 text-emerald-700',
@@ -15,8 +18,8 @@ const fileTypeClass = {
 
 function DocumentTableRow({ document, onView, onEdit, onDelete }) {
   return (
-    <tr className='border-b border-slate-100 transition last:border-b-0 hover:bg-slate-50/60'>
-      <td className='px-4 py-4'>
+    <TableRow className='border-slate-100'>
+      <TableCell>
         <button
           type='button'
           onClick={() => onView(document)}
@@ -29,25 +32,25 @@ function DocumentTableRow({ document, onView, onEdit, onDelete }) {
             {document.description}
           </p>
         )}
-      </td>
-      <td className='px-4 py-4 text-[11px] text-slate-600'>{document.fileName}</td>
-      <td className='px-4 py-4'>
-        <span
+      </TableCell>
+      <TableCell className='text-[11px] text-slate-600'>{document.fileName}</TableCell>
+      <TableCell>
+        <Badge
           className={`inline-flex rounded-md px-2 py-1 text-[9px] font-bold ${fileTypeClass[document.fileType] || 'bg-slate-100 text-slate-600'}`}
         >
           {document.fileType}
-        </span>
-      </td>
-      <td className='px-4 py-4'>
-        <span
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <Badge
           className={`inline-flex rounded-full border px-2 py-1 text-[9px] font-bold ${statusClass[document.status] || 'border-slate-200 bg-slate-50 text-slate-600'}`}
         >
           {document.status}
-        </span>
-      </td>
-      <td className='whitespace-nowrap px-4 py-4 text-[10px] text-slate-500'>{document.createdAt}</td>
-      <td className='whitespace-nowrap px-4 py-4 text-[10px] text-slate-500'>{document.updatedAt}</td>
-      <td className='px-4 py-4'>
+        </Badge>
+      </TableCell>
+      <TableCell className='whitespace-nowrap text-[10px] text-slate-500'>{document.createdAt}</TableCell>
+      <TableCell className='whitespace-nowrap text-[10px] text-slate-500'>{document.updatedAt}</TableCell>
+      <TableCell>
         <div className='flex justify-end gap-1'>
           <ActionButton title='Xem chi tiết' onClick={() => onView(document)}>
             <Eye size={14} />
@@ -59,25 +62,22 @@ function DocumentTableRow({ document, onView, onEdit, onDelete }) {
             <Trash2 size={14} />
           </ActionButton>
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 
 function ActionButton({ title, onClick, danger = false, children }) {
   return (
-    <button
-      type='button'
+    <Button
       title={title}
       onClick={onClick}
-      className={`flex h-8 w-8 items-center justify-center rounded-lg border transition ${
-        danger
-          ? 'border-red-100 text-red-500 hover:bg-red-50'
-          : 'border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-[#D71920]'
-      }`}
+      variant={danger ? 'destructive' : 'outline'}
+      size='icon'
+      className='h-8 w-8'
     >
       {children}
-    </button>
+    </Button>
   );
 }
 

@@ -1,4 +1,6 @@
-import { ChevronDown, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 
 function FAQToolbar() {
   return (
@@ -10,39 +12,14 @@ function FAQToolbar() {
         <div className='relative'>
           <Search size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400' />
 
-          <input
-            type='text'
+          <Input
             placeholder='Tìm kiếm tiêu đề, từ khóa...'
-            className='h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-[11px] outline-none transition focus:border-red-300 focus:ring-2 focus:ring-red-50'
+            className='pl-9 text-[11px]'
           />
         </div>
-
-        {/* Category */}
-        <button
-          type='button'
-          className='flex h-10 items-center justify-between rounded-lg border border-slate-200 px-3 text-[11px] text-slate-600'
-        >
-          <span>Tất cả danh mục</span>
-          <ChevronDown size={15} />
-        </button>
-
-        {/* Status */}
-        <button
-          type='button'
-          className='flex h-10 items-center justify-between rounded-lg border border-slate-200 px-3 text-[11px] text-slate-600'
-        >
-          <span>Tất cả trạng thái</span>
-          <ChevronDown size={15} />
-        </button>
-
-        {/* Sort */}
-        <button
-          type='button'
-          className='flex h-10 items-center justify-between rounded-lg border border-slate-200 px-3 text-[11px] text-slate-600'
-        >
-          <span>Sắp xếp mới nhất</span>
-          <ChevronDown size={15} />
-        </button>
+        <Select aria-label='Danh mục'><option>Tất cả danh mục</option></Select>
+        <Select aria-label='Trạng thái'><option>Tất cả trạng thái</option></Select>
+        <Select aria-label='Sắp xếp'><option>Sắp xếp mới nhất</option></Select>
       </div>
     </div>
   );

@@ -276,8 +276,12 @@ function Documents() {
       <DocumentHeader onCreate={() => setFormModal({ open: true, item: null })} />
 
       <DocumentStatistics documents={documents} />
-
-      <div className='mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px]'>
+      <DocumentFilter
+        filters={filters}
+        onChange={setFilters}
+        onReset={() => setFilters(emptyFilters)}
+      />
+      <div className='mt-5'>
         <DocumentTable
           documents={paginatedDocuments}
           totalItems={filteredDocuments.length}
@@ -288,12 +292,6 @@ function Documents() {
           onView={setDetailDocument}
           onEdit={(item) => setFormModal({ open: true, item })}
           onDelete={setDeleteDocument}
-        />
-
-        <DocumentFilter
-          filters={filters}
-          onChange={setFilters}
-          onReset={() => setFilters(emptyFilters)}
         />
       </div>
 

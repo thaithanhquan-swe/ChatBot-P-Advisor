@@ -1,5 +1,6 @@
 import { FolderCog, Plus } from 'lucide-react';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb/AdminBreadcrumb';
+import { Button } from '@/components/ui/button';
 
 function FAQHeader({ onManageCategories, onCreateFaq }) {
   return (
@@ -13,20 +14,17 @@ function FAQHeader({ onManageCategories, onCreateFaq }) {
         </p>
       </div>
       <div className='flex flex-wrap gap-2'>
-        <button
-          type='button'
+        <Button
+          variant='outline'
           onClick={onManageCategories}
-          className='flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-[12px] font-semibold text-slate-700 hover:border-red-200 hover:text-[#D71920]'
         >
           <FolderCog size={16} /> Quản lý danh mục
-        </button>
-        <button
-          type='button'
+        </Button>
+        <Button
           onClick={onCreateFaq}
-          className='flex h-10 items-center gap-2 rounded-lg bg-[#D71920] px-4 text-[12px] font-semibold text-white hover:bg-[#b9151b]'
         >
           <Plus size={17} /> Thêm FAQ
-        </button>
+        </Button>
       </div>
     </div>
   );

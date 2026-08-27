@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 function DocumentPagination({ page, totalPages, totalItems, pageSize, onPageChange }) {
   const safeTotalPages = Math.max(totalPages, 1);
@@ -16,43 +17,42 @@ function DocumentPagination({ page, totalPages, totalItems, pageSize, onPageChan
       </p>
 
       <div className='flex items-center gap-1'>
-        <button
-          type='button'
+        <Button
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 disabled:cursor-not-allowed disabled:opacity-40'
+          variant='outline'
+          size='icon'
+          className='h-8 w-8'
         >
           <ChevronLeft size={14} />
-        </button>
+        </Button>
 
         {pages.map((item, index) => {
           const previous = pages[index - 1];
           return (
             <div key={item} className='flex items-center gap-1'>
               {previous && item - previous > 1 && <span className='px-1 text-xs text-slate-400'>...</span>}
-              <button
-                type='button'
+              <Button
                 onClick={() => onPageChange(item)}
-                className={`h-8 min-w-8 rounded-md border px-2 text-[10px] font-semibold ${
-                  item === page
-                    ? 'border-[#D71920] bg-[#D71920] text-white'
-                    : 'border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'
-                }`}
+                variant={item === page ? 'default' : 'outline'}
+                size='sm'
+                className='h-8 min-w-8 px-2 text-[10px]'
               >
                 {item}
-              </button>
+              </Button>
             </div>
           );
         })}
 
-        <button
-          type='button'
+        <Button
           disabled={page >= safeTotalPages}
           onClick={() => onPageChange(page + 1)}
-          className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 disabled:cursor-not-allowed disabled:opacity-40'
+          variant='outline'
+          size='icon'
+          className='h-8 w-8'
         >
           <ChevronRight size={14} />
-        </button>
+        </Button>
       </div>
     </div>
   );

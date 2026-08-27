@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb/AdminBreadcrumb';
+import { Button } from '@/components/ui/button';
 
 function DocumentHeader({ onCreate }) {
   return (
@@ -12,13 +13,9 @@ function DocumentHeader({ onCreate }) {
         </p>
       </div>
 
-      <button
-        type='button'
-        onClick={onCreate}
-        className='flex h-10 items-center justify-center gap-2 rounded-lg bg-[#D71920] px-4 text-[12px] font-semibold text-white transition hover:bg-[#b9151b]'
-      >
+      <Button onClick={onCreate}>
         <Plus size={17} /> Thêm tài liệu
-      </button>
+      </Button>
     </div>
   );
 }

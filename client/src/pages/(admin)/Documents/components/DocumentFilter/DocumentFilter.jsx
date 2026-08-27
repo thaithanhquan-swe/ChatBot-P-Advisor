@@ -7,13 +7,13 @@ function DocumentFilter({ filters, onChange, onReset }) {
     'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-[11px] text-slate-700 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-50';
 
   return (
-    <aside className='h-fit rounded-xl border border-slate-200 bg-white p-4 xl:sticky xl:top-24'>
-      <div className='mb-5 flex items-center gap-2'>
+    <aside className='mt-5 rounded-xl border border-slate-200 bg-white p-4'>
+      <div className='mb-4 flex items-center gap-2'>
         <SlidersHorizontal size={16} className='text-[#D71920]' />
         <h2 className='text-[14px] font-bold text-slate-900'>Bộ lọc tài liệu</h2>
       </div>
 
-      <div className='space-y-4'>
+      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(150px,1fr))_auto]'>
         <div>
           <label className='mb-2 block text-[11px] font-medium text-slate-600'>Tìm kiếm</label>
           <div className='relative'>
@@ -74,7 +74,7 @@ function DocumentFilter({ filters, onChange, onReset }) {
         <button
           type='button'
           onClick={onReset}
-          className='flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-600 transition hover:border-red-200 hover:text-[#D71920]'
+          className='flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] font-semibold text-slate-600 transition hover:border-red-200 hover:text-[#D71920] xl:w-auto'
         >
           <RotateCcw size={14} /> Xóa bộ lọc
         </button>

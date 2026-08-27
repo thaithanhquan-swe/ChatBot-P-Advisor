@@ -1,6 +1,8 @@
 import { FileSearch } from 'lucide-react';
 import DocumentPagination from '../DocumentPagination/DocumentPagination';
 import DocumentTableRow from '../DocumentTableRow/DocumentTableRow';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 function DocumentTable({
   documents,
@@ -14,18 +16,18 @@ function DocumentTable({
   onDelete,
 }) {
   return (
-    <section className='min-w-0 rounded-xl border border-slate-200 bg-white'>
-      <div className='flex items-center justify-between border-b border-slate-100 px-5 py-4'>
+    <Card className='min-w-0 overflow-hidden'>
+      <CardHeader className='flex-row items-center justify-between space-y-0 border-b border-slate-100 px-5 py-4'>
         <div>
-          <h2 className='text-[14px] font-bold text-slate-900'>Danh sách tài liệu</h2>
+          <CardTitle>Danh sách tài liệu</CardTitle>
           <p className='mt-1 text-[10px] text-slate-400'>Tìm thấy {totalItems} tài liệu phù hợp</p>
         </div>
-      </div>
+      </CardHeader>
 
       <div className='overflow-x-auto'>
-        <table className='w-full min-w-[1100px] border-collapse'>
-          <thead>
-            <tr className='border-b border-slate-200 bg-slate-50/80'>
+        <Table className='min-w-[1100px] border-collapse'>
+          <TableHeader>
+            <TableRow className='bg-slate-50/80 hover:bg-slate-50/80'>
               {[
                 'Tên tài liệu',
                 'Tên file',
@@ -35,16 +37,16 @@ function DocumentTable({
                 'Cập nhật lần cuối',
                 'Thao tác',
               ].map((item) => (
-                <th
+                <TableHead
                   key={item}
                   className={`px-4 py-3 text-[10px] font-semibold text-slate-600 ${item === 'Thao tác' ? 'text-right' : 'text-left'}`}
                 >
                   {item}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {documents.map((document) => (
               <DocumentTableRow
                 key={document.id}
@@ -54,8 +56,8 @@ function DocumentTable({
                 onDelete={onDelete}
               />
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
 
         {documents.length === 0 && (
           <div className='flex flex-col items-center justify-center px-6 py-16 text-center'>
@@ -75,7 +77,7 @@ function DocumentTable({
         pageSize={pageSize}
         onPageChange={onPageChange}
       />
-    </section>
+    </Card>
   );
 }
 
