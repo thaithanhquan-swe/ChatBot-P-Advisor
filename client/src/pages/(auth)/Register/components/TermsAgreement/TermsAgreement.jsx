@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 
-const TermsAgreement = () => (
+const TermsAgreement = ({ checked, onChange }) => (
   <label className='flex items-start gap-2.5 text-[13px] text-(--text-secondary)'>
     <input
       type='checkbox'
+      checked={checked}
+      onChange={onChange}
       className='mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-(--primary-color) focus:ring-(--primary-color-soft)'
     />
     <span>
