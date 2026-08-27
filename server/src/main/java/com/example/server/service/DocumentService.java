@@ -42,6 +42,7 @@ public class DocumentService {
     DocumentRepository documentRepository;
     UserRepository userRepository;
     DocumentMapper documentMapper;
+    KnowledgeRetrievalService knowledgeRetrievalService;
 
     @NonFinal
     Path storageRoot;
@@ -86,7 +87,9 @@ public class DocumentService {
                     .uploadedBy(getCurrentUser())
                     .build();
 
-            return documentMapper.toDocumentResponse(documentRepository.save(document));
+            document = documentRepository.save(document);
+            knowledgeRetrievalService.indexDocument(document);
+            return documentMapper.toDocumentResponse(document);
         } catch (IOException exception) {
             deleteQuietly(target);
             throw new AppException(ErrorCode.DOCUMENT_STORAGE_ERROR);

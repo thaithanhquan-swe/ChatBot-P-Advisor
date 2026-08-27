@@ -38,11 +38,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class KnowledgeRetrievalService {
-    static int MAX_RESULTS = 8;
-    static int MAX_CONTEXT_CHARACTERS = 16_000;
+    static int MAX_RESULTS = 5;
+    static int MAX_CONTEXT_CHARACTERS = 12_000;
     static int MAX_DOCUMENT_CHARACTERS = 100_000;
-    static int DOCUMENT_CHUNK_CHARACTERS = 3_000;
-    static int DOCUMENT_CHUNK_OVERLAP = 300;
+    static int DOCUMENT_CHUNK_CHARACTERS = 2_000;
+    static int DOCUMENT_CHUNK_OVERLAP = 200;
     static int MIN_EXTRACTED_TEXT_CHARACTERS = 100;
     static Set<String> STOP_WORDS = Set.of(
             "a", "ai", "bao", "bi", "cac", "cho", "co", "cua", "duoc", "gi", "la", "lam",
@@ -57,7 +57,7 @@ public class KnowledgeRetrievalService {
     @Value("${app.document.storage-location}")
     String storageLocation;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public String retrieve(String query) {
         Set<String> queryTerms = tokenize(query);
         if (queryTerms.isEmpty()) {
@@ -91,6 +91,11 @@ public class KnowledgeRetrievalService {
             context.append(entry);
         }
         return context.toString().trim();
+    }
+
+    public void indexDocument(Document document) {
+        extractDocument(document);
+        log.info("Indexed document {} successfully", document.getId());
     }
 
     private KnowledgeChunk fromFaq(Faq faq, Set<String> queryTerms) {
@@ -139,10 +144,25 @@ public class KnowledgeRetrievalService {
             if (boosted.contains(term)) score += 4;
             if (full.contains(term)) score += 1;
         }
+        if (queryTerms.containsAll(Set.of("cong", "nghe", "thong", "tin"))
+                && full.contains("cong nghe thong tin")) {
+            score += 20;
+        }
+        if (queryTerms.containsAll(Set.of("diem", "chuan"))
+                && full.contains("diem trung tuyen")) {
+            score += 20;
+        }
+        if (queryTerms.containsAll(Set.of("gan", "nhat")) && full.contains("2025")) {
+            score += 10;
+        }
         return score;
     }
 
     private String extractDocument(com.example.server.entity.Document document) {
+        if (document.getExtractedContent() != null && !document.getExtractedContent().isBlank()) {
+            return document.getExtractedContent();
+        }
+
         String cacheKey = document.getId() + ":" + document.getUpdatedAt();
         CachedDocument cached = documentCache.get(document.getId());
         if (cached != null && cached.key().equals(cacheKey)) return cached.content();
@@ -165,6 +185,10 @@ public class KnowledgeRetrievalService {
             if (content.length() > MAX_DOCUMENT_CHARACTERS) {
                 content = content.substring(0, MAX_DOCUMENT_CHARACTERS);
             }
+            if (!content.isBlank()) {
+                document.setExtractedContent(content);
+                documentRepository.save(document);
+            }
             documentCache.put(document.getId(), new CachedDocument(cacheKey, content));
             return content.isBlank() ? fallback : content;
         } catch (Exception exception) {
@@ -179,10 +203,15 @@ public class KnowledgeRetrievalService {
     }
 
     private Set<String> tokenize(String value) {
-        return Arrays.stream(normalize(value).split("[^a-z0-9]+"))
+        Set<String> terms = Arrays.stream(normalize(value).split("[^a-z0-9]+"))
                 .filter(token -> token.length() > 1)
                 .filter(token -> !STOP_WORDS.contains(token))
                 .collect(Collectors.toSet());
+        if (terms.containsAll(Set.of("diem", "chuan"))) {
+            terms.add("trung");
+            terms.add("tuyen");
+        }
+        return terms;
     }
 
     private String normalize(String value) {

@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -72,9 +71,6 @@ public class ChatMessage {
 
     @Column(name = "file_size")
     Long fileSize;
-
-    @Column(name = "confidence_score", precision = 5, scale = 4)
-    BigDecimal confidenceScore;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

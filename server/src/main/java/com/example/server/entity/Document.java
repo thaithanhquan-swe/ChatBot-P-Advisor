@@ -41,6 +41,9 @@ public class Document {
     @Column(columnDefinition = "TEXT")
     String description;
 
+    @Column(name = "extracted_content", columnDefinition = "LONGTEXT")
+    String extractedContent;
+
     @Column(name = "file_name", nullable = false, length = 255)
     String fileName;
 

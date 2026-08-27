@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -28,6 +27,5 @@ public class ChatMessageResponse {
     String fileUrl;
     String fileType;
     Long fileSize;
-    BigDecimal confidenceScore;
     LocalDateTime createdAt;
 }

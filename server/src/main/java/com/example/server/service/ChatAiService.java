@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ChatAiService {
-    static int MAX_HISTORY_MESSAGES = 20;
+    static int MAX_HISTORY_MESSAGES = 10;
     static String SYSTEM_PROMPT = """
             Bạn là trợ lý tư vấn tuyển sinh của ChatBot P-Advisor. Hãy trả lời bằng tiếng Việt, rõ ràng và chính xác.
             Với thông tin riêng của Học viện, chỉ sử dụng knowledge được cung cấp từ Documents và FAQ.

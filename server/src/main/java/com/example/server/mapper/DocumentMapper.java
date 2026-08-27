@@ -18,6 +18,7 @@ public interface DocumentMapper {
     @Mapping(target = "fileUrl", ignore = true)
     @Mapping(target = "fileType", ignore = true)
     @Mapping(target = "fileSize", ignore = true)
+    @Mapping(target = "extractedContent", ignore = true)
     @Mapping(target = "uploadedBy", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

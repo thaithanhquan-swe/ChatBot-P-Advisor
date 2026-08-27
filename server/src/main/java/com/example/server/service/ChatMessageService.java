@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -72,7 +71,7 @@ public class ChatMessageService {
 
         UserMessageContext messageContext = validateUserMessage(sessionToken);
         return saveMessage(messageContext.session(), messageContext.senderId(), messageContext.sender(),
-                ChatMessageType.TEXT, normalizedContent, null);
+                ChatMessageType.TEXT, normalizedContent);
     }
 
     private ChatMessageResponse saveUserMessageWithFile(
@@ -131,7 +130,7 @@ public class ChatMessageService {
             throw new AppException(ErrorCode.CHAT_SESSION_NOT_ASSIGNED_TO_YOU);
         }
         return saveMessage(session, staff.getId(), ChatMessageSender.STAFF,
-                ChatMessageType.TEXT, normalizeContent(content), null);
+                ChatMessageType.TEXT, normalizeContent(content));
     }
 
     @Transactional(readOnly = true)
@@ -153,33 +152,27 @@ public class ChatMessageService {
 
     @Transactional
     public ChatMessageResponse saveBotMessage(String sessionToken, String content) {
-        return saveBotMessage(sessionToken, content, null);
-    }
-
-    @Transactional
-    public ChatMessageResponse saveBotMessage(String sessionToken, String content, BigDecimal confidenceScore) {
         ChatSession session = findByToken(sessionToken);
         return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.TEXT,
-                normalizeContent(content), confidenceScore);
+                normalizeContent(content));
     }
 
     @Transactional
     public ChatMessageResponse saveSystemMessage(String sessionToken, String content) {
         ChatSession session = findByToken(sessionToken);
         return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.SYSTEM,
-                normalizeContent(content), null);
+                normalizeContent(content));
     }
 
     private ChatMessageResponse saveMessage(ChatSession session, String senderId,
                                             ChatMessageSender sender, ChatMessageType messageType,
-                                            String content, BigDecimal confidenceScore) {
+                                            String content) {
         ChatMessage message = ChatMessage.builder()
                 .chatSession(session)
                 .senderId(senderId)
                 .sender(sender)
                 .messageType(messageType)
                 .content(content)
-                .confidenceScore(confidenceScore)
                 .build();
         session.setUpdatedAt(LocalDateTime.now());
         chatSessionRepository.save(session);
@@ -237,7 +230,6 @@ public class ChatMessageService {
                 .fileUrl(message.getFileUrl())
                 .fileType(message.getFileType())
                 .fileSize(message.getFileSize())
-                .confidenceScore(message.getConfidenceScore())
                 .createdAt(message.getCreatedAt())
                 .build();
     }
