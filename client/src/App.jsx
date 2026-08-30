@@ -12,7 +12,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
 import Documents from './pages/(admin)/Documents';
-import PendingQuestions from './pages/(admin)/PendingQuestions';
+import ConsultationRequests from './pages/(admin)/ConsultationRequests';
 import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
 import UserManagement from './pages/(admin)/UserManagement/index.jsx';
@@ -40,7 +40,7 @@ function App() {
         <Route index element={<Dashboard />} />
         <Route path='faq' element={<FAQ />} />
         <Route path='documents' element={<Documents />} />
-        <Route path='pending-questions' element={<PendingQuestions />} />
+        <Route path='consultation-requests' element={<ConsultationRequests />} />
         <Route path='users' element={<UserManagement />} />
       </Route>
     </Routes>

@@ -18,8 +18,8 @@ function AdminSidebar() {
       icon: FileText,
     },
     {
-      label: 'Câu hỏi tồn đọng',
-      path: '/admin/pending-questions',
+      label: 'Yêu cầu tư vấn',
+      path: '/admin/consultation-requests',
       icon: CircleHelp,
     },
     {
