@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { Link, Outlet } from 'react-router-dom';
 
 import HeroPanel from '@/layouts/AuthLayout/components/HeroPanel/HeroPanel';
 
@@ -10,6 +11,14 @@ function AuthLayout() {
 
         <main className='flex flex-1 items-center justify-center bg-[#fffefe] px-4 py-8 sm:px-8 lg:px-10'>
           <div className='w-full max-w-162.5'>
+            <Link
+              to='/'
+              className='mb-4 inline-flex items-center gap-2 text-[13px] font-medium text-gray-500 transition-colors hover:text-(--primary-color)'
+            >
+              <ArrowLeft size={16} strokeWidth={1.8} />
+              Về trang chủ
+            </Link>
+
             <Outlet />
           </div>
         </main>
