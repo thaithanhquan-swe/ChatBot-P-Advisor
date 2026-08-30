@@ -13,13 +13,16 @@ const Nav = ({ navItems }) => {
     if (!authStorage.getToken()) return;
 
     let active = true;
-    getCurrentUser()
-      .then((user) => {
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
         if (active) setCurrentUser(user);
-      })
-      .catch(() => {
+      } catch {
         if (active) setCurrentUser(null);
-      });
+      }
+    };
+
+    fetchCurrentUser();
 
     return () => {
       active = false;

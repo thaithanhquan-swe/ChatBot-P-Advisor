@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CircleQuestionMark, House, MessageCircleMore, User } from 'lucide-react';
-import Logo from './components/Logo';
-import Nav from './components/Nav';
+import Logo from './components/Logo/Logo';
+import Nav from './components/Nav/Nav';
 
 const navItems = [
   {
