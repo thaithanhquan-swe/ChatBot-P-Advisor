@@ -25,6 +25,10 @@ public class User {
 
     @Column(unique = true)
     String email;
+
+    @Column(unique = true)
+    String firebaseUid;
+
     String password;
     String phone;
 

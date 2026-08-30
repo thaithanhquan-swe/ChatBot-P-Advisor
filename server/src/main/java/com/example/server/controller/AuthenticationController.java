@@ -45,6 +45,14 @@ public class AuthenticationController {
                 .build();
     }
 
+    @PostMapping("/firebase")
+    ApiResponse<AuthenticationResponse> firebaseLogin(
+            @RequestBody @Valid FirebaseAuthenticationRequest request) {
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(authService.firebaseLogin(request.getIdToken()))
+                .build();
+    }
+
     @PostMapping("/refresh_token")
     ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshRequest request)
             throws ParseException, JOSEException {

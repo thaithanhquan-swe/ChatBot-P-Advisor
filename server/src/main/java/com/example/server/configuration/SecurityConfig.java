@@ -33,6 +33,7 @@ public class SecurityConfig {
                         "/auth/register",
                         "/auth/verify-email",
                         "/auth/login",
+                        "/auth/firebase",
                         "/auth/refresh_token",
                         "/auth/introspect",
                         "/auth/logout",

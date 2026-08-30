@@ -11,6 +11,14 @@ export async function login(credentials) {
   return data.result;
 }
 
+export async function firebaseLogin(idToken) {
+  const data = await http.post('/auth/firebase', { idToken });
+  const token = data?.result?.token;
+  if (!token) throw new Error('Backend không trả về access token.');
+  authStorage.setToken(token);
+  return data.result;
+}
+
 export async function register(user) {
   const data = await http.post('/auth/register', user);
   return data.result;

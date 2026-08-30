@@ -13,6 +13,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+    @Mapping(target = "firebaseUid", ignore = true)
     User toUser(UserRegisterRequest request);
 
     UserResponse toUserResponse (User user);
@@ -22,5 +23,6 @@ public interface UserMapper {
     List<UserResponse> toUserResponseList(List<User> users);
 
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "firebaseUid", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }

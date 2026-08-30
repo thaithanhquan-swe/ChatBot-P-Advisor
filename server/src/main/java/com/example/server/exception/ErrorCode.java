@@ -17,6 +17,7 @@ public enum ErrorCode {
     EMAIL_INVALID(1009, "Email is invalid", HttpStatus.BAD_REQUEST),
     INVALID_RESET_TOKEN(1010, "Reset token is invalid or expired", HttpStatus.BAD_REQUEST),
     EMAIL_SEND_FAILED(1011, "Could not send password reset email", HttpStatus.BAD_GATEWAY),
+    FIREBASE_AUTH_FAILED(1044, "Firebase authentication failed", HttpStatus.UNAUTHORIZED),
     INVALID_VERIFICATION_TOKEN(1019, "Verification link is invalid or expired", HttpStatus.BAD_REQUEST),
     EMAIL_NOT_VERIFIED(1020, "Email has not been verified", HttpStatus.FORBIDDEN),
     FAQ_CATEGORY_NOT_FOUND(1012, "FAQ category not found", HttpStatus.NOT_FOUND),

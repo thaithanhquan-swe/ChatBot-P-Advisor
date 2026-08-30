@@ -19,6 +19,7 @@ import com.example.server.repository.EmailVerificationTokenRepository;
 import com.example.server.repository.PasswordResetTokenRepository;
 import com.example.server.repository.RoleRepository;
 import com.example.server.repository.UserRepository;
+import com.google.firebase.auth.FirebaseToken;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -59,6 +60,7 @@ public class AuthenticationService {
     UserMapper userMapper;
     EmailVerificationMailService emailVerificationMailService;
     PasswordResetMailService passwordResetMailService;
+    FirebaseTokenVerifier firebaseTokenVerifier;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -156,6 +158,64 @@ public class AuthenticationService {
                 .token(token)
                 .authenticated(authentiacated)
                 .build();
+    }
+
+    @Transactional
+    public AuthenticationResponse firebaseLogin(String idToken) {
+        FirebaseToken firebaseToken = firebaseTokenVerifier.verify(idToken);
+        String firebaseUid = firebaseToken.getUid();
+        String email = firebaseToken.getEmail();
+        if (firebaseUid == null || email == null || !firebaseToken.isEmailVerified()) {
+            throw new AppException(ErrorCode.FIREBASE_AUTH_FAILED);
+        }
+
+        User user = userRepository.findByFirebaseUid(firebaseUid)
+                .orElseGet(() -> findOrCreateFirebaseUser(firebaseUid, email));
+
+        return AuthenticationResponse.builder()
+                .token(generateToken(user))
+                .authenticated(true)
+                .build();
+    }
+
+    private User findOrCreateFirebaseUser(String firebaseUid, String email) {
+        Optional<User> existingUser = userRepository.findByEmailIgnoreCase(email);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            user.setFirebaseUid(firebaseUid);
+            user.setEmailVerified(true);
+            return userRepository.save(user);
+        }
+
+        Role userRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+        User user = User.builder()
+                .username(generateFirebaseUsername(email))
+                .email(email.trim().toLowerCase())
+                .firebaseUid(firebaseUid)
+                .password(passwordEncoder.encode(generateResetToken()))
+                .emailVerified(true)
+                .roles(new HashSet<>(Collections.singleton(userRole)))
+                .build();
+
+        try {
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.FIREBASE_AUTH_FAILED);
+        }
+    }
+
+    private String generateFirebaseUsername(String email) {
+        String base = email.substring(0, email.indexOf('@'))
+                .replaceAll("[^A-Za-z0-9_]", "");
+        if (base.length() < 5) base = base + "google";
+
+        String candidate = base;
+        int suffix = 1;
+        while (userRepository.existsByUsername(candidate)) {
+            candidate = base + suffix++;
+        }
+        return candidate;
     }
 
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
