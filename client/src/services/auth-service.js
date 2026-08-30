@@ -4,7 +4,7 @@ import { authStorage } from '@/lib/auth-storage';
 const verificationRequests = new Map();
 
 export async function login(credentials) {
-  const { data } = await http.post('/auth/login', credentials);
+  const data = await http.post('/auth/login', credentials);
   const token = data?.result?.token;
   if (!token) throw new Error('Backend không trả về access token.');
   authStorage.setToken(token);
@@ -12,7 +12,7 @@ export async function login(credentials) {
 }
 
 export async function register(user) {
-  const { data } = await http.post('/auth/register', user);
+  const data = await http.post('/auth/register', user);
   return data.result;
 }
 
@@ -29,13 +29,13 @@ export function verifyEmail(token) {
   if (!verificationRequests.has(token)) {
     verificationRequests.set(
       token,
-      http.post('/auth/verify-email', { token }).then(({ data }) => data)
+      http.post('/auth/verify-email', { token }).then((data) => data.result)
     );
   }
   return verificationRequests.get(token);
 }
 
 export async function getCurrentUser() {
-  const { data } = await http.get('/users/me');
+  const data = await http.get('/users/me');
   return data.result;
 }

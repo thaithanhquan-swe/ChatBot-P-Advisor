@@ -1,17 +1,17 @@
 import http from '@/lib/http';
 
 export async function createChatSession(title = 'Cuộc trò chuyện mới') {
-  const { data } = await http.post('/chat-sessions', { title });
+  const data = await http.post('/chat-sessions', { title });
   return data.result;
 }
 
 export async function getChatSession(sessionToken) {
-  const { data } = await http.get(`/chat-sessions/${sessionToken}`);
+  const data = await http.get(`/chat-sessions/${sessionToken}`);
   return data.result;
 }
 
 export async function getChatMessages(sessionToken) {
-  const { data } = await http.get(`/chat-messages/${sessionToken}`);
+  const data = await http.get(`/chat-messages/${sessionToken}`);
   return data.result || [];
 }
 
@@ -20,11 +20,11 @@ export async function sendChatMessage(sessionToken, content, file = null) {
   formData.append('content', content);
   if (file) formData.append('file', file);
 
-  const { data } = await http.post(`/chat-messages/${sessionToken}`, formData);
+  const data = await http.post(`/chat-messages/${sessionToken}`, formData);
   return data.result;
 }
 
 export async function requestStaff(sessionToken) {
-  const { data } = await http.post(`/chat-sessions/${sessionToken}/request-staff`);
+  const data = await http.post(`/chat-sessions/${sessionToken}/request-staff`);
   return data.result;
 }

@@ -18,7 +18,7 @@ http.interceptors.request.use((config) => {
 let refreshPromise = null;
 
 http.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   async (error) => {
     const request = error.config;
     const token = authStorage.getToken();
