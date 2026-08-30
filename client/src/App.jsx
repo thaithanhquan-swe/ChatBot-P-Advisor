@@ -16,6 +16,7 @@ import ConsultationRequests from './pages/(admin)/ConsultationRequests';
 import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
 import UserManagement from './pages/(admin)/UserManagement/index.jsx';
+import Settings from './pages/(admin)/Settings';
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
         <Route path='documents' element={<Documents />} />
         <Route path='consultation-requests' element={<ConsultationRequests />} />
         <Route path='users' element={<UserManagement />} />
+        <Route path='settings' element={<Settings />} />
       </Route>
     </Routes>
   );
