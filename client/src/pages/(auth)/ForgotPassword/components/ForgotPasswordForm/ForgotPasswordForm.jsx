@@ -1,24 +1,30 @@
 import { useState } from 'react';
 import { Info, Mail, Send } from 'lucide-react';
+import { forgotPassword } from '@/services/auth-service';
+import { getApiErrorMessage } from '@/lib/http';
 
 const ForgotPasswordForm = () => {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || submitting) return;
 
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/auth/forgot-password`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
-      }
-    );
+    setSubmitting(true);
+    setError('');
+    setSent(false);
 
-    if (response.ok) setSent(true);
+    try {
+      await forgotPassword(email.trim());
+      setSent(true);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Không thể gửi email đặt lại mật khẩu.'));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -55,12 +61,19 @@ const ForgotPasswordForm = () => {
         </div>
       )}
 
+      {error && (
+        <div className='rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700'>
+          {error}
+        </div>
+      )}
+
       <button
         type='submit'
+        disabled={submitting || !email.trim()}
         className='flex h-13.5 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#d71920] text-[15px] font-semibold text-white shadow-[0_8px_18px_rgba(215,25,32,0.16)] transition hover:bg-[#bd1118] active:translate-y-px'
       >
         <Send size={18} />
-        Gửi hướng dẫn đặt lại mật khẩu
+        {submitting ? 'Đang gửi...' : 'Gửi hướng dẫn đặt lại mật khẩu'}
       </button>
     </form>
   );

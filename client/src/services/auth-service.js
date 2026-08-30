@@ -41,3 +41,13 @@ export async function getCurrentUser() {
   const data = await http.get('/users/me');
   return data.result;
 }
+
+export async function forgotPassword(email) {
+  const data = await http.post('/auth/forgot-password', { email });
+  return data;
+}
+
+export async function resetPassword(token, newPassword) {
+  const data = await http.post('/auth/reset-password', { token, newPassword });
+  return data;
+}
