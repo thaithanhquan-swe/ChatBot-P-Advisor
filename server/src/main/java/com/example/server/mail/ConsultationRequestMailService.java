@@ -27,7 +27,6 @@ public class ConsultationRequestMailService {
             case PENDING -> "Chờ tiếp nhận";
             case IN_PROGRESS -> "Đang xử lý";
             case RESOLVED -> "Đã xử lý";
-            case CANCELLED -> "Đã hủy";
         };
         String content = """
                 Xin chào,
