@@ -16,15 +16,18 @@ const VerifyEmail = () => {
     if (!token) return;
 
     let active = true;
-    verifyEmail(token)
-      .then(() => {
+    const submitVerification = async () => {
+      try {
+        await verifyEmail(token);
         if (active) setStatus('success');
-      })
-      .catch((requestError) => {
+      } catch (requestError) {
         if (!active) return;
         setError(getApiErrorMessage(requestError, 'Không thể xác thực email.'));
         setStatus('error');
-      });
+      }
+    };
+
+    submitVerification();
 
     return () => {
       active = false;

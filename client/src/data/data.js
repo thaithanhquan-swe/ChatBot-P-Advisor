@@ -1,13 +1,3 @@
-// "iconKey" chỉ là một cái tên để component tự chọn icon tương ứng khi hiển thị.
-export const popularQuestions = [
-  { number: '01', iconKey: 'ClipboardList', question: 'Điều kiện xét tuyển vào PTIT là gì?' },
-  { number: '02', iconKey: 'Wallet', question: 'Học phí của các ngành như thế nào?' },
-  { number: '03', iconKey: 'GraduationCap', question: 'PTIT có những ngành đào tạo nào?' },
-  { number: '04', iconKey: 'CalendarClock', question: 'Thời gian xét tuyển và nhập học khi nào?' },
-  { number: '05', iconKey: 'Award', question: 'Có những loại học bổng nào cho sinh viên?' },
-  { number: '06', iconKey: 'Building2', question: 'Ký túc xá và hỗ trợ sinh viên ra sao?' },
-];
-
 // ─── Dữ liệu trang FAQ ─────────────────────────────────────────────────────
 export const faqCategories = [
   'Tất cả',

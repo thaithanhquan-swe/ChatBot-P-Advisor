@@ -27,10 +27,12 @@ export async function logout() {
 
 export function verifyEmail(token) {
   if (!verificationRequests.has(token)) {
-    verificationRequests.set(
-      token,
-      http.post('/auth/verify-email', { token }).then((data) => data.result)
-    );
+    const request = async () => {
+      const data = await http.post('/auth/verify-email', { token });
+      return data.result;
+    };
+
+    verificationRequests.set(token, request());
   }
   return verificationRequests.get(token);
 }

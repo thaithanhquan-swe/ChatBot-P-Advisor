@@ -25,21 +25,21 @@ http.interceptors.response.use(
     const isAuthRequest = request?.url?.startsWith('/auth/');
 
     if (error.response?.status !== 401 || !token || request?._retried || isAuthRequest) {
-      return Promise.reject(error);
+      throw error;
     }
 
     request._retried = true;
-    refreshPromise ??= axios
-      .post(`${API_BASE_URL}/auth/refresh_token`, { token })
-      .then(({ data }) => {
+    refreshPromise ??= (async () => {
+      try {
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh_token`, { token });
         const nextToken = data?.result?.token;
         if (!nextToken) throw new Error('Refresh token response is invalid');
         authStorage.setToken(nextToken);
         return nextToken;
-      })
-      .finally(() => {
+      } finally {
         refreshPromise = null;
-      });
+      }
+    })();
 
     try {
       const nextToken = await refreshPromise;
@@ -47,7 +47,7 @@ http.interceptors.response.use(
       return http(request);
     } catch (refreshError) {
       authStorage.clear();
-      return Promise.reject(refreshError);
+      throw refreshError;
     }
   }
 );
