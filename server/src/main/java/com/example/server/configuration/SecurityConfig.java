@@ -41,7 +41,8 @@ public class SecurityConfig {
                         "/chat-sessions",
                         "/chat-sessions/*/questions",
                         "/chat-sessions/*/request-staff",
-                        "/chat-messages/*"
+                        "/chat-messages/*",
+                        "/consultation-requests"
                 ).permitAll()
 
                 .requestMatchers(

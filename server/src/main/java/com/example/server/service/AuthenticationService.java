@@ -12,7 +12,8 @@ import com.example.server.entity.User;
 import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.mapper.UserMapper;
-import com.example.server.mail.MailService;
+import com.example.server.mail.EmailVerificationMailService;
+import com.example.server.mail.PasswordResetMailService;
 import com.example.server.repository.InvalidatedTokenRepository;
 import com.example.server.repository.EmailVerificationTokenRepository;
 import com.example.server.repository.PasswordResetTokenRepository;
@@ -56,7 +57,8 @@ public class AuthenticationService {
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-    MailService mailService;
+    EmailVerificationMailService emailVerificationMailService;
+    PasswordResetMailService passwordResetMailService;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -103,7 +105,7 @@ public class AuthenticationService {
                 .user(user)
                 .expiresAt(Instant.now().plus(EMAIL_VERIFICATION_EXPIRATION_MINUTES, ChronoUnit.MINUTES))
                 .build());
-        mailService.sendVerificationEmail(user.getEmail(), user.getUsername(), rawToken,
+        emailVerificationMailService.send(user.getEmail(), user.getUsername(), rawToken,
                 EMAIL_VERIFICATION_EXPIRATION_MINUTES);
         return userMapper.toUserResponse(user);
     }
@@ -213,7 +215,7 @@ public class AuthenticationService {
                     .build();
             passwordResetTokenRepository.save(resetToken);
 
-            mailService.sendResetPasswordEmail(
+            passwordResetMailService.send(
                     user.getEmail(), user.getUsername(), rawToken, PASSWORD_RESET_EXPIRATION_MINUTES);
         });
     }
