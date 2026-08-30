@@ -1,6 +1,10 @@
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { getCurrentUser } from '@/services/auth-service';
+
 function AdminSidebar() {
+  const [currentUser, setCurrentUser] = useState(null);
   const menuItems = [
     {
       label: 'Dashboard',
@@ -24,20 +28,44 @@ function AdminSidebar() {
     },
     {
       label: 'Quản lý người dùng',
-      path: 'users',
+      path: '/admin/users',
       icon: Users,
+      adminOnly: true,
     },
     {
       label: 'Cấu hình hệ thống',
       path: '/admin/settings',
       icon: Settings,
+      adminOnly: true,
     },
     {
       label: 'Báo cáo & Thống kê',
       path: '/admin/reports',
       icon: BarChart3,
+      adminOnly: true,
     },
   ];
+  const isAdmin = currentUser?.roles?.some((role) => role.name === 'ADMIN');
+  const visibleMenuItems = menuItems.filter((item) => !item.adminOnly || isAdmin);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (active) setCurrentUser(user);
+      } catch {
+        if (active) setCurrentUser(null);
+      }
+    };
+
+    fetchCurrentUser();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <aside className='fixed inset-y-0 left-0 z-50 flex w-67.5 flex-col border-r border-slate-200 bg-white'>
@@ -48,7 +76,7 @@ function AdminSidebar() {
         </p>
 
         <nav className='space-y-1.5'>
-          {menuItems.map((item) => {
+          {visibleMenuItems.map((item) => {
             const Icon = item.icon;
 
             return (

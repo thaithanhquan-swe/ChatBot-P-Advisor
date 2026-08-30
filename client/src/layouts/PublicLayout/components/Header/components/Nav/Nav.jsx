@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
-import { LogIn, LogOut, UserRound } from 'lucide-react';
+import {
+  CircleQuestionMark,
+  House,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  MessageCircleMore,
+  User,
+  UserRound,
+} from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStorage } from '@/lib/auth-storage';
 import { getCurrentUser, logout } from '@/services/auth-service';
 
-const Nav = ({ navItems }) => {
+const Nav = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
@@ -37,6 +46,17 @@ const Nav = ({ navItems }) => {
       navigate('/', { replace: true });
     }
   };
+
+  const canAccessAdmin = currentUser?.roles?.some(
+    (role) => role.name === 'ADMIN' || role.name === 'ADVISOR'
+  );
+  const navItems = [
+    { label: 'Trang chủ', href: '/', icon: House },
+    { label: 'Trang chat', href: '/chatai', icon: MessageCircleMore },
+    { label: 'FAQ', href: '/faq', icon: CircleQuestionMark },
+    { label: 'Yêu cầu tư vấn', href: '/consultation-request', icon: User },
+    ...(canAccessAdmin ? [{ label: 'Trang quản trị', href: '/admin', icon: LayoutDashboard }] : []),
+  ];
 
   return (
     <nav className='flex h-full items-center gap-8'>

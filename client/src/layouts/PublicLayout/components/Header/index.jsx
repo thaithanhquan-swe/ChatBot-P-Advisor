@@ -1,30 +1,6 @@
 import { useEffect, useState } from 'react';
-import { CircleQuestionMark, House, MessageCircleMore, User } from 'lucide-react';
 import Logo from './components/Logo/Logo';
 import Nav from './components/Nav/Nav';
-
-const navItems = [
-  {
-    label: 'Trang chủ',
-    href: '/',
-    icon: House,
-  },
-  {
-    label: 'Trang chat',
-    href: '/chatai',
-    icon: MessageCircleMore,
-  },
-  {
-    label: 'FAQ',
-    href: '/faq',
-    icon: CircleQuestionMark,
-  },
-  {
-    label: 'Yêu cầu tư vấn',
-    href: '/consultation-request',
-    icon: User,
-  },
-];
 
 const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -53,7 +29,7 @@ const Navbar = () => {
     >
       <div className='mx-auto flex h-18.75 max-w-350 items-center justify-between px-8'>
         <Logo />
-        <Nav navItems={navItems} />
+        <Nav />
       </div>
     </header>
   );
