@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, MessageSquareText, Settings, Users } from 'lucide-react';
 import { getCurrentUser } from '@/services/auth-service';
+import AdminFooter from '../AdminFooter/AdminFooter';
 
 function AdminSidebar() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -25,6 +26,11 @@ function AdminSidebar() {
       label: 'Yêu cầu tư vấn',
       path: '/admin/consultation-requests',
       icon: CircleHelp,
+    },
+    {
+      label: 'Tin nhắn người dùng',
+      path: '/admin/messages',
+      icon: MessageSquareText,
     },
     {
       label: 'Quản lý người dùng',
@@ -68,7 +74,7 @@ function AdminSidebar() {
   }, []);
 
   return (
-    <aside className='fixed inset-y-0 left-0 z-50 flex w-67.5 flex-col border-r border-slate-200 bg-white'>
+    <aside className='absolute inset-y-0 left-0 z-50 flex w-67.5 flex-col border-r border-slate-200 bg-white'>
       {/* Menu */}
       <div className='flex-1 overflow-y-auto px-4 py-6'>
         <p className='mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400'>
@@ -106,6 +112,8 @@ function AdminSidebar() {
           })}
         </nav>
       </div>
+
+      <AdminFooter compact />
     </aside>
   );
 }

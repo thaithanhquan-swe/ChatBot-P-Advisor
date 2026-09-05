@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Paperclip, SendHorizontal } from 'lucide-react';
 
-const ChatInput = ({ value, onChange, onSubmit, disabled }) => {
+const ChatInput = ({ value, onChange, onSubmit, disabled, placeholder = 'Nhập câu hỏi về tuyển sinh PTIT...' }) => {
   const textareaRef = useRef(null);
 
   const handleKeyDown = (e) => {
@@ -43,7 +43,7 @@ const ChatInput = ({ value, onChange, onSubmit, disabled }) => {
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder='Nhập câu hỏi về tuyển sinh PTIT...'
+          placeholder={placeholder}
           className='max-h-28 flex-1 resize-none bg-transparent py-2 text-[14.5px] leading-relaxed text-gray-800 placeholder:text-(--text-tertiary) focus:outline-none'
         />
 

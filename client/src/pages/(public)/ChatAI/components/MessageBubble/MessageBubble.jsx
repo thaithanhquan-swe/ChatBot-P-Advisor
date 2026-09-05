@@ -1,10 +1,22 @@
 import { useState } from 'react';
-import { AlertCircle, Bot, Check, Copy, ExternalLink } from 'lucide-react';
+import { AlertCircle, Bot, Check, Copy, ExternalLink, Headset } from 'lucide-react';
 import AnswerBlock from './AnswerBlock';
 
 const MessageBubble = ({ message, onFollowUp }) => {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
+
+  if (message.role === 'system') {
+    return (
+      <div className='flex animate-fade-in-up justify-center'>
+        <div className='flex items-center gap-2 rounded-(--radius-card) border border-amber-200 bg-amber-50 px-3.5 py-2 text-center text-[12px] font-medium text-amber-800'>
+          <Headset size={15} />
+          <span>{message.content}</span>
+          {message.time && <span className='text-amber-600'>{message.time}</span>}
+        </div>
+      </div>
+    );
+  }
 
   const handleCopy = async () => {
     const plainText = message.blocks
@@ -35,7 +47,7 @@ const MessageBubble = ({ message, onFollowUp }) => {
   return (
     <div className='flex animate-fade-in-up items-start gap-3'>
       <div className='mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft)'>
-        <Bot size={16} className='text-(--primary-color)' strokeWidth={2} />
+        {message.role === 'advisor' ? <Headset size={16} className='text-(--primary-color)' strokeWidth={2} /> : <Bot size={16} className='text-(--primary-color)' strokeWidth={2} />}
       </div>
 
       <div className='flex max-w-135 flex-col gap-2'>
@@ -50,23 +62,23 @@ const MessageBubble = ({ message, onFollowUp }) => {
               Chưa tìm thấy câu trả lời chính xác
             </div>
           )}
-          {message.blocks.map((block, i) => (
-            <AnswerBlock key={i} block={block} />
-          ))}
+          {message.role === 'advisor' ? <p className='text-[14.5px] leading-relaxed text-gray-800'>{message.content}</p> : message.blocks.map((block, i) => (
+              <AnswerBlock key={i} block={block} />
+            ))}
         </div>
 
         <div className='flex items-center gap-3 px-1'>
           {message.time && (
-            <span className='text-[11px] text-(--text-tertiary)'>{message.time}</span>
+            <span className='text-[11px] text-(--text-tertiary)'>{message.role === 'advisor' ? `${message.advisorName || 'Cán bộ tư vấn'} · ` : ''}{message.time}</span>
           )}
-          <button
+          {message.role !== 'advisor' && <button
             type='button'
             onClick={handleCopy}
             className='flex items-center gap-1 text-[12px] font-medium text-(--text-tertiary) transition-colors hover:text-(--primary-color)'
           >
             {copied ? <Check size={13} /> : <Copy size={13} />}
             {copied ? 'Đã sao chép' : 'Sao chép'}
-          </button>
+          </button>}
         </div>
 
         {message.source && (

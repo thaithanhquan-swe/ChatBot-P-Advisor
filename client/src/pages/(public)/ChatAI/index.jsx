@@ -21,6 +21,7 @@ function ChatAI() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState(null);
+  const [chatMode, setChatMode] = useState('bot');
   const scrollAnchorRef = useRef(null);
 
   // Tự động cuộn xuống tin nhắn mới nhất.
@@ -42,6 +43,10 @@ function ChatAI() {
       },
     ]);
     setInput('');
+    if (chatMode === 'advisor') {
+      return;
+    }
+
     setIsTyping(true);
 
     // Giả lập thời gian chatbot trả lời từ dữ liệu hard-code.
@@ -76,6 +81,7 @@ function ChatAI() {
     setMessages([]);
     setInput('');
     setActiveConversationId(null);
+    setChatMode('bot');
     setSidebarOpen(false);
   };
 
@@ -86,6 +92,28 @@ function ChatAI() {
   const handleSelectConversation = (id) => {
     setActiveConversationId(id);
     setSidebarOpen(false);
+  };
+
+  const handleRequestAdvisor = () => {
+    if (chatMode === 'advisor') return;
+    setChatMode('advisor');
+    setIsTyping(false);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: createMessageId(),
+        role: 'system',
+        content: 'Yêu cầu của bạn đã được chuyển đến cán bộ tư vấn tuyển sinh.',
+        time: nowTime(),
+      },
+      {
+        id: createMessageId(),
+        role: 'advisor',
+        content: 'Chào bạn, mình là cán bộ tư vấn tuyển sinh PTIT. Bạn cần mình hỗ trợ thêm nội dung nào?',
+        time: nowTime(),
+        advisorName: 'Cán bộ tư vấn PTIT',
+      },
+    ]);
   };
 
   return (
@@ -106,6 +134,8 @@ function ChatAI() {
           onNewChat={handleNewChat}
           onClearChat={handleClearChat}
           hasMessages={messages.length > 0}
+          chatMode={chatMode}
+          onRequestAdvisor={handleRequestAdvisor}
         />
 
         <div className='min-h-0 flex-1 overflow-y-auto'>
@@ -128,6 +158,7 @@ function ChatAI() {
           onChange={setInput}
           onSubmit={() => handleSendMessage(input)}
           disabled={isTyping || input.trim().length === 0}
+          placeholder={chatMode === 'advisor' ? 'Nhập tin nhắn cho cán bộ tư vấn...' : 'Nhập câu hỏi về tuyển sinh PTIT...'}
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Bot, Check, Menu, SquarePen, Trash2, X } from 'lucide-react';
+import { Bot, Check, Headset, Menu, SquarePen, Trash2, UserRound, X } from 'lucide-react';
 
-const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages }) => {
+const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMode, onRequestAdvisor }) => {
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   const handleClearClick = () => {
@@ -27,19 +27,26 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages }) => {
         </button>
 
         <div className='relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft)'>
-          <Bot size={19} className='text-(--primary-color)' strokeWidth={1.8} />
+          {chatMode === 'advisor' ? <UserRound size={19} className='text-(--primary-color)' strokeWidth={1.8} /> : <Bot size={19} className='text-(--primary-color)' strokeWidth={1.8} />}
           <span className='absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500' />
         </div>
 
         <div className='min-w-0'>
           <p className='truncate text-[14px] font-semibold text-gray-900'>
-            PTIT Admission Assistant
+            {chatMode === 'advisor' ? 'Cán bộ tư vấn PTIT' : 'PTIT Admission Assistant'}
           </p>
-          <p className='text-[12px] text-(--text-tertiary)'>Online · Sẵn sàng hỗ trợ</p>
+          <p className='text-[12px] text-(--text-tertiary)'>{chatMode === 'advisor' ? 'Đang tư vấn trực tiếp' : 'Online · Sẵn sàng hỗ trợ'}</p>
         </div>
       </div>
 
       <div className='flex shrink-0 items-center gap-2'>
+        {chatMode !== 'advisor' && (
+          <button type='button' onClick={onRequestAdvisor} className='flex items-center gap-1.5 rounded-(--radius-card) border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] font-semibold text-(--primary-color) transition-colors hover:bg-red-100'>
+            <Headset size={15} />
+            <span className='hidden md:inline'>Gặp cán bộ tư vấn</span>
+            <span className='md:hidden'>Tư vấn viên</span>
+          </button>
+        )}
         {confirmingClear ? (
           <div className='flex animate-fade-in-up items-center gap-1.5 rounded-(--radius-card) bg-gray-50 py-1 pr-1 pl-2.5'>
             <span className='hidden text-[12px] font-medium text-gray-600 sm:inline'>

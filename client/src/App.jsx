@@ -17,6 +17,7 @@ import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
 import UserManagement from './pages/(admin)/UserManagement/index.jsx';
 import Settings from './pages/(admin)/Settings';
+import AdvisorInbox from './pages/(admin)/AdvisorInbox';
 import AdminRoute from './components/AdminRoute';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
           <Route path='faq' element={<FAQ />} />
           <Route path='documents' element={<Documents />} />
           <Route path='consultation-requests' element={<ConsultationRequests />} />
+          <Route path='messages' element={<AdvisorInbox />} />
           <Route path='users' element={<UserManagement />} />
           <Route path='settings' element={<Settings />} />
         </Route>

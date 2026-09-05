@@ -1,4 +1,13 @@
-function AdminFooter() {
+function AdminFooter({ compact = false }) {
+  if (compact) {
+    return (
+      <footer className='shrink-0 border-t border-slate-200 bg-slate-50/60 px-5 py-3.5'>
+        <p className='text-[10px] leading-4 text-slate-400'>© 2026 Học viện PTIT</p>
+        <p className='text-[10px] leading-4 text-slate-400'>Admission Chatbot · v1.0.0</p>
+      </footer>
+    );
+  }
+
   return (
     <footer className='border-t border-slate-200 bg-white'>
       <div className='flex min-h-14.5 flex-col items-center justify-center gap-1 px-6 py-3 text-center sm:flex-row sm:justify-between'>
