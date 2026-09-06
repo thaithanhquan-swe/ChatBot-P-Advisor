@@ -24,6 +24,19 @@ export async function register(user) {
   return data.result;
 }
 
+export async function refreshToken(token = authStorage.getToken()) {
+  const data = await http.post('/auth/refresh_token', { token });
+  const nextToken = data?.result?.token;
+  if (!nextToken) throw new Error('Backend không trả về access token.');
+  authStorage.setToken(nextToken);
+  return data.result;
+}
+
+export async function introspectToken(token = authStorage.getToken()) {
+  const data = await http.post('/auth/introspect', { token });
+  return data.result;
+}
+
 export async function logout() {
   const token = authStorage.getToken();
   try {
