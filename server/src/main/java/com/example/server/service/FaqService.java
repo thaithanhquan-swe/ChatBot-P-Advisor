@@ -49,12 +49,24 @@ public class FaqService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<FaqResponse> getPublished(String faqCategoryId, int page, int size) {
+    public PageResponse<FaqResponse> getPublished(
+            String keyword, String faqCategoryId, int page, int size) {
         Pageable pageable = createPageable(page, size);
-        Page<Faq> faqs = faqCategoryId == null
-                ? faqRepository.findAllByStatus(FaqStatus.PUBLISHED, pageable)
-                : faqRepository.findAllByStatusAndFaqCategoryId(
-                        FaqStatus.PUBLISHED, faqCategoryId, pageable);
+        Specification<Faq> specification = (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("status"), FaqStatus.PUBLISHED);
+
+        if (keyword != null && !keyword.isBlank()) {
+            String pattern = "%" + keyword.trim().toLowerCase() + "%";
+            specification = specification.and((root, query, criteriaBuilder) -> criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("question")), pattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("answer")), pattern)));
+        }
+        if (faqCategoryId != null && !faqCategoryId.isBlank()) {
+            specification = specification.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("faqCategory").get("id"), faqCategoryId));
+        }
+
+        Page<Faq> faqs = faqRepository.findAll(specification, pageable);
         return PageResponse.of(faqs.map(faqMapper::toFaqResponse));
     }
 

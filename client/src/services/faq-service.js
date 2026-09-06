@@ -1,8 +1,8 @@
 import http from '@/lib/http';
 
-export async function getFaqs({ faqCategoryId, page = 0, size = 10 } = {}) {
+export async function getFaqs({ keyword, faqCategoryId, page = 0, size = 10 } = {}) {
   const data = await http.get('/faq', {
-    params: { faqCategoryId, page, size },
+    params: { keyword, faqCategoryId, page, size },
   });
   return data.result;
 }

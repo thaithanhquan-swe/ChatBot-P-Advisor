@@ -42,11 +42,12 @@ public class FaqController {
 
     @GetMapping
     public ApiResponse<PageResponse<FaqResponse>> getPublished(
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String faqCategoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<FaqResponse>>builder()
-                .result(faqService.getPublished(faqCategoryId, page, size))
+                .result(faqService.getPublished(keyword, faqCategoryId, page, size))
                 .build();
     }
 
