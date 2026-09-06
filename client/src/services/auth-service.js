@@ -1,5 +1,5 @@
-import http from '@/lib/http';
-import { authStorage } from '@/lib/auth-storage';
+import http, { refreshAccessToken } from '../lib/http.js';
+import { authStorage } from '../lib/auth-storage.js';
 
 const verificationRequests = new Map();
 
@@ -24,12 +24,8 @@ export async function register(user) {
   return data.result;
 }
 
-export async function refreshToken(token = authStorage.getToken()) {
-  const data = await http.post('/auth/refresh_token', { token });
-  const nextToken = data?.result?.token;
-  if (!nextToken) throw new Error('Backend không trả về access token.');
-  authStorage.setToken(nextToken);
-  return data.result;
+export function refreshToken(token = authStorage.getToken()) {
+  return refreshAccessToken(token);
 }
 
 export async function introspectToken(token = authStorage.getToken()) {
@@ -39,11 +35,9 @@ export async function introspectToken(token = authStorage.getToken()) {
 
 export async function logout() {
   const token = authStorage.getToken();
-  try {
-    if (token) await http.post('/auth/logout', { token });
-  } finally {
-    authStorage.clear();
-  }
+  // Clear first so an in-flight refresh cannot restore a logged-out session.
+  authStorage.clear();
+  if (token) await http.post('/auth/logout', { token });
 }
 
 export function verifyEmail(token) {

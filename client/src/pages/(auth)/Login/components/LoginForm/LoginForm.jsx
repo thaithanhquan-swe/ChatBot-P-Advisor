@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Eye, EyeOff, Lock, User } from 'lucide-react';
 
 import AuthField from '../../../components/AuthField/AuthField';
@@ -14,6 +14,7 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,7 +23,7 @@ const LoginForm = () => {
     setError('');
     try {
       await login({ username: username.trim(), password });
-      navigate('/', { replace: true });
+      navigate(location.state?.from || '/', { replace: true });
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, 'Đăng nhập không thành công.'));
     } finally {
@@ -73,7 +74,12 @@ const LoginForm = () => {
         </Link>
       </div>
 
-      {error && <p className='text-sm text-red-600'>{'Mật khẩu hoặc tài khoản không chính xác'}</p>}
+      {location.state?.sessionExpired && !error && (
+        <p className='text-sm text-amber-700'>
+          Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.
+        </p>
+      )}
+      {error && <p className='text-sm text-red-600'>{error}</p>}
 
       <button
         type='submit'

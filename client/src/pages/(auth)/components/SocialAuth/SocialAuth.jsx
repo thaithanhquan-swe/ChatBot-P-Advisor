@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { GoogleIcon } from '@/assets/icons';
 import { getFirebaseAuth } from '@/lib/firebase';
 import { firebaseLogin } from '@/services/auth-service';
@@ -16,6 +16,7 @@ const firebaseErrorMessages = {
 
 const SocialAuth = ({ label }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -31,11 +32,11 @@ const SocialAuth = ({ label }) => {
       const result = await signInWithPopup(firebaseAuth, provider);
       const idToken = await result.user.getIdToken();
       await firebaseLogin(idToken);
-      navigate('/', { replace: true });
+      navigate(location.state?.from || '/', { replace: true });
     } catch (requestError) {
       setError(
-        firebaseErrorMessages[requestError.code]
-          || getApiErrorMessage(requestError, 'Đăng nhập Google không thành công.'),
+        firebaseErrorMessages[requestError.code] ||
+          getApiErrorMessage(requestError, 'Đăng nhập Google không thành công.')
       );
     } finally {
       setSubmitting(false);
@@ -55,7 +56,11 @@ const SocialAuth = ({ label }) => {
         onClick={handleGoogleAuth}
         className='flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 text-[13.5px] font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60'
       >
-        {submitting ? <LoaderCircle size={18} className='animate-spin' /> : <GoogleIcon size={18} />}
+        {submitting ? (
+          <LoaderCircle size={18} className='animate-spin' />
+        ) : (
+          <GoogleIcon size={18} />
+        )}
         {submitting ? 'Đang xác thực...' : 'Google'}
       </button>
 
