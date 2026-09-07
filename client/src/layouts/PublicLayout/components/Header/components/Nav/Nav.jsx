@@ -11,7 +11,8 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { authStorage } from '@/lib/auth-storage';
-import { getCurrentUser, logout } from '@/services/auth-service';
+import { logout } from '@/services/auth-service';
+import { getCurrentUser } from '@/services/user-service';
 
 const Nav = () => {
   const { pathname } = useLocation();

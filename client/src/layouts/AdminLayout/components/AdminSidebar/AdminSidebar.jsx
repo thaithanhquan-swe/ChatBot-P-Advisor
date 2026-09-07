@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, MessageSquareText, Settings, Users } from 'lucide-react';
-import { getCurrentUser } from '@/services/auth-service';
+import { getCurrentUser } from '@/services/user-service';
 import AdminFooter from '../AdminFooter/AdminFooter';
 
 function AdminSidebar() {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { authStorage } from '@/lib/auth-storage';
-import { getCurrentUser } from '@/services/auth-service';
+import { getCurrentUser } from '@/services/user-service';
 
 const ADMIN_ROLES = new Set(['ADMIN', 'ADVISOR']);
 

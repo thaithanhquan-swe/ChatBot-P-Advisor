@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, House, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { images } from '@/assets/images';
-import { getCurrentUser, logout } from '@/services/auth-service';
+import { logout } from '@/services/auth-service';
+import { getCurrentUser } from '@/services/user-service';
 
 const roleLabels = {
   ADMIN: 'Quản trị viên',
