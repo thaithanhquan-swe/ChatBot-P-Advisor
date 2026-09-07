@@ -29,11 +29,15 @@ export function createChatController({ api, storage, isLoggedIn, errorMessage })
     if (session) storage.setItem(SESSION_KEY, session.sessionToken);
     else storage.removeItem(SESSION_KEY);
   };
-  const acceptSession = (session) => {
+  const acceptSession = (session, promote = false) => {
     remember(session);
+    const exists = state.history.some((item) => item.id === session.id);
     update({
       session,
-      history: [session, ...state.history.filter((item) => item.id !== session.id)],
+      history:
+        promote || !exists
+          ? [session, ...state.history.filter((item) => item.id !== session.id)]
+          : state.history.map((item) => (item.id === session.id ? session : item)),
     });
   };
   const busy = () => state.loading || !!state.operation;
@@ -176,6 +180,7 @@ export function createChatController({ api, storage, isLoggedIn, errorMessage })
       return false;
     }
     const version = ++epoch;
+    const existingMessageIds = new Set(state.messages.map((message) => message.id));
     const pendingId = `pending-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const pendingMessage = {
       id: pendingId,
@@ -211,9 +216,10 @@ export function createChatController({ api, storage, isLoggedIn, errorMessage })
         result.botMessage,
       ].filter(Boolean);
       update({ messages: [...new Map(messages.map((item) => [item.id, item])).values()] });
+      acceptSession(session, true);
       try {
         const updated = await api.getChatSession(session.sessionToken);
-        if (current(version)) acceptSession(updated);
+        if (current(version)) acceptSession(updated, true);
       } catch (error) {
         if (current(version)) update({ syncError: errorMessage(error) });
       }
@@ -231,7 +237,10 @@ export function createChatController({ api, storage, isLoggedIn, errorMessage })
         try {
           const result = await readSession(session.sessionToken);
           if (current(version)) {
-            acceptSession(result.session);
+            const hasNewServerMessage = result.messages.some(
+              (message) => !existingMessageIds.has(message.id)
+            );
+            acceptSession(result.session, hasNewServerMessage);
             update({ messages: result.messages });
           }
         } catch (syncError) {
