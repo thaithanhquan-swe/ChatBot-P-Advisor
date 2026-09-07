@@ -1,4 +1,4 @@
-import { Lock, Mail, MessageSquareText, Phone, Send, ShieldCheck, User } from 'lucide-react';
+import { Lock, Mail, MessageSquareText, Phone, Send, ShieldCheck } from 'lucide-react';
 
 const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handleSubmit }) => {
   return (
@@ -24,46 +24,21 @@ const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handle
           </label>
           <textarea
             name='question'
-            value={
-              formData.question ||
-              'Điểm chuẩn ngành Công nghệ thông tin năm 2024 của PTIT là bao nhiêu?'
-            }
-            readOnly
-            rows='3'
-            className='w-full resize-none cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50/80 p-3 text-sm text-gray-700 outline-none'
+            value={formData.question}
+            onChange={handleChange}
+            rows='4'
+            maxLength={5000}
+            placeholder='Nhập nội dung bạn cần cán bộ tuyển sinh tư vấn'
+            className={`w-full resize-y rounded-xl border p-3 text-sm text-gray-700 outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${
+              errors.question ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
+            }`}
           />
-          <p className='mt-1 flex items-center gap-1.5 text-xs text-gray-500'>
-            <Lock size={13} className='text-gray-400' />
-            Câu hỏi gốc được tự động điền và gửi cùng yêu cầu của bạn.
-          </p>
-        </div>
-
-        {/* Họ và tên */}
-        <div>
-          <label className='mb-1.5 block text-sm font-semibold text-gray-800'>
-            Họ và tên <span className='text-red-500'>*</span>
-          </label>
-          <div className='relative'>
-            <User size={18} className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400' />
-            <input
-              type='text'
-              name='fullName'
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder='Nhập họ và tên của bạn'
-              className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${
-                errors.fullName ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
-              }`}
-            />
-          </div>
-          {errors.fullName && <p className='mt-1 text-xs text-red-500'>{errors.fullName}</p>}
+          {errors.question && <p className='mt-1 text-xs text-red-500'>{errors.question}</p>}
         </div>
 
         {/* Số điện thoại */}
         <div>
-          <label className='mb-1.5 block text-sm font-semibold text-gray-800'>
-            Số điện thoại <span className='text-red-500'>*</span>
-          </label>
+          <label className='mb-1.5 block text-sm font-semibold text-gray-800'>Số điện thoại</label>
           <div className='relative'>
             <Phone size={18} className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400' />
             <input
@@ -78,7 +53,7 @@ const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handle
             />
           </div>
           <p className='mt-1 text-xs text-gray-400'>
-            Vui lòng nhập số điện thoại hợp lệ (10–11 số)
+            Nhập số điện thoại hoặc email để cán bộ liên hệ lại
           </p>
           {errors.phone && <p className='mt-1 text-xs text-red-500'>{errors.phone}</p>}
         </div>
@@ -110,6 +85,11 @@ const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handle
         </div>
 
         {errors.contact && <p className='text-xs text-red-500'>{errors.contact}</p>}
+        {errors.submit && (
+          <p role='alert' className='text-sm text-red-600'>
+            {errors.submit}
+          </p>
+        )}
 
         {/* Thông báo bảo mật */}
         <div className='flex items-center gap-2.5 rounded-xl bg-red-50/80 p-3 text-xs text-gray-700'>

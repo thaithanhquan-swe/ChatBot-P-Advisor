@@ -8,8 +8,6 @@ import lombok.Data;
 
 @Data
 public class ConsultationRequestCreateRequest {
-    String chatSessionId;
-
     @Email(message = "EMAIL_INVALID")
     @Size(max = 255, message = "EMAIL_INVALID")
     String email;
@@ -18,5 +16,6 @@ public class ConsultationRequestCreateRequest {
     String phone;
 
     @NotBlank(message = "CONSULTATION_QUESTION_INVALID")
+    @Size(max = 5000, message = "CONSULTATION_QUESTION_INVALID")
     String question;
 }

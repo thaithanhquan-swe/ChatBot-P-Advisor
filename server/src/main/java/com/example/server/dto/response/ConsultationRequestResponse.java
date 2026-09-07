@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public class ConsultationRequestResponse {
     String id;
     String userId;
-    String chatSessionId;
     String email;
     String phone;
     String question;

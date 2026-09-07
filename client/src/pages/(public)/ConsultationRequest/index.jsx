@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { getApiErrorMessage } from '@/lib/http';
+import { createConsultationRequest } from '@/services/consultation-request-service';
 import ConsultationForm from './components/ConsultationForm/ConsultationForm';
 import ConsultationIntro from './components/ConsultationIntro/ConsultationIntro';
 import ConsultationProcess from './components/ConsultationProcess/ConsultationProcess';
@@ -6,8 +8,7 @@ import SuccessState from './components/SuccessState/SuccessState';
 import SupportChannels from './components/SupportChannels/SupportChannels';
 
 const initialFormData = {
-  question: 'Điểm chuẩn ngành Công nghệ thông tin năm 2024 của PTIT là bao nhiêu?',
-  fullName: '',
+  question: '',
   phone: '',
   email: '',
 };
@@ -20,12 +21,12 @@ const ConsultationRequestPage = () => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ tên';
+    if (!formData.question.trim()) newErrors.question = 'Vui lòng nhập câu hỏi cần tư vấn';
 
     if (!formData.phone.trim() && !formData.email.trim()) {
       newErrors.contact = 'Vui lòng cung cấp SĐT hoặc Email để chúng tôi liên hệ';
     } else {
-      if (formData.phone && !/(84|0[35789])([0-9]{8})\b/.test(formData.phone)) {
+      if (formData.phone && !/^(?:\+?84|0)[35789][0-9]{8}$/.test(formData.phone)) {
         newErrors.phone = 'Số điện thoại không hợp lệ';
       }
       if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -37,21 +38,32 @@ const ConsultationRequestPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validate()) return;
+    if (!validate() || isSubmitting) return;
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await createConsultationRequest({
+        question: formData.question.trim(),
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+      });
       setIsSuccess(true);
-    }, 1000);
+    } catch (error) {
+      setErrors((current) => ({
+        ...current,
+        submit: getApiErrorMessage(error, 'Không thể gửi yêu cầu tư vấn. Vui lòng thử lại.'),
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = ({ target: { name, value } }) => {
     setFormData((current) => ({ ...current, [name]: value }));
-    if (errors[name] || errors.contact) {
-      setErrors((current) => ({ ...current, [name]: '', contact: '' }));
+    if (errors[name] || errors.contact || errors.submit) {
+      setErrors((current) => ({ ...current, [name]: '', contact: '', submit: '' }));
     }
   };
 
