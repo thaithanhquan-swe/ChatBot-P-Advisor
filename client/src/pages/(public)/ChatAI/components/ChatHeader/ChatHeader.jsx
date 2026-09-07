@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import { Bot, Check, Headset, Menu, SquarePen, Trash2, UserRound, X } from 'lucide-react';
 
-const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMode, onRequestAdvisor }) => {
+const ChatHeader = ({
+  onOpenSidebar,
+  onNewChat,
+  onClearChat,
+  hasSession,
+  status,
+  onRequestAdvisor,
+  disabled,
+}) => {
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const isStaff = status === 'STAFF_HANDLING';
+  const statusLabel =
+    {
+      BOT_HANDLING: 'Đang trò chuyện với trợ lý AI',
+      WAITING_FOR_STAFF: 'Đang chờ cán bộ tiếp nhận',
+      STAFF_HANDLING: 'Đang tư vấn trực tiếp',
+    }[status] || 'Bắt đầu cuộc trò chuyện mới';
 
   const handleClearClick = () => {
-    if (!hasMessages) return;
+    if (!hasSession || disabled) return;
     setConfirmingClear(true);
   };
 
@@ -27,21 +42,31 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMo
         </button>
 
         <div className='relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft)'>
-          {chatMode === 'advisor' ? <UserRound size={19} className='text-(--primary-color)' strokeWidth={1.8} /> : <Bot size={19} className='text-(--primary-color)' strokeWidth={1.8} />}
-          <span className='absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500' />
+          {isStaff ? (
+            <UserRound size={19} className='text-(--primary-color)' strokeWidth={1.8} />
+          ) : (
+            <Bot size={19} className='text-(--primary-color)' strokeWidth={1.8} />
+          )}
         </div>
 
         <div className='min-w-0'>
           <p className='truncate text-[14px] font-semibold text-gray-900'>
-            {chatMode === 'advisor' ? 'Cán bộ tư vấn PTIT' : 'PTIT Admission Assistant'}
+            {isStaff ? 'Cán bộ tư vấn PTIT' : 'PTIT Admission Assistant'}
           </p>
-          <p className='text-[12px] text-(--text-tertiary)'>{chatMode === 'advisor' ? 'Đang tư vấn trực tiếp' : 'Online · Sẵn sàng hỗ trợ'}</p>
+          <p role='status' className='text-[12px] text-(--text-tertiary)'>
+            {statusLabel}
+          </p>
         </div>
       </div>
 
       <div className='flex shrink-0 items-center gap-2'>
-        {chatMode !== 'advisor' && (
-          <button type='button' onClick={onRequestAdvisor} className='flex items-center gap-1.5 rounded-(--radius-card) border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] font-semibold text-(--primary-color) transition-colors hover:bg-red-100'>
+        {(!status || status === 'BOT_HANDLING') && (
+          <button
+            type='button'
+            onClick={onRequestAdvisor}
+            disabled={disabled}
+            className='flex items-center gap-1.5 rounded-(--radius-card) border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] font-semibold text-(--primary-color) transition-colors hover:bg-red-100 disabled:opacity-40'
+          >
             <Headset size={15} />
             <span className='hidden md:inline'>Gặp cán bộ tư vấn</span>
             <span className='md:hidden'>Tư vấn viên</span>
@@ -55,6 +80,7 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMo
             <button
               type='button'
               onClick={handleConfirm}
+              disabled={disabled || !hasSession}
               aria-label='Xác nhận xoá'
               className='flex h-7 w-7 items-center justify-center rounded-lg bg-(--primary-color) text-white'
             >
@@ -73,7 +99,7 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMo
           <button
             type='button'
             onClick={handleClearClick}
-            disabled={!hasMessages}
+            disabled={disabled || !hasSession}
             className='hidden items-center gap-1.5 rounded-(--radius-card) px-3 py-2 text-[12.5px] font-medium text-gray-500 transition-colors hover:text-(--primary-color) disabled:cursor-not-allowed disabled:opacity-40 sm:flex'
           >
             <Trash2 size={14} />
@@ -84,6 +110,7 @@ const ChatHeader = ({ onOpenSidebar, onNewChat, onClearChat, hasMessages, chatMo
         <button
           type='button'
           onClick={onNewChat}
+          disabled={disabled}
           className='flex items-center gap-1.5 rounded-(--radius-card) border border-(--border-subtle) px-3 py-2 text-[12.5px] font-medium text-gray-600 transition-colors hover:border-(--primary-color) hover:text-(--primary-color)'
         >
           <SquarePen size={14} />
