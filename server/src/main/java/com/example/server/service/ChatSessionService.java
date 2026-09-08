@@ -36,6 +36,7 @@ public class ChatSessionService {
 
     ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
+    ChatMessageService chatMessageService;
 
     @Transactional
     public ChatSessionResponse create(ChatSessionCreateRequest request) {
@@ -166,13 +167,15 @@ public class ChatSessionService {
 
     @Transactional
     public void delete(String sessionToken) {
-        ChatSession session = findByToken(sessionToken);
+        ChatSession session = chatSessionRepository.findBySessionTokenForUpdate(sessionToken)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
         if (session.getUser() != null) {
             User user = requireCurrentUser();
             if (!session.getUser().getId().equals(user.getId())) {
                 throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
             }
         }
+        chatMessageService.deleteBySession(session.getId());
         chatSessionRepository.delete(session);
     }
 

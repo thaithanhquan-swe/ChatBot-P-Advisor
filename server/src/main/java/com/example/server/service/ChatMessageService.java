@@ -143,6 +143,17 @@ public class ChatMessageService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteBySession(String sessionId) {
+        List<String> fileUrls = chatMessageRepository.findFileUrlsBySessionId(sessionId);
+        chatMessageRepository.deleteAllBySessionId(sessionId);
+        fileUrls.stream()
+                .filter(fileUrl -> !fileUrl.isBlank())
+                .map(this::extractStoredName)
+                .map(this::resolveStoragePath)
+                .forEach(this::deleteQuietly);
+    }
+
     @Transactional(readOnly = true)
     public boolean isBotHandling(String sessionToken) {
         ChatSession session = findByToken(sessionToken);
@@ -279,6 +290,11 @@ public class ChatMessageService {
         return file.getContentType() == null || file.getContentType().isBlank()
                 ? "application/octet-stream"
                 : file.getContentType();
+    }
+
+    private String extractStoredName(String fileUrl) {
+        String normalized = fileUrl.replace('\\', '/');
+        return normalized.substring(normalized.lastIndexOf('/') + 1);
     }
 
     private void deleteQuietly(Path path) {

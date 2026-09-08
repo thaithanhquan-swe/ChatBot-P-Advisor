@@ -81,10 +81,13 @@ function ChatAI() {
           onOpenSidebar={() => setSidebarOpen(true)}
           onNewChat={handleNewChat}
           onClearChat={async () => {
-            if (await chat.controller.deleteSession()) {
+            const deleted = await chat.controller.deleteSession();
+            if (deleted) {
+              setQuotaNotice(false);
               setInput('');
               setFile(null);
             }
+            return deleted;
           }}
           hasSession={!!chat.session}
           status={chat.session?.status}
