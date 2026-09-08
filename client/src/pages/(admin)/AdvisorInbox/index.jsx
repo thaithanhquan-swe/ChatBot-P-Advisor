@@ -57,6 +57,7 @@ function mapMessage(item) {
     fileName: item.fileName,
     fileUrl: item.fileUrl,
     fileType: item.fileType,
+    fileSize: item.fileSize,
   };
 }
 
@@ -93,6 +94,7 @@ function AdvisorInbox() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [message, setMessage] = useState('');
+  const [file, setFile] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -201,6 +203,7 @@ function AdvisorInbox() {
   const handleSelectConversation = (id) => {
     setSelectedId(id);
     setMessage('');
+    setFile(null);
     setError('');
   };
 
@@ -228,17 +231,22 @@ function AdvisorInbox() {
   const handleSendMessage = async (event) => {
     event.preventDefault();
     const text = message.trim();
-    if (!text || !selectedConversation || selectedConversation.status !== 'active' || action)
+    if (
+      (!text && !file) ||
+      !selectedConversation ||
+      selectedConversation.status !== 'active' ||
+      action
+    )
       return;
     setAction('send');
     try {
-      const savedMessage = mapMessage(await sendStaffMessage(selectedConversation.id, text));
+      const savedMessage = mapMessage(await sendStaffMessage(selectedConversation.id, text, file));
       setConversations((items) =>
         items.map((item) =>
           item.id === selectedConversation.id
             ? {
                 ...item,
-                preview: savedMessage.text,
+                preview: savedMessage.text || savedMessage.fileName,
                 time: savedMessage.time,
                 messages: [
                   ...item.messages.filter((entry) => entry.id !== savedMessage.id),
@@ -249,6 +257,7 @@ function AdvisorInbox() {
         )
       );
       setMessage('');
+      setFile(null);
       setError('');
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, 'Không thể gửi tin nhắn.'));
@@ -270,6 +279,7 @@ function AdvisorInbox() {
         )
       );
       setMessage('');
+      setFile(null);
       setError('');
       await loadConversations({ silent: true });
     } catch (requestError) {
@@ -312,9 +322,11 @@ function AdvisorInbox() {
             <ConversationPanel
               conversation={selectedConversation}
               message={message}
+              file={file}
               loadingMessages={loadingMessages}
               action={action}
               onMessageChange={setMessage}
+              onFileChange={setFile}
               onSend={handleSendMessage}
               onAssign={handleAssign}
               onEndConsultation={handleEndConsultation}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Bot, Check, Copy, Headset } from 'lucide-react';
+import { Bot, Check, Copy, FileText, Headset } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/http';
 
 const WEB_URL_PATTERN = /(https?:\/\/[^\s)\]}>]+)/gi;
@@ -130,6 +130,17 @@ const MessageBubble = ({ message }) => {
                 loading='lazy'
                 className='max-h-72 max-w-full rounded-lg object-contain'
               />
+            </a>
+          )}
+          {fileUrl && !message.fileType?.startsWith('image/') && (
+            <a
+              href={fileUrl}
+              target='_blank'
+              rel='noreferrer'
+              className={`mt-2 flex max-w-72 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium ${isUser ? 'border-white/30 text-white' : 'border-gray-200 text-blue-700'}`}
+            >
+              <FileText size={18} className='shrink-0' />
+              <span className='truncate'>{message.fileName || 'Mở tệp đính kèm'}</span>
             </a>
           )}
         </div>

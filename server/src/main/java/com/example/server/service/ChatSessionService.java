@@ -145,7 +145,8 @@ public class ChatSessionService {
         if (session.getAssignedStaff() != null) {
             throw new AppException(ErrorCode.CHAT_SESSION_ALREADY_ASSIGNED);
         }
-        if (session.getStatus() != ChatSessionStatus.WAITING_FOR_STAFF) {
+        if (session.getStatus() != ChatSessionStatus.WAITING_FOR_STAFF
+                && session.getStatus() != ChatSessionStatus.BOT_HANDLING) {
             throw new AppException(ErrorCode.INVALID_CHAT_SESSION_STATUS);
         }
         session.setStatus(ChatSessionStatus.STAFF_HANDLING);

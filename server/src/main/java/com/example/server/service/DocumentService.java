@@ -12,7 +12,6 @@ import com.example.server.exception.ErrorCode;
 import com.example.server.mapper.DocumentMapper;
 import com.example.server.repository.DocumentRepository;
 import com.example.server.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,11 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -43,9 +37,7 @@ public class DocumentService {
     UserRepository userRepository;
     DocumentMapper documentMapper;
     KnowledgeRetrievalService knowledgeRetrievalService;
-
-    @NonFinal
-    Path storageRoot;
+    FileStorageService fileStorageService;
 
     @NonFinal
     @Value("${app.config.context-path}")
@@ -55,34 +47,27 @@ public class DocumentService {
     @Value("${app.document.storage-location}")
     String storageLocation;
 
-    @PostConstruct
-    void initializeStorageRoot() {
-        this.storageRoot = Path.of(storageLocation).toAbsolutePath().normalize();
-    }
-
     @Transactional
     public DocumentResponse create(MultipartFile file, DocumentCreateRequest request) {
         if (file == null || file.isEmpty()) {
             throw new AppException(ErrorCode.DOCUMENT_FILE_REQUIRED);
         }
 
-        String originalName = sanitizeOriginalName(file.getOriginalFilename());
-        String storedName = UUID.randomUUID() + "-" + originalName;
-        Path target = resolveStoragePath(storedName);
+        FileStorageService.StoredFile storedFile = null;
 
         try {
-            Files.createDirectories(storageRoot);
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
-            }
+            storedFile = fileStorageService.store(
+                    file,
+                    storageLocation,
+                    contextPath + "/uploads/documents");
 
             Document document = Document.builder()
                     .title(request.getTitle())
                     .description(request.getDescription())
-                    .fileName(originalName)
-                    .fileUrl(contextPath + "/uploads/documents/" + storedName)
-                    .fileType(resolveContentType(file))
-                    .fileSize(file.getSize())
+                    .fileName(storedFile.originalName())
+                    .fileUrl(storedFile.publicUrl())
+                    .fileType(storedFile.contentType())
+                    .fileSize(storedFile.size())
                     .status(request.getStatus() == null ? DocumentStatus.DRAFT : request.getStatus())
                     .uploadedBy(getCurrentUser())
                     .build();
@@ -91,10 +76,11 @@ public class DocumentService {
             knowledgeRetrievalService.indexDocument(document);
             return documentMapper.toDocumentResponse(document);
         } catch (IOException exception) {
-            deleteQuietly(target);
             throw new AppException(ErrorCode.DOCUMENT_STORAGE_ERROR);
         } catch (RuntimeException exception) {
-            deleteQuietly(target);
+            if (storedFile != null) {
+                fileStorageService.deleteQuietly(storageLocation, storedFile.publicUrl());
+            }
             throw exception;
         }
     }
@@ -145,10 +131,9 @@ public class DocumentService {
     @Transactional
     public void delete(String id) {
         Document document = findById(id);
-        Path filePath = resolveStoragePath(extractStoredName(document.getFileUrl()));
 
         try {
-            Files.deleteIfExists(filePath);
+            fileStorageService.delete(storageLocation, document.getFileUrl());
             documentRepository.delete(document);
         } catch (IOException exception) {
             throw new AppException(ErrorCode.DOCUMENT_STORAGE_ERROR);
@@ -166,35 +151,6 @@ public class DocumentService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    private Path resolveStoragePath(String storedName) {
-        Path resolved = storageRoot.resolve(storedName).normalize();
-        if (!resolved.startsWith(storageRoot)) {
-            throw new AppException(ErrorCode.DOCUMENT_STORAGE_ERROR);
-        }
-        return resolved;
-    }
-
-    private String sanitizeOriginalName(String originalName) {
-        if (originalName == null || originalName.isBlank()) {
-            return "document";
-        }
-        String fileName = originalName.replace('\\', '/');
-        fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-        fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-        return fileName.isBlank() ? "document" : fileName;
-    }
-
-    private String resolveContentType(MultipartFile file) {
-        return file.getContentType() == null || file.getContentType().isBlank()
-                ? "application/octet-stream"
-                : file.getContentType();
-    }
-
-    private String extractStoredName(String fileUrl) {
-        int separator = fileUrl.lastIndexOf('/');
-        return separator >= 0 ? fileUrl.substring(separator + 1) : fileUrl;
-    }
-
     private String resolveSortField(String sortBy) {
         return switch (sortBy) {
             case "title", "fileName", "fileType", "fileSize", "status", "createdAt", "updatedAt" -> sortBy;
@@ -202,11 +158,4 @@ public class DocumentService {
         };
     }
 
-    private void deleteQuietly(Path path) {
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException ignored) {
-            // Preserve the original exception; orphan cleanup can be handled separately.
-        }
-    }
 }

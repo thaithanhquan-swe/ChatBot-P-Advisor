@@ -16,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -27,14 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +39,7 @@ public class ChatMessageService {
     ChatMessageRepository chatMessageRepository;
     ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
-
-    @NonFinal
-    Path storageRoot;
+    FileStorageService fileStorageService;
 
     @NonFinal
     @Value("${app.config.context-path}")
@@ -57,68 +49,31 @@ public class ChatMessageService {
     @Value("${app.chat-message.storage-location}")
     String storageLocation;
 
-    @PostConstruct
-    void initializeStorageRoot() {
-        storageRoot = Path.of(storageLocation).toAbsolutePath().normalize();
-    }
-
     @Transactional
     public ChatMessageResponse sendUserMessage(String sessionToken, String content, MultipartFile file) {
         String normalizedContent = normalizeContent(content);
         if (file != null && !file.isEmpty()) {
-            return saveUserMessageWithFile(sessionToken, normalizedContent, file);
+            if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+                throw new AppException(ErrorCode.CHAT_MESSAGE_IMAGE_INVALID);
+            }
+        }
+        UserMessageContext messageContext = validateUserMessage(sessionToken);
+        if (file != null && !file.isEmpty()) {
+            return saveMessageWithFile(
+                    messageContext.session(),
+                    messageContext.senderId(),
+                    messageContext.sender(),
+                    normalizedContent,
+                    file);
         }
 
-        UserMessageContext messageContext = validateUserMessage(sessionToken);
         return saveMessage(messageContext.session(), messageContext.senderId(), messageContext.sender(),
                 ChatMessageType.TEXT, normalizedContent);
     }
 
-    private ChatMessageResponse saveUserMessageWithFile(
-            String sessionToken,
-            String normalizedContent,
-            MultipartFile file) {
-        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
-            throw new AppException(ErrorCode.CHAT_MESSAGE_IMAGE_INVALID);
-        }
-
-        UserMessageContext messageContext = validateUserMessage(sessionToken);
-        String originalName = sanitizeOriginalName(file.getOriginalFilename());
-        String storedName = UUID.randomUUID() + "-" + originalName;
-        Path target = resolveStoragePath(storedName);
-
-        try {
-            Files.createDirectories(storageRoot);
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            ChatMessage message = ChatMessage.builder()
-                    .chatSession(messageContext.session())
-                    .senderId(messageContext.senderId())
-                    .sender(messageContext.sender())
-                    .messageType(ChatMessageType.FILE)
-                    .content(normalizedContent)
-                    .fileName(originalName)
-                    .fileUrl(contextPath + "/uploads/chat-messages/" + storedName)
-                    .fileType(resolveContentType(file))
-                    .fileSize(file.getSize())
-                    .build();
-            messageContext.session().setUpdatedAt(LocalDateTime.now());
-            chatSessionRepository.save(messageContext.session());
-            return toResponse(chatMessageRepository.save(message));
-        } catch (IOException exception) {
-            deleteQuietly(target);
-            throw new AppException(ErrorCode.CHAT_MESSAGE_FILE_STORAGE_ERROR);
-        } catch (RuntimeException exception) {
-            deleteQuietly(target);
-            throw exception;
-        }
-    }
-
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
-    public ChatMessageResponse sendStaffMessage(String sessionId, String content) {
+    public ChatMessageResponse sendStaffMessage(String sessionId, String content, MultipartFile file) {
         User staff = requireCurrentUser();
         ChatSession session = chatSessionRepository.findByIdForUpdate(sessionId)
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
@@ -129,8 +84,17 @@ public class ChatMessageService {
                 || !session.getAssignedStaff().getId().equals(staff.getId())) {
             throw new AppException(ErrorCode.CHAT_SESSION_NOT_ASSIGNED_TO_YOU);
         }
+        String normalizedContent = normalizeContentOrFile(content, file);
+        if (file != null && !file.isEmpty()) {
+            return saveMessageWithFile(
+                    session,
+                    staff.getId(),
+                    ChatMessageSender.STAFF,
+                    normalizedContent,
+                    file);
+        }
         return saveMessage(session, staff.getId(), ChatMessageSender.STAFF,
-                ChatMessageType.TEXT, normalizeContent(content));
+                ChatMessageType.TEXT, normalizedContent);
     }
 
     @Transactional(readOnly = true)
@@ -149,9 +113,7 @@ public class ChatMessageService {
         chatMessageRepository.deleteAllBySessionId(sessionId);
         fileUrls.stream()
                 .filter(fileUrl -> !fileUrl.isBlank())
-                .map(this::extractStoredName)
-                .map(this::resolveStoragePath)
-                .forEach(this::deleteQuietly);
+                .forEach(fileUrl -> fileStorageService.deleteQuietly(storageLocation, fileUrl));
     }
 
     @Transactional(readOnly = true)
@@ -188,6 +150,42 @@ public class ChatMessageService {
         session.setUpdatedAt(LocalDateTime.now());
         chatSessionRepository.save(session);
         return toResponse(chatMessageRepository.save(message));
+    }
+
+    private ChatMessageResponse saveMessageWithFile(
+            ChatSession session,
+            String senderId,
+            ChatMessageSender sender,
+            String content,
+            MultipartFile file) {
+        FileStorageService.StoredFile storedFile = null;
+        try {
+            storedFile = fileStorageService.store(
+                    file,
+                    storageLocation,
+                    contextPath + "/uploads/chat-messages");
+            ChatMessage message = ChatMessage.builder()
+                    .chatSession(session)
+                    .senderId(senderId)
+                    .sender(sender)
+                    .messageType(ChatMessageType.FILE)
+                    .content(content)
+                    .fileName(storedFile.originalName())
+                    .fileUrl(storedFile.publicUrl())
+                    .fileType(storedFile.contentType())
+                    .fileSize(storedFile.size())
+                    .build();
+            session.setUpdatedAt(LocalDateTime.now());
+            chatSessionRepository.save(session);
+            return toResponse(chatMessageRepository.save(message));
+        } catch (IOException exception) {
+            throw new AppException(ErrorCode.CHAT_MESSAGE_FILE_STORAGE_ERROR);
+        } catch (RuntimeException exception) {
+            if (storedFile != null) {
+                fileStorageService.deleteQuietly(storageLocation, storedFile.publicUrl());
+            }
+            throw exception;
+        }
     }
 
     private ChatSession findByToken(String sessionToken) {
@@ -236,6 +234,16 @@ public class ChatMessageService {
         return content.trim();
     }
 
+    private String normalizeContentOrFile(String content, MultipartFile file) {
+        if (content != null && !content.isBlank()) {
+            return content.trim();
+        }
+        if (file != null && !file.isEmpty()) {
+            return "";
+        }
+        throw new AppException(ErrorCode.CHAT_MESSAGE_CONTENT_INVALID);
+    }
+
     private ChatMessageResponse toResponse(ChatMessage message) {
         return ChatMessageResponse.builder()
                 .id(message.getId())
@@ -268,43 +276,6 @@ public class ChatMessageService {
             throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
         }
         return new UserMessageContext(session, user.getId(), ChatMessageSender.USER);
-    }
-
-    private Path resolveStoragePath(String storedName) {
-        Path resolved = storageRoot.resolve(storedName).normalize();
-        if (!resolved.startsWith(storageRoot)) {
-            throw new AppException(ErrorCode.CHAT_MESSAGE_FILE_STORAGE_ERROR);
-        }
-        return resolved;
-    }
-
-    private String sanitizeOriginalName(String originalName) {
-        if (originalName == null || originalName.isBlank()) {
-            return "file";
-        }
-        String fileName = originalName.replace('\\', '/');
-        fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
-        fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
-        return fileName.isBlank() ? "file" : fileName;
-    }
-
-    private String resolveContentType(MultipartFile file) {
-        return file.getContentType() == null || file.getContentType().isBlank()
-                ? "application/octet-stream"
-                : file.getContentType();
-    }
-
-    private String extractStoredName(String fileUrl) {
-        String normalized = fileUrl.replace('\\', '/');
-        return normalized.substring(normalized.lastIndexOf('/') + 1);
-    }
-
-    private void deleteQuietly(Path path) {
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException ignored) {
-            // Preserve the original exception.
-        }
     }
 
     private record UserMessageContext(ChatSession session, String senderId, ChatMessageSender sender) {

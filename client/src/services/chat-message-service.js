@@ -14,7 +14,11 @@ export async function sendChatMessage(sessionToken, content, file = null) {
   return data.result;
 }
 
-export async function sendStaffMessage(sessionId, content) {
-  const data = await http.post(`/chat-messages/staff/${sessionId}`, { content });
+export async function sendStaffMessage(sessionId, content, file = null) {
+  const formData = new FormData();
+  if (content) formData.append('content', content);
+  if (file) formData.append('file', file);
+
+  const data = await http.post(`/chat-messages/staff/${sessionId}`, formData);
   return data.result;
 }

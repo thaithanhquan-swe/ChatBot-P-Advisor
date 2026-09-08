@@ -1,15 +1,81 @@
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Bot,
-  CheckCircle2,
+  FileText,
   Info,
   MessageSquareText,
   MoreHorizontal,
+  Paperclip,
   Send,
   UserRound,
+  X,
 } from 'lucide-react';
 import { API_BASE_URL } from '@/lib/http';
 import { STATUS_META } from '../../constants/inbox';
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
+function SelectedAttachment({ file, disabled, onRemove }) {
+  const [previewUrl] = useState(() =>
+    file.type.startsWith('image/') ? window.URL.createObjectURL(file) : null
+  );
+  const revokeTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (revokeTimerRef.current !== null) {
+      window.clearTimeout(revokeTimerRef.current);
+      revokeTimerRef.current = null;
+    }
+
+    return () => {
+      if (previewUrl) {
+        revokeTimerRef.current = window.setTimeout(() => {
+          window.URL.revokeObjectURL(previewUrl);
+        }, 0);
+      }
+    };
+  }, [previewUrl]);
+
+  if (previewUrl) {
+    return (
+      <div className='relative mb-2 w-fit max-w-full'>
+        <img
+          src={previewUrl}
+          alt='Ảnh chuẩn bị gửi'
+          className='h-44 w-64 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain'
+        />
+        <button
+          type='button'
+          onClick={onRemove}
+          disabled={disabled}
+          aria-label='Bỏ ảnh đính kèm'
+          className='absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/80 text-white shadow-sm hover:bg-slate-900 disabled:opacity-50'
+        >
+          <X size={15} />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className='relative mb-2 w-fit max-w-full rounded-lg border border-slate-200 bg-slate-50 p-2 pr-9'>
+      <div className='flex max-w-72 items-center gap-2 text-xs text-slate-600'>
+        <FileText size={18} className='shrink-0 text-slate-400' />
+        <span className='truncate'>{file.name}</span>
+      </div>
+      <button
+        type='button'
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label='Bỏ tệp đính kèm'
+        className='absolute right-1.5 top-1.5 rounded-full p-1 text-slate-500 hover:bg-slate-200 disabled:opacity-50'
+      >
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
 
 function getAttachmentUrl(path) {
   if (!path) return null;
@@ -24,14 +90,19 @@ function getAttachmentUrl(path) {
 function ConversationPanel({
   conversation,
   message,
+  file,
   loadingMessages,
   action,
   onMessageChange,
+  onFileChange,
   onSend,
   onAssign,
   onEndConsultation,
   onToggleDetails,
 }) {
+  const fileInputRef = useRef(null);
+  const [fileError, setFileError] = useState('');
+
   return (
     <section className='flex min-h-0 min-w-0 flex-col bg-white'>
       <header className='flex h-[76px] shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6'>
@@ -55,6 +126,20 @@ function ConversationPanel({
           </div>
         </div>
         <div className='flex items-center gap-1'>
+          {conversation.status === 'active' && (
+            <button
+              type='button'
+              onClick={onEndConsultation}
+              disabled={Boolean(action)}
+              title='Chuyển cuộc trò chuyện lại cho chatbot'
+              className='mr-1 flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-2 text-xs font-semibold text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-[#D71920] disabled:cursor-wait disabled:opacity-60'
+            >
+              <Bot size={16} />
+              <span className='hidden sm:inline'>
+                {action === 'close' ? 'Đang chuyển...' : 'Trả lại cho chatbot'}
+              </span>
+            </button>
+          )}
           <button
             type='button'
             onClick={onToggleDetails}
@@ -161,16 +246,24 @@ function ConversationPanel({
             </span>
           )}
         </div>
-        {conversation.status === 'waiting' ? (
+        {conversation.status === 'waiting' || conversation.status === 'bot' ? (
           <div className='flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-4 py-3'>
-            <p className='text-sm text-amber-800'>Nhận phiên này trước khi trả lời người dùng.</p>
+            <p className='text-sm text-amber-800'>
+              {conversation.status === 'bot'
+                ? 'Bắt đầu tư vấn để thay chatbot trả lời người dùng.'
+                : 'Nhận phiên này trước khi trả lời người dùng.'}
+            </p>
             <button
               type='button'
               onClick={onAssign}
               disabled={Boolean(action)}
               className='rounded-md bg-[#D71920] px-3 py-2 text-sm font-semibold text-white hover:bg-[#b9151b] disabled:cursor-wait disabled:opacity-60'
             >
-              {action === 'assign' ? 'Đang nhận...' : 'Nhận tư vấn'}
+              {action === 'assign'
+                ? 'Đang nhận...'
+                : conversation.status === 'bot'
+                  ? 'Bắt đầu tư vấn'
+                  : 'Nhận tư vấn'}
             </button>
           </div>
         ) : conversation.status !== 'active' ? (
@@ -181,12 +274,53 @@ function ConversationPanel({
           </div>
         ) : (
           <>
+            <input
+              ref={fileInputRef}
+              type='file'
+              className='hidden'
+              disabled={Boolean(action)}
+              aria-label='Chọn tệp đính kèm'
+              onChange={(event) => {
+                const selectedFile = event.target.files?.[0];
+                event.target.value = '';
+                if (!selectedFile) return;
+                if (selectedFile.size > MAX_FILE_SIZE) {
+                  setFileError('Tệp đính kèm không được vượt quá 20 MB.');
+                  return;
+                }
+                setFileError('');
+                onFileChange(selectedFile);
+              }}
+            />
+            {fileError && (
+              <p role='alert' className='mb-2 text-xs text-red-600'>
+                {fileError}
+              </p>
+            )}
+            {file && (
+              <SelectedAttachment
+                key={`${file.name}-${file.size}-${file.lastModified}`}
+                file={file}
+                disabled={Boolean(action)}
+                onRemove={() => onFileChange(null)}
+              />
+            )}
             <div className='flex items-end gap-2 rounded-lg border border-slate-300 bg-white p-1.5 focus-within:border-[#0A7CFF] focus-within:ring-2 focus-within:ring-blue-100'>
+              <button
+                type='button'
+                onClick={() => fileInputRef.current?.click()}
+                disabled={Boolean(action)}
+                title='Đính kèm file hoặc ảnh'
+                aria-label='Đính kèm file hoặc ảnh'
+                className='flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 disabled:opacity-50'
+              >
+                <Paperclip size={16} />
+              </button>
               <textarea
                 value={message}
                 onChange={(event) => onMessageChange(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
+                  if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
                     event.preventDefault();
                     onSend(event);
                   }
@@ -198,7 +332,7 @@ function ConversationPanel({
               />
               <button
                 type='submit'
-                disabled={!message.trim() || Boolean(action)}
+                disabled={(!message.trim() && !file) || Boolean(action)}
                 aria-label='Gửi tin nhắn'
                 className='flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#0A7CFF] px-3 text-xs font-semibold text-white transition hover:bg-[#086edc] disabled:cursor-not-allowed disabled:bg-slate-200'
               >
@@ -208,19 +342,10 @@ function ConversationPanel({
                 </span>
               </button>
             </div>
-            <div className='mt-1.5 flex items-center justify-between gap-2'>
+            <div className='mt-1.5'>
               <p className='text-[11px] text-slate-400'>
                 Enter để gửi · Shift + Enter để xuống dòng
               </p>
-              <button
-                type='button'
-                onClick={onEndConsultation}
-                disabled={Boolean(action)}
-                className='flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#D71920]'
-              >
-                <CheckCircle2 size={15} />{' '}
-                {action === 'close' ? 'Đang kết thúc...' : 'Kết thúc tư vấn'}
-              </button>
             </div>
           </>
         )}
