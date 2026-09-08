@@ -15,6 +15,7 @@ function ChatAI() {
     location.state?.initialQuestion || location.state?.prefill || ''
   );
   const [file, setFile] = useState(null);
+  const [quotaNotice, setQuotaNotice] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const scrollAnchorRef = useRef(null);
@@ -27,7 +28,12 @@ function ChatAI() {
   }, [chat.messages, chat.operation]);
 
   const handleSendMessage = () => {
-    if (busy || quotaReached) return;
+    if (busy) return;
+    if (quotaReached) {
+      setQuotaNotice(true);
+      return;
+    }
+    setQuotaNotice(false);
     const message = input;
     const attachment = file;
     setInput('');
@@ -37,6 +43,7 @@ function ChatAI() {
 
   const handleNewChat = () => {
     if (!chat.controller.newChat()) return;
+    setQuotaNotice(false);
     setInput('');
     setFile(null);
     setSidebarOpen(false);
@@ -44,6 +51,7 @@ function ChatAI() {
 
   const handleSelectConversation = async (token) => {
     if (await chat.controller.selectSession(token)) {
+      setQuotaNotice(false);
       setInput('');
       setFile(null);
       setSidebarOpen(false);
@@ -136,11 +144,23 @@ function ChatAI() {
             </Link>
           </p>
         )}
+        {quotaNotice && (
+          <div
+            role='alert'
+            className='border-t border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700'
+          >
+            Bạn đã sử dụng hết 2 lượt hỏi dành cho khách.{' '}
+            <Link to='/login' className='font-semibold underline'>
+              Đăng nhập để tiếp tục trò chuyện
+            </Link>
+            .
+          </div>
+        )}
         <ChatInput
           value={input}
           onChange={setInput}
           onSubmit={handleSendMessage}
-          disabled={busy || !!quotaReached}
+          disabled={busy}
           file={file}
           onFileChange={setFile}
           placeholder={

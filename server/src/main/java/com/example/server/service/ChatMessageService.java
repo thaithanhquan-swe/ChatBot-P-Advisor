@@ -152,14 +152,14 @@ public class ChatMessageService {
 
     @Transactional
     public ChatMessageResponse saveBotMessage(String sessionToken, String content) {
-        ChatSession session = findByToken(sessionToken);
+        ChatSession session = findByTokenForUpdate(sessionToken);
         return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.TEXT,
                 normalizeContent(content));
     }
 
     @Transactional
     public ChatMessageResponse saveSystemMessage(String sessionToken, String content) {
-        ChatSession session = findByToken(sessionToken);
+        ChatSession session = findByTokenForUpdate(sessionToken);
         return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.SYSTEM,
                 normalizeContent(content));
     }
@@ -181,6 +181,11 @@ public class ChatMessageService {
 
     private ChatSession findByToken(String sessionToken) {
         return chatSessionRepository.findBySessionToken(sessionToken)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+    }
+
+    private ChatSession findByTokenForUpdate(String sessionToken) {
+        return chatSessionRepository.findBySessionTokenForUpdate(sessionToken)
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
     }
 
@@ -235,12 +240,14 @@ public class ChatMessageService {
     }
 
     private UserMessageContext validateUserMessage(String sessionToken) {
-        ChatSession session = findByToken(sessionToken);
+        ChatSession session = findByTokenForUpdate(sessionToken);
         if (session.getUser() == null) {
             if (chatSessionRepository.consumeGuestQuestion(sessionToken, GUEST_QUESTION_LIMIT) == 0) {
                 throw new AppException(ErrorCode.GUEST_QUESTION_LIMIT_REACHED);
             }
-            return new UserMessageContext(session, null, ChatMessageSender.GUEST);
+            // The bulk update clears the persistence context. Reload the incremented count
+            // so saving the message cannot merge the old count back into the session.
+            return new UserMessageContext(findByToken(sessionToken), null, ChatMessageSender.GUEST);
         }
 
         User user = getCurrentUser().orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
