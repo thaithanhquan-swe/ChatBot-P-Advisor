@@ -71,6 +71,13 @@ public class ChatSessionService {
         return PageResponse.of(sessions.map(this::toResponse));
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<ChatSessionResponse> getRegisteredUserSessions(int page, int size) {
+        Page<ChatSession> sessions = chatSessionRepository.findAllByUserIsNotNull(
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+        return PageResponse.of(sessions.map(this::toResponse));
+    }
+
     @Transactional
     public ChatSessionResponse attachGuestSession(String sessionToken) {
         User user = requireCurrentUser();
@@ -226,6 +233,9 @@ public class ChatSessionService {
                 .id(session.getId())
                 .sessionToken(session.getSessionToken())
                 .userId(session.getUser() == null ? null : session.getUser().getId())
+                .username(session.getUser() == null ? null : session.getUser().getUsername())
+                .userEmail(session.getUser() == null ? null : session.getUser().getEmail())
+                .userPhone(session.getUser() == null ? null : session.getUser().getPhone())
                 .title(session.getTitle())
                 .status(session.getStatus())
                 .assignedStaffId(session.getAssignedStaff() == null ? null : session.getAssignedStaff().getId())

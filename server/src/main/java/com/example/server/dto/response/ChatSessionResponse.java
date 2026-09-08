@@ -15,6 +15,9 @@ public class ChatSessionResponse {
     String id;
     String sessionToken;
     String userId;
+    String username;
+    String userEmail;
+    String userPhone;
     String title;
     ChatSessionStatus status;
     String assignedStaffId;

@@ -208,7 +208,9 @@ public class ChatMessageService {
         boolean owner = session.getUser().getId().equals(currentUser.getId());
         boolean assignedStaff = session.getAssignedStaff() != null
                 && session.getAssignedStaff().getId().equals(currentUser.getId());
-        if (!owner && !assignedStaff) {
+        boolean staff = currentUser.getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getName()) || "ADVISOR".equals(role.getName()));
+        if (!owner && !assignedStaff && !staff) {
             throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
         }
     }

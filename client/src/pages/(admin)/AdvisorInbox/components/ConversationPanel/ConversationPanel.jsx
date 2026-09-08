@@ -8,14 +8,28 @@ import {
   Send,
   UserRound,
 } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/http';
 import { STATUS_META } from '../../constants/inbox';
+
+function getAttachmentUrl(path) {
+  if (!path) return null;
+  try {
+    const url = new URL(path, new URL(API_BASE_URL || '/', window.location.origin));
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+}
 
 function ConversationPanel({
   conversation,
   message,
+  loadingMessages,
+  action,
   onMessageChange,
   onSend,
-  onToggleClosed,
+  onAssign,
+  onEndConsultation,
   onToggleDetails,
 }) {
   return (
@@ -65,8 +79,19 @@ function ConversationPanel({
             Hôm nay
           </span>
         </div>
-        {conversation.messages.map((item) =>
-          item.sender === 'system' ? (
+        {loadingMessages && conversation.messages.length === 0 && (
+          <p className='py-12 text-center text-sm text-slate-400'>
+            Đang tải nội dung trò chuyện...
+          </p>
+        )}
+        {!loadingMessages && conversation.messages.length === 0 && (
+          <p className='py-12 text-center text-sm text-slate-400'>
+            Cuộc trò chuyện chưa có tin nhắn.
+          </p>
+        )}
+        {conversation.messages.map((item) => {
+          const attachmentUrl = getAttachmentUrl(item.fileUrl);
+          return item.sender === 'system' ? (
             <div
               key={item.id}
               className='mx-auto flex max-w-lg items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-800'
@@ -91,7 +116,27 @@ function ConversationPanel({
                 <div
                   className={`inline-block rounded-2xl px-4 py-3 text-left text-[14px] leading-6 shadow-sm ${item.sender === 'advisor' ? 'rounded-br-md bg-[#0A7CFF] text-white' : item.sender === 'bot' ? 'rounded-bl-md border border-slate-200 bg-white text-slate-600' : 'rounded-bl-md bg-[#E9EBEE] text-slate-900'}`}
                 >
-                  {item.text}
+                  {item.text && <p className='whitespace-pre-wrap'>{item.text}</p>}
+                  {attachmentUrl && item.fileType?.startsWith('image/') && (
+                    <a href={attachmentUrl} target='_blank' rel='noreferrer' className='mt-2 block'>
+                      <img
+                        src={attachmentUrl}
+                        alt={item.fileName || 'Ảnh đính kèm'}
+                        loading='lazy'
+                        className='max-h-64 max-w-full rounded-lg object-contain'
+                      />
+                    </a>
+                  )}
+                  {attachmentUrl && !item.fileType?.startsWith('image/') && (
+                    <a
+                      href={attachmentUrl}
+                      target='_blank'
+                      rel='noreferrer'
+                      className={`mt-1 block text-xs font-medium underline ${item.sender === 'advisor' ? 'text-white' : 'text-blue-700'}`}
+                    >
+                      {item.fileName || 'Xem tệp đính kèm'}
+                    </a>
+                  )}
                 </div>
                 <p className='mt-1.5 px-1 text-[10px] text-slate-400'>
                   {item.sender === 'advisor' ? 'Bạn · ' : item.sender === 'bot' ? 'Chatbot · ' : ''}
@@ -99,8 +144,8 @@ function ConversationPanel({
                 </p>
               </div>
             </div>
-          )
-        )}
+          );
+        })}
       </div>
       <form
         onSubmit={onSend}
@@ -110,22 +155,29 @@ function ConversationPanel({
           <p className='min-w-0 truncate text-xs text-slate-500'>
             Trả lời <span className='font-semibold text-slate-700'>{conversation.name}</span>
           </p>
-          {conversation.status !== 'closed' && (
+          {conversation.status === 'active' && (
             <span className='flex shrink-0 items-center gap-1.5 text-[11px] font-medium text-emerald-600'>
               <span className='h-1.5 w-1.5 rounded-full bg-emerald-500' /> Đang kết nối
             </span>
           )}
         </div>
-        {conversation.status === 'closed' ? (
-          <div className='flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-4 py-3'>
-            <p className='text-sm text-slate-500'>Cuộc trò chuyện này đã kết thúc.</p>
+        {conversation.status === 'waiting' ? (
+          <div className='flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-4 py-3'>
+            <p className='text-sm text-amber-800'>Nhận phiên này trước khi trả lời người dùng.</p>
             <button
               type='button'
-              onClick={onToggleClosed}
-              className='text-sm font-semibold text-[#D71920] hover:underline'
+              onClick={onAssign}
+              disabled={Boolean(action)}
+              className='rounded-md bg-[#D71920] px-3 py-2 text-sm font-semibold text-white hover:bg-[#b9151b] disabled:cursor-wait disabled:opacity-60'
             >
-              Mở lại tư vấn
+              {action === 'assign' ? 'Đang nhận...' : 'Nhận tư vấn'}
             </button>
+          </div>
+        ) : conversation.status !== 'active' ? (
+          <div className='rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600'>
+            {conversation.status === 'bot'
+              ? 'Phiên này đang được chatbot tự động xử lý. Bạn có thể theo dõi nội dung phía trên.'
+              : 'Phiên này đang do cán bộ khác phụ trách. Bạn có thể theo dõi nội dung phía trên.'}
           </div>
         ) : (
           <>
@@ -146,12 +198,14 @@ function ConversationPanel({
               />
               <button
                 type='submit'
-                disabled={!message.trim()}
+                disabled={!message.trim() || Boolean(action)}
                 aria-label='Gửi tin nhắn'
                 className='flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#0A7CFF] px-3 text-xs font-semibold text-white transition hover:bg-[#086edc] disabled:cursor-not-allowed disabled:bg-slate-200'
               >
                 <Send size={14} />
-                <span className='hidden sm:inline'>Gửi</span>
+                <span className='hidden sm:inline'>
+                  {action === 'send' ? 'Đang gửi...' : 'Gửi'}
+                </span>
               </button>
             </div>
             <div className='mt-1.5 flex items-center justify-between gap-2'>
@@ -160,10 +214,12 @@ function ConversationPanel({
               </p>
               <button
                 type='button'
-                onClick={onToggleClosed}
+                onClick={onEndConsultation}
+                disabled={Boolean(action)}
                 className='flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-[#D71920]'
               >
-                <CheckCircle2 size={15} /> Kết thúc tư vấn
+                <CheckCircle2 size={15} />{' '}
+                {action === 'close' ? 'Đang kết thúc...' : 'Kết thúc tư vấn'}
               </button>
             </div>
           </>

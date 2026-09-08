@@ -40,6 +40,13 @@ export async function getWaitingChatSessions(page = 0, size = 20) {
   return data.result;
 }
 
+export async function getRegisteredUserChatSessions(page = 0, size = 20) {
+  const data = await http.get('/chat-sessions/staff/registered-users', {
+    params: { page, size },
+  });
+  return data.result;
+}
+
 export async function getAssignedChatSessions(page = 0, size = 20) {
   const data = await http.get('/chat-sessions/staff/assigned-to-me', {
     params: { page, size },
