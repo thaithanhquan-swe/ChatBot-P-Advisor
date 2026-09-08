@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getApiErrorMessage } from '@/lib/http';
 import { getChatMessages, sendStaffMessage } from '@/services/chat-message-service';
 import {
@@ -7,13 +7,11 @@ import {
   returnChatSessionToBot,
 } from '@/services/chat-session-service';
 import { getCurrentUser } from '@/services/user-service';
+import { connectAdminChatSocket } from '@/services/chat-realtime-service';
 import AdvisorInboxHeader from './components/AdvisorInboxHeader/AdvisorInboxHeader';
 import ConversationList from './components/ConversationList/ConversationList';
 import ConversationPanel from './components/ConversationPanel/ConversationPanel';
 import UserDetailsPanel from './components/UserDetailsPanel/UserDetailsPanel';
-
-const LIST_REFRESH_INTERVAL = 10_000;
-const MESSAGE_REFRESH_INTERVAL = 5_000;
 
 function formatTime(value) {
   if (!value) return '';
@@ -100,6 +98,8 @@ function AdvisorInbox() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [action, setAction] = useState(null);
   const [error, setError] = useState('');
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+  const selectedConversationRef = useRef(null);
 
   const loadConversations = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
@@ -157,32 +157,37 @@ function AdvisorInbox() {
 
   useEffect(() => {
     const initialTimer = window.setTimeout(loadConversations, 0);
-    const timer = window.setInterval(
-      () => loadConversations({ silent: true }),
-      LIST_REFRESH_INTERVAL
-    );
-    return () => {
-      window.clearTimeout(initialTimer);
-      window.clearInterval(timer);
-    };
+    return () => window.clearTimeout(initialTimer);
   }, [loadConversations]);
 
   const selectedConversation = conversations.find((item) => item.id === selectedId) || null;
   const selectedSessionToken = selectedConversation?.sessionToken;
 
   useEffect(() => {
+    selectedConversationRef.current = selectedConversation;
+  }, [selectedConversation]);
+
+  useEffect(() => {
     if (!selectedId || !selectedSessionToken) return undefined;
     const conversation = { id: selectedId, sessionToken: selectedSessionToken };
     const initialTimer = window.setTimeout(() => loadMessages(conversation), 0);
-    const timer = window.setInterval(
-      () => loadMessages(conversation, { silent: true }),
-      MESSAGE_REFRESH_INTERVAL
-    );
-    return () => {
-      window.clearTimeout(initialTimer);
-      window.clearInterval(timer);
-    };
+    return () => window.clearTimeout(initialTimer);
   }, [loadMessages, selectedId, selectedSessionToken]);
+
+  useEffect(
+    () =>
+      connectAdminChatSocket({
+        onConnectionChange: setRealtimeConnected,
+        onEvent: (event) => {
+          void loadConversations({ silent: true });
+          const selected = selectedConversationRef.current;
+          if (selected && (!event.sessionId || event.sessionId === selected.id)) {
+            void loadMessages(selected, { silent: true });
+          }
+        },
+      }),
+    [loadConversations, loadMessages]
+  );
 
   const filteredConversations = useMemo(
     () =>
@@ -294,6 +299,7 @@ function AdvisorInbox() {
       <AdvisorInboxHeader
         waitingCount={waitingCount}
         loading={loading}
+        realtimeConnected={realtimeConnected}
         onRefresh={() => loadConversations()}
       />
       {error && (

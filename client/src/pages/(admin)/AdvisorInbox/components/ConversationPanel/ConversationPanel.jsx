@@ -5,7 +5,6 @@ import {
   FileText,
   Info,
   MessageSquareText,
-  MoreHorizontal,
   Paperclip,
   Send,
   UserRound,
@@ -148,13 +147,6 @@ function ConversationPanel({
             className='rounded-lg p-2 text-slate-500 hover:bg-slate-100'
           >
             <Info size={19} />
-          </button>
-          <button
-            type='button'
-            title='Tùy chọn'
-            className='rounded-lg p-2 text-slate-500 hover:bg-slate-100'
-          >
-            <MoreHorizontal size={20} />
           </button>
         </div>
       </header>

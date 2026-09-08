@@ -10,6 +10,7 @@ import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.repository.ChatSessionRepository;
 import com.example.server.repository.UserRepository;
+import com.example.server.websocket.AdminChatWebSocketHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -37,6 +38,7 @@ public class ChatSessionService {
     ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
     ChatMessageService chatMessageService;
+    AdminChatWebSocketHandler adminChatWebSocketHandler;
 
     @Transactional
     public ChatSessionResponse create(ChatSessionCreateRequest request) {
@@ -45,7 +47,7 @@ public class ChatSessionService {
                 .title(normalizeTitle(request.getTitle()))
                 .user(getCurrentUser().orElse(null))
                 .build();
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional(readOnly = true)
@@ -87,7 +89,7 @@ public class ChatSessionService {
             throw new AppException(ErrorCode.CHAT_SESSION_ALREADY_ATTACHED);
         }
         session.setUser(user);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
@@ -117,7 +119,7 @@ public class ChatSessionService {
         session.setStatus(ChatSessionStatus.WAITING_FOR_STAFF);
         session.setAssignedStaff(null);
         session.setAssignedAt(null);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional(readOnly = true)
@@ -152,7 +154,7 @@ public class ChatSessionService {
         session.setStatus(ChatSessionStatus.STAFF_HANDLING);
         session.setAssignedStaff(staff);
         session.setAssignedAt(LocalDateTime.now());
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
@@ -170,7 +172,7 @@ public class ChatSessionService {
         session.setStatus(ChatSessionStatus.BOT_HANDLING);
         session.setAssignedStaff(null);
         session.setAssignedAt(null);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
@@ -185,11 +187,18 @@ public class ChatSessionService {
         }
         chatMessageService.deleteBySession(session.getId());
         chatSessionRepository.delete(session);
+        adminChatWebSocketHandler.publishAfterCommit("SESSION_DELETED", session.getId());
     }
 
     private ChatSession findByToken(String sessionToken) {
         return chatSessionRepository.findBySessionToken(sessionToken)
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+    }
+
+    private ChatSessionResponse saveAndPublish(ChatSession session) {
+        ChatSession savedSession = chatSessionRepository.save(session);
+        adminChatWebSocketHandler.publishAfterCommit("SESSION_UPDATED", savedSession.getId());
+        return toResponse(savedSession);
     }
 
     private void validateSessionAccess(ChatSession session) {

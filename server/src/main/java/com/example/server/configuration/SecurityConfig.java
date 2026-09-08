@@ -56,6 +56,7 @@ public class SecurityConfig {
                         "/chat-messages/*",
                         "/uploads/chat-messages/**"
                 ).permitAll()
+                .requestMatchers("/ws/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/chat-sessions/*").permitAll()
                 .anyRequest()
                 .authenticated());

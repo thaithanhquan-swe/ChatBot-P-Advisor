@@ -12,6 +12,7 @@ import com.example.server.exception.ErrorCode;
 import com.example.server.repository.ChatMessageRepository;
 import com.example.server.repository.ChatSessionRepository;
 import com.example.server.repository.UserRepository;
+import com.example.server.websocket.AdminChatWebSocketHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -40,6 +41,7 @@ public class ChatMessageService {
     ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
     FileStorageService fileStorageService;
+    AdminChatWebSocketHandler adminChatWebSocketHandler;
 
     @NonFinal
     @Value("${app.config.context-path}")
@@ -149,7 +151,9 @@ public class ChatMessageService {
                 .build();
         session.setUpdatedAt(LocalDateTime.now());
         chatSessionRepository.save(session);
-        return toResponse(chatMessageRepository.save(message));
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+        adminChatWebSocketHandler.publishAfterCommit("MESSAGE_CREATED", session.getId());
+        return toResponse(savedMessage);
     }
 
     private ChatMessageResponse saveMessageWithFile(
@@ -177,7 +181,9 @@ public class ChatMessageService {
                     .build();
             session.setUpdatedAt(LocalDateTime.now());
             chatSessionRepository.save(session);
-            return toResponse(chatMessageRepository.save(message));
+            ChatMessage savedMessage = chatMessageRepository.save(message);
+            adminChatWebSocketHandler.publishAfterCommit("MESSAGE_CREATED", session.getId());
+            return toResponse(savedMessage);
         } catch (IOException exception) {
             throw new AppException(ErrorCode.CHAT_MESSAGE_FILE_STORAGE_ERROR);
         } catch (RuntimeException exception) {

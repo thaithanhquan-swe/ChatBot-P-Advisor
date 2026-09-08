@@ -1,13 +1,24 @@
 import { Clock3, RefreshCw } from 'lucide-react';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb/AdminBreadcrumb';
 
-function AdvisorInboxHeader({ waitingCount, loading, onRefresh }) {
+function AdvisorInboxHeader({ waitingCount, loading, realtimeConnected, onRefresh }) {
   return (
     <div className='mb-2 flex min-h-8 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1'>
       <div className='[&>div]:mb-0'>
         <AdminBreadcrumb pageTitle='Tin nhắn người dùng' />
       </div>
       <div className='flex items-center gap-2'>
+        <span
+          className={`flex items-center gap-1.5 text-[11px] font-medium ${realtimeConnected ? 'text-emerald-600' : 'text-slate-400'}`}
+          title={
+            realtimeConnected ? 'Đang nhận cập nhật thời gian thực' : 'WebSocket đang kết nối lại'
+          }
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${realtimeConnected ? 'bg-emerald-500' : 'bg-slate-300'}`}
+          />
+          {realtimeConnected ? 'Trực tuyến' : 'Đang kết nối'}
+        </span>
         <div
           className='flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700'
           role='status'
