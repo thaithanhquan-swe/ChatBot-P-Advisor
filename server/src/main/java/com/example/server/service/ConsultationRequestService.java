@@ -3,14 +3,12 @@ package com.example.server.service;
 import com.example.server.dto.request.ConsultationRequestCreateRequest;
 import com.example.server.dto.response.ConsultationRequestResponse;
 import com.example.server.dto.response.PageResponse;
-import com.example.server.entity.ChatSession;
 import com.example.server.entity.ConsultationRequest;
 import com.example.server.entity.User;
 import com.example.server.enums.ConsultationRequestStatus;
 import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.mail.ConsultationRequestMailService;
-import com.example.server.repository.ChatSessionRepository;
 import com.example.server.repository.ConsultationRequestRepository;
 import com.example.server.repository.UserRepository;
 import lombok.AccessLevel;
@@ -34,7 +32,6 @@ import java.time.LocalDate;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ConsultationRequestService {
     ConsultationRequestRepository consultationRequestRepository;
-    ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
     ConsultationRequestMailService consultationRequestMailService;
 
@@ -48,7 +45,6 @@ public class ConsultationRequestService {
 
         ConsultationRequest entity = ConsultationRequest.builder()
                 .user(currentUser())
-                .chatSession(findChatSession(request.getChatSessionId()))
                 .email(email == null ? null : email.toLowerCase())
                 .phone(phone)
                 .question(request.getQuestion().trim())
@@ -154,12 +150,6 @@ public class ConsultationRequestService {
         return userRepository.findByUsername(authentication.getName()).orElse(null);
     }
 
-    private ChatSession findChatSession(String id) {
-        if (normalize(id) == null) return null;
-        return chatSessionRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
-    }
-
     private User requireCurrentUser() {
         User user = currentUser();
         if (user == null) throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -174,7 +164,6 @@ public class ConsultationRequestService {
         return ConsultationRequestResponse.builder()
                 .id(entity.getId())
                 .userId(entity.getUser() == null ? null : entity.getUser().getId())
-                .chatSessionId(entity.getChatSession() == null ? null : entity.getChatSession().getId())
                 .email(entity.getEmail())
                 .phone(entity.getPhone())
                 .question(entity.getQuestion())

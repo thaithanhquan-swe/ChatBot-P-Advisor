@@ -11,7 +11,6 @@ function ConsultationRequestHeader() {
           Tiếp nhận, theo dõi và hoàn thành các yêu cầu tư vấn của người dùng.
         </p>
       </div>
-
     </div>
   );
 }

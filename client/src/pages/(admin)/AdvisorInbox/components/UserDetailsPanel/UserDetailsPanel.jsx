@@ -36,7 +36,7 @@ function UserDetailsPanel({ conversation, visible }) {
         </div>
         <div className='py-5'>
           <h3 className='text-xs font-semibold uppercase tracking-wide text-slate-400'>
-            Yêu cầu chuyển tiếp
+            Thông tin cuộc trò chuyện
           </h3>
           <dl className='mt-4 space-y-3'>
             <div>
@@ -44,7 +44,7 @@ function UserDetailsPanel({ conversation, visible }) {
               <dd className='mt-1 text-sm font-medium text-slate-700'>{conversation.topic}</dd>
             </div>
             <div>
-              <dt className='text-[11px] text-slate-400'>Thời gian yêu cầu</dt>
+              <dt className='text-[11px] text-slate-400'>Hoạt động gần nhất</dt>
               <dd className='mt-1 text-sm text-slate-600'>{conversation.requestedAt}</dd>
             </div>
             <div>

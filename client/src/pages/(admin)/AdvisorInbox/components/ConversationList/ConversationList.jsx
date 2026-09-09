@@ -5,6 +5,7 @@ function ConversationList({
   selectedId,
   query,
   filter,
+  loading,
   onQueryChange,
   onFilterChange,
   onSelect,
@@ -28,9 +29,10 @@ function ConversationList({
             className='h-9 w-full appearance-none rounded-lg border border-slate-200 bg-white px-3 pr-8 text-sm text-slate-600 outline-none focus:border-[#D71920]'
           >
             <option value='all'>Tất cả trạng thái</option>
+            <option value='bot'>Chatbot đang xử lý</option>
             <option value='waiting'>Đang chờ</option>
             <option value='active'>Đang tư vấn</option>
-            <option value='closed'>Đã kết thúc</option>
+            <option value='assigned'>Cán bộ khác đang tư vấn</option>
           </select>
           <ChevronDown
             className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400'
@@ -72,7 +74,7 @@ function ConversationList({
         ))}
         {conversations.length === 0 && (
           <div className='px-6 py-12 text-center text-sm text-slate-400'>
-            Không tìm thấy cuộc trò chuyện.
+            {loading ? 'Đang tải cuộc trò chuyện...' : 'Không tìm thấy cuộc trò chuyện.'}
           </div>
         )}
       </div>

@@ -10,6 +10,7 @@ import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.repository.ChatSessionRepository;
 import com.example.server.repository.UserRepository;
+import com.example.server.websocket.AdminChatWebSocketHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +37,8 @@ public class ChatSessionService {
 
     ChatSessionRepository chatSessionRepository;
     UserRepository userRepository;
+    ChatMessageService chatMessageService;
+    AdminChatWebSocketHandler adminChatWebSocketHandler;
 
     @Transactional
     public ChatSessionResponse create(ChatSessionCreateRequest request) {
@@ -44,7 +47,7 @@ public class ChatSessionService {
                 .title(normalizeTitle(request.getTitle()))
                 .user(getCurrentUser().orElse(null))
                 .build();
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional(readOnly = true)
@@ -70,6 +73,13 @@ public class ChatSessionService {
         return PageResponse.of(sessions.map(this::toResponse));
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<ChatSessionResponse> getRegisteredUserSessions(int page, int size) {
+        Page<ChatSession> sessions = chatSessionRepository.findAllByUserIsNotNull(
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "updatedAt")));
+        return PageResponse.of(sessions.map(this::toResponse));
+    }
+
     @Transactional
     public ChatSessionResponse attachGuestSession(String sessionToken) {
         User user = requireCurrentUser();
@@ -79,7 +89,7 @@ public class ChatSessionService {
             throw new AppException(ErrorCode.CHAT_SESSION_ALREADY_ATTACHED);
         }
         session.setUser(user);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
@@ -109,7 +119,7 @@ public class ChatSessionService {
         session.setStatus(ChatSessionStatus.WAITING_FOR_STAFF);
         session.setAssignedStaff(null);
         session.setAssignedAt(null);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional(readOnly = true)
@@ -137,13 +147,14 @@ public class ChatSessionService {
         if (session.getAssignedStaff() != null) {
             throw new AppException(ErrorCode.CHAT_SESSION_ALREADY_ASSIGNED);
         }
-        if (session.getStatus() != ChatSessionStatus.WAITING_FOR_STAFF) {
+        if (session.getStatus() != ChatSessionStatus.WAITING_FOR_STAFF
+                && session.getStatus() != ChatSessionStatus.BOT_HANDLING) {
             throw new AppException(ErrorCode.INVALID_CHAT_SESSION_STATUS);
         }
         session.setStatus(ChatSessionStatus.STAFF_HANDLING);
         session.setAssignedStaff(staff);
         session.setAssignedAt(LocalDateTime.now());
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
@@ -161,24 +172,33 @@ public class ChatSessionService {
         session.setStatus(ChatSessionStatus.BOT_HANDLING);
         session.setAssignedStaff(null);
         session.setAssignedAt(null);
-        return toResponse(chatSessionRepository.save(session));
+        return saveAndPublish(session);
     }
 
     @Transactional
     public void delete(String sessionToken) {
-        ChatSession session = findByToken(sessionToken);
+        ChatSession session = chatSessionRepository.findBySessionTokenForUpdate(sessionToken)
+                .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
         if (session.getUser() != null) {
             User user = requireCurrentUser();
             if (!session.getUser().getId().equals(user.getId())) {
                 throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
             }
         }
+        chatMessageService.deleteBySession(session.getId());
         chatSessionRepository.delete(session);
+        adminChatWebSocketHandler.publishAfterCommit("SESSION_DELETED", session.getId());
     }
 
     private ChatSession findByToken(String sessionToken) {
         return chatSessionRepository.findBySessionToken(sessionToken)
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND));
+    }
+
+    private ChatSessionResponse saveAndPublish(ChatSession session) {
+        ChatSession savedSession = chatSessionRepository.save(session);
+        adminChatWebSocketHandler.publishAfterCommit("SESSION_UPDATED", savedSession.getId());
+        return toResponse(savedSession);
     }
 
     private void validateSessionAccess(ChatSession session) {
@@ -223,6 +243,9 @@ public class ChatSessionService {
                 .id(session.getId())
                 .sessionToken(session.getSessionToken())
                 .userId(session.getUser() == null ? null : session.getUser().getId())
+                .username(session.getUser() == null ? null : session.getUser().getUsername())
+                .userEmail(session.getUser() == null ? null : session.getUser().getEmail())
+                .userPhone(session.getUser() == null ? null : session.getUser().getPhone())
                 .title(session.getTitle())
                 .status(session.getStatus())
                 .assignedStaffId(session.getAssignedStaff() == null ? null : session.getAssignedStaff().getId())

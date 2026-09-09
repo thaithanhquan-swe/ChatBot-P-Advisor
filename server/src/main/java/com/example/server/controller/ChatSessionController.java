@@ -82,6 +82,16 @@ public class ChatSessionController {
                 .build();
     }
 
+    @GetMapping("/staff/registered-users")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    public ApiResponse<PageResponse<ChatSessionResponse>> getRegisteredUserSessions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ApiResponse.<PageResponse<ChatSessionResponse>>builder()
+                .result(chatSessionService.getRegisteredUserSessions(page, size))
+                .build();
+    }
+
     @GetMapping("/staff/assigned-to-me")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<ChatSessionResponse>> getAssignedToMe(

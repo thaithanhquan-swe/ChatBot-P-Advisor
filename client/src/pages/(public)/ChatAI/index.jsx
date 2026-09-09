@@ -1,119 +1,61 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar/Sidebar';
 import ChatHeader from './components/ChatHeader/ChatHeader';
 import WelcomeIntro from './components/WelcomeIntro/WelcomeIntro';
 import MessageBubble from './components/MessageBubble/MessageBubble';
 import TypingIndicator from './components/TypingIndicator/TypingIndicator';
 import ChatInput from './components/ChatInput/ChatInput';
-import TrustNote from './components/TrustNote/TrustNote';
-import { getAnswerFor, nowTime } from '@/data/data';
-
-const MOCK_REPLY_DELAY = 900;
-const createMessageId = () => crypto.randomUUID();
+import { useChat } from './use-chat';
 
 function ChatAI() {
   const location = useLocation();
-
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState(location.state?.initialQuestion || '');
-  const [isTyping, setIsTyping] = useState(false);
+  const chat = useChat();
+  const [input, setInput] = useState(
+    location.state?.initialQuestion || location.state?.prefill || ''
+  );
+  const [file, setFile] = useState(null);
+  const [quotaNotice, setQuotaNotice] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState(null);
-  const [chatMode, setChatMode] = useState('bot');
   const scrollAnchorRef = useRef(null);
+  const busy = chat.loading || !!chat.operation;
+  const quotaReached =
+    chat.session && !chat.session.userId && chat.session.remainingGuestQuestions <= 0;
 
-  // Tự động cuộn xuống tin nhắn mới nhất.
   useEffect(() => {
     scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [messages, isTyping]);
+  }, [chat.messages, chat.operation]);
 
-  const handleSendMessage = (text) => {
-    const question = text.trim();
-    if (!question || isTyping) return;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: createMessageId(),
-        role: 'user',
-        content: question,
-        time: nowTime(),
-      },
-    ]);
-    setInput('');
-    if (chatMode === 'advisor') {
+  const handleSendMessage = () => {
+    if (busy) return;
+    if (quotaReached) {
+      setQuotaNotice(true);
       return;
     }
-
-    setIsTyping(true);
-
-    // Giả lập thời gian chatbot trả lời từ dữ liệu hard-code.
-    setTimeout(() => {
-      const answer = getAnswerFor(question);
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: createMessageId(),
-          role: 'assistant',
-          ...answer,
-        },
-      ]);
-      setIsTyping(false);
-    }, MOCK_REPLY_DELAY);
+    setQuotaNotice(false);
+    const message = input;
+    const attachment = file;
+    setInput('');
+    setFile(null);
+    void chat.controller.sendMessage(message, attachment);
   };
-
-  // Gửi luôn câu hỏi được chọn từ trang chủ.
-  useEffect(() => {
-    const prefill = location.state?.prefill;
-    if (!prefill) return;
-
-    const timer = setTimeout(() => handleSendMessage(prefill), 0);
-    window.history.replaceState({}, document.title);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleNewChat = () => {
-    setMessages([]);
+    if (!chat.controller.newChat()) return;
+    setQuotaNotice(false);
     setInput('');
-    setActiveConversationId(null);
-    setChatMode('bot');
+    setFile(null);
     setSidebarOpen(false);
   };
 
-  const handleClearChat = () => {
-    setMessages([]);
-  };
-
-  const handleSelectConversation = (id) => {
-    setActiveConversationId(id);
-    setSidebarOpen(false);
-  };
-
-  const handleRequestAdvisor = () => {
-    if (chatMode === 'advisor') return;
-    setChatMode('advisor');
-    setIsTyping(false);
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: createMessageId(),
-        role: 'system',
-        content: 'Yêu cầu của bạn đã được chuyển đến cán bộ tư vấn tuyển sinh.',
-        time: nowTime(),
-      },
-      {
-        id: createMessageId(),
-        role: 'advisor',
-        content: 'Chào bạn, mình là cán bộ tư vấn tuyển sinh PTIT. Bạn cần mình hỗ trợ thêm nội dung nào?',
-        time: nowTime(),
-        advisorName: 'Cán bộ tư vấn PTIT',
-      },
-    ]);
+  const handleSelectConversation = async (token) => {
+    if (await chat.controller.selectSession(token)) {
+      setQuotaNotice(false);
+      setInput('');
+      setFile(null);
+      setSidebarOpen(false);
+    }
   };
 
   return (
@@ -123,42 +65,112 @@ function ChatAI() {
         collapsed={sidebarCollapsed}
         onClose={() => setSidebarOpen(false)}
         onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
-        activeId={activeConversationId}
+        activeId={chat.session?.id}
         onSelect={handleSelectConversation}
         onNewChat={handleNewChat}
+        history={chat.history}
+        loading={chat.loadingHistory}
+        error={chat.historyError}
+        hasMore={chat.hasMore}
+        onLoadMore={() => chat.controller.loadHistory(true)}
+        onRetry={() => chat.controller.loadHistory()}
+        disabled={busy}
       />
-
       <div className='flex min-w-0 flex-1 flex-col'>
         <ChatHeader
           onOpenSidebar={() => setSidebarOpen(true)}
           onNewChat={handleNewChat}
-          onClearChat={handleClearChat}
-          hasMessages={messages.length > 0}
-          chatMode={chatMode}
-          onRequestAdvisor={handleRequestAdvisor}
+          onClearChat={async () => {
+            const deleted = await chat.controller.deleteSession();
+            if (deleted) {
+              setQuotaNotice(false);
+              setInput('');
+              setFile(null);
+            }
+            return deleted;
+          }}
+          hasSession={!!chat.session}
+          status={chat.session?.status}
+          onRequestAdvisor={() => chat.controller.requestAdvisor()}
+          disabled={busy}
         />
-
-        <div className='min-h-0 flex-1 overflow-y-auto'>
-          {messages.length === 0 ? (
-            <WelcomeIntro onPickQuestion={handleSendMessage} />
+        {chat.error && (
+          <p role='alert' className='px-4 py-2 text-sm text-red-700'>
+            {chat.error}
+          </p>
+        )}
+        {chat.syncError && (
+          <div role='status' className='flex items-center gap-2 px-4 py-2 text-sm text-amber-800'>
+            <span>Chưa cập nhật được hội thoại: {chat.syncError}</span>
+            <button
+              type='button'
+              disabled={busy}
+              onClick={() => chat.controller.refreshSession()}
+              className='underline'
+            >
+              Thử lại
+            </button>
+          </div>
+        )}
+        <div className='min-h-0 flex-1 overflow-y-auto' aria-busy={busy}>
+          {chat.loading ? (
+            <p role='status' className='p-6 text-center text-sm text-gray-500'>
+              Đang tải hội thoại...
+            </p>
           ) : (
-            <div className='mx-auto flex max-w-160 flex-col gap-5 px-4 py-6 sm:px-6'>
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} onFollowUp={handleSendMessage} />
-              ))}
-              {isTyping && <TypingIndicator />}
-              <div ref={scrollAnchorRef} />
-            </div>
+            <>
+              {chat.messages.length === 0 && <WelcomeIntro />}
+              <div className='mx-auto flex max-w-160 flex-col gap-5 px-4 py-6 sm:px-6'>
+                {chat.messages.map((message) => (
+                  <MessageBubble key={message.id} message={message} />
+                ))}
+                {chat.operation === 'send' &&
+                  (chat.session?.status === 'BOT_HANDLING' ? (
+                    <TypingIndicator />
+                  ) : (
+                    <p role='status' className='text-sm text-gray-500'>
+                      Đang gửi tin nhắn...
+                    </p>
+                  ))}
+                <div ref={scrollAnchorRef} />
+              </div>
+            </>
           )}
         </div>
-
-        <TrustNote />
+        {chat.session && !chat.session.userId && (
+          <p className='px-4 py-2 text-center text-xs text-gray-600'>
+            {quotaReached
+              ? 'Bạn đã dùng hết lượt hỏi dành cho khách.'
+              : `Bạn còn ${chat.session.remainingGuestQuestions} lượt hỏi dành cho khách.`}{' '}
+            <Link to='/login' className='font-medium text-(--primary-color) underline'>
+              Đăng nhập để tiếp tục
+            </Link>
+          </p>
+        )}
+        {quotaNotice && (
+          <div
+            role='alert'
+            className='border-t border-red-100 bg-red-50 px-4 py-3 text-center text-sm text-red-700'
+          >
+            Bạn đã sử dụng hết 2 lượt hỏi dành cho khách.{' '}
+            <Link to='/login' className='font-semibold underline'>
+              Đăng nhập để tiếp tục trò chuyện
+            </Link>
+            .
+          </div>
+        )}
         <ChatInput
           value={input}
           onChange={setInput}
-          onSubmit={() => handleSendMessage(input)}
-          disabled={isTyping || input.trim().length === 0}
-          placeholder={chatMode === 'advisor' ? 'Nhập tin nhắn cho cán bộ tư vấn...' : 'Nhập câu hỏi về tuyển sinh PTIT...'}
+          onSubmit={handleSendMessage}
+          disabled={busy}
+          file={file}
+          onFileChange={setFile}
+          placeholder={
+            chat.session?.status === 'STAFF_HANDLING'
+              ? 'Nhập tin nhắn cho cán bộ tư vấn...'
+              : 'Nhập câu hỏi về tuyển sinh PTIT...'
+          }
         />
       </div>
     </div>

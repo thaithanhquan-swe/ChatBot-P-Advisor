@@ -1,7 +1,21 @@
 import { MessageSquareText, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
-import { conversationHistory } from '@/data/data';
 
-const Sidebar = ({ open, collapsed, onClose, onToggleCollapse, activeId, onSelect, onNewChat }) => {
+const Sidebar = ({
+  open,
+  collapsed,
+  onClose,
+  onToggleCollapse,
+  activeId,
+  onSelect,
+  onNewChat,
+  history,
+  loading,
+  error,
+  hasMore,
+  onLoadMore,
+  onRetry,
+  disabled,
+}) => {
   return (
     <>
       {open && (
@@ -40,6 +54,7 @@ const Sidebar = ({ open, collapsed, onClose, onToggleCollapse, activeId, onSelec
           <button
             type='button'
             onClick={onNewChat}
+            disabled={disabled}
             className='flex w-full items-center justify-center gap-2 rounded-(--radius-card) bg-(--primary-color) px-4 py-2.5 text-[13px] font-semibold text-white transition-all hover:shadow-(--shadow-card-hover)'
           >
             <Plus size={16} strokeWidth={2.2} />
@@ -52,17 +67,36 @@ const Sidebar = ({ open, collapsed, onClose, onToggleCollapse, activeId, onSelec
             collapsed ? 'lg:hidden' : ''
           }`}
         >
-          {conversationHistory.length === 0 ? (
+          {error && (
+            <div role='alert' className='px-3 py-2 text-xs text-red-700'>
+              <p>{error}</p>
+              <button
+                type='button'
+                onClick={onRetry}
+                disabled={loading || disabled}
+                className='mt-1 underline'
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
+          {loading && (
+            <p role='status' className='px-3 py-2 text-xs text-gray-500'>
+              Đang tải lịch sử...
+            </p>
+          )}
+          {history.length === 0 && !loading && !error ? (
             <p className='px-3 py-6 text-center text-[13px] text-(--text-tertiary)'>
               Chưa có cuộc hội thoại nào.
             </p>
           ) : (
             <ul className='flex flex-col gap-1'>
-              {conversationHistory.map((item) => (
+              {history.map((item) => (
                 <li key={item.id}>
                   <button
                     type='button'
-                    onClick={() => onSelect(item.id)}
+                    onClick={() => onSelect(item.sessionToken)}
+                    disabled={disabled}
                     className={`flex w-full flex-col items-start gap-0.5 rounded-(--radius-card) px-3 py-2.5 text-left transition-colors ${
                       activeId === item.id
                         ? 'bg-(--primary-color-soft) text-(--primary-color)'
@@ -70,11 +104,23 @@ const Sidebar = ({ open, collapsed, onClose, onToggleCollapse, activeId, onSelec
                     }`}
                   >
                     <span className='line-clamp-1 text-[13px] font-medium'>{item.title}</span>
-                    <span className='text-[11.5px] text-(--text-tertiary)'>{item.time}</span>
+                    <span className='text-[11.5px] text-(--text-tertiary)'>
+                      {item.updatedAt && new Date(item.updatedAt).toLocaleString('vi-VN')}
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
+          )}
+          {hasMore && (
+            <button
+              type='button'
+              onClick={onLoadMore}
+              disabled={loading || disabled}
+              className='w-full px-3 py-2 text-sm text-(--primary-color)'
+            >
+              Tải thêm
+            </button>
           )}
         </div>
 

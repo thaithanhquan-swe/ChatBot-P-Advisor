@@ -11,9 +11,19 @@ function ConsultationRequestStatistics({ counts }) {
   return (
     <section className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5'>
       {statistics.map(([label, value, Icon, tone]) => (
-        <div key={label} className='flex min-h-28 items-center gap-4 rounded-xl border border-slate-200 bg-white p-4'>
-          <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${tone}`}><Icon size={25} /></div>
-          <div><p className='text-[22px] font-bold leading-none text-slate-900'>{value}</p><p className='mt-2 text-[11px] text-slate-700'>{label}</p></div>
+        <div
+          key={label}
+          className='flex min-h-28 items-center gap-4 rounded-xl border border-slate-200 bg-white p-4'
+        >
+          <div
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${tone}`}
+          >
+            <Icon size={25} />
+          </div>
+          <div>
+            <p className='text-[22px] font-bold leading-none text-slate-900'>{value}</p>
+            <p className='mt-2 text-[11px] text-slate-700'>{label}</p>
+          </div>
         </div>
       ))}
     </section>

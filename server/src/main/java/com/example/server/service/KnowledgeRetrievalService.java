@@ -82,7 +82,7 @@ public class KnowledgeRetrievalService {
 
         StringBuilder context = new StringBuilder();
         for (KnowledgeChunk chunk : ranked) {
-            String entry = "[Nguồn: " + chunk.source() + "]\n" + chunk.content().trim() + "\n\n";
+            String entry = chunk.content().trim() + "\n\n";
             if (context.length() + entry.length() > MAX_CONTEXT_CHARACTERS) {
                 int remaining = MAX_CONTEXT_CHARACTERS - context.length();
                 if (remaining > 100) context.append(entry, 0, remaining);
@@ -102,8 +102,9 @@ public class KnowledgeRetrievalService {
         String category = faq.getFaqCategory() == null ? "Không phân loại" : faq.getFaqCategory().getName();
         String searchable = faq.getQuestion() + " " + faq.getAnswer() + " " + category;
         int score = score(queryTerms, faq.getQuestion(), searchable);
-        String content = "Câu hỏi: " + faq.getQuestion() + "\nCâu trả lời: " + faq.getAnswer();
-        return new KnowledgeChunk("FAQ / " + category, content, score > 0 ? score + 1 : 0);
+        String content = "Chủ đề: " + category + "\nCâu hỏi: " + faq.getQuestion()
+                + "\nCâu trả lời: " + faq.getAnswer();
+        return new KnowledgeChunk(content, score > 0 ? score + 1 : 0);
     }
 
     private List<KnowledgeChunk> fromDocument(Document document, Set<String> queryTerms) {
@@ -118,8 +119,7 @@ public class KnowledgeRetrievalService {
             String chunk = chunks.get(index);
             int score = score(queryTerms, boosted, boosted + " " + chunk);
             String content = "Tài liệu: " + document.getTitle() + "\n" + chunk;
-            String source = "Document / " + document.getFileName() + " / đoạn " + (index + 1);
-            results.add(new KnowledgeChunk(source, content, score));
+            results.add(new KnowledgeChunk(content, score));
         }
         return results;
     }
@@ -223,6 +223,6 @@ public class KnowledgeRetrievalService {
                 .toLowerCase(Locale.ROOT);
     }
 
-    private record KnowledgeChunk(String source, String content, int score) {}
+    private record KnowledgeChunk(String content, int score) {}
     private record CachedDocument(String key, String content) {}
 }

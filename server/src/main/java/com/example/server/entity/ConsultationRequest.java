@@ -28,10 +28,6 @@ public class ConsultationRequest {
     @JoinColumn(name = "user_id")
     User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_session_id")
-    ChatSession chatSession;
-
     @Column(length = 255)
     String email;
 

@@ -1,7 +1,7 @@
 import http from '@/lib/http';
 
 /**
- * @param {{ question: string, chatSessionId?: string, email?: string, phone?: string }} request
+ * @param {{ question: string, email?: string, phone?: string }} request
  */
 export async function createConsultationRequest(request) {
   const data = await http.post('/consultation-requests', request);

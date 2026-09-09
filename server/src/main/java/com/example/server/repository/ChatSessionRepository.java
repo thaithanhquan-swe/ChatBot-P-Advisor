@@ -29,6 +29,8 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, String
 
     Page<ChatSession> findAllByUserId(String userId, Pageable pageable);
 
+    Page<ChatSession> findAllByUserIsNotNull(Pageable pageable);
+
     Page<ChatSession> findAllByStatus(ChatSessionStatus status, Pageable pageable);
 
     Page<ChatSession> findAllByAssignedStaffId(String assignedStaffId, Pageable pageable);

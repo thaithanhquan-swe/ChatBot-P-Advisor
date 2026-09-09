@@ -52,11 +52,6 @@ export function verifyEmail(token) {
   return verificationRequests.get(token);
 }
 
-export async function getCurrentUser() {
-  const data = await http.get('/users/me');
-  return data.result;
-}
-
 export async function forgotPassword(email) {
   const data = await http.post('/auth/forgot-password', { email });
   return data;

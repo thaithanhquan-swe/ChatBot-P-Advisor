@@ -1,109 +1,173 @@
-import { useState } from 'react';
-import { AlertCircle, Bot, Check, Copy, ExternalLink, Headset } from 'lucide-react';
-import AnswerBlock from './AnswerBlock';
+import { useEffect, useRef, useState } from 'react';
+import { Bot, Check, Copy, FileText, Headset } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/http';
 
-const MessageBubble = ({ message, onFollowUp }) => {
-  const [copied, setCopied] = useState(false);
-  const isUser = message.role === 'user';
+const WEB_URL_PATTERN = /(https?:\/\/[^\s)\]}>]+)/gi;
+const SOURCE_LABEL_PATTERN = /(?:nguồn(?:\s+tham\s+khảo)?|source)\s*:/iu;
 
-  if (message.role === 'system') {
-    return (
-      <div className='flex animate-fade-in-up justify-center'>
-        <div className='flex items-center gap-2 rounded-(--radius-card) border border-amber-200 bg-amber-50 px-3.5 py-2 text-center text-[12px] font-medium text-amber-800'>
-          <Headset size={15} />
-          <span>{message.content}</span>
-          {message.time && <span className='text-amber-600'>{message.time}</span>}
-        </div>
-      </div>
-    );
+function attachmentUrl(path) {
+  if (!path) return null;
+  try {
+    const url = new URL(path, new URL(API_BASE_URL || '/', window.location.origin));
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
   }
+}
+
+function MessageContent({ content }) {
+  const sanitizedContent = (content || '')
+    .split(/\r?\n/)
+    .map((line) => {
+      const sourceLabel = SOURCE_LABEL_PATTERN.exec(line);
+      if (!sourceLabel) return line;
+
+      const prefix = line
+        .slice(0, sourceLabel.index)
+        .replace(/[-\s*_(`>]+$/, '')
+        .trim();
+      const urls = (
+        line.slice(sourceLabel.index + sourceLabel[0].length).match(WEB_URL_PATTERN) || []
+      )
+        .map((url) => url.replace(/[)\]}>.,;!*_]+$/, ''))
+        .filter(Boolean);
+      return [prefix, urls.length ? `Nguồn tham khảo: ${[...new Set(urls)].join(', ')}` : '']
+        .filter(Boolean)
+        .join('\n');
+    })
+    .filter((line) => line.trim())
+    .join('\n');
+
+  return sanitizedContent.split(WEB_URL_PATTERN).map((part, index) =>
+    /^https?:\/\//i.test(part) ? (
+      <a
+        key={`${part}-${index}`}
+        href={part}
+        target='_blank'
+        rel='noreferrer'
+        className='underline underline-offset-2'
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  );
+}
+
+const MessageBubble = ({ message }) => {
+  const [copied, setCopied] = useState(false);
+  const revokeTimerRef = useRef(null);
+  const isUser = ['USER', 'GUEST'].includes(message.sender);
+  const isStaff = message.sender === 'STAFF';
+  const date = message.createdAt ? new Date(message.createdAt) : null;
+  const time =
+    date && !Number.isNaN(date.getTime())
+      ? date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+      : '';
+  const fileUrl = attachmentUrl(message.fileUrl);
+  const imageUrl = message.previewUrl || fileUrl;
+
+  useEffect(() => {
+    const previewUrl = message.previewUrl;
+    if (revokeTimerRef.current !== null) {
+      window.clearTimeout(revokeTimerRef.current);
+      revokeTimerRef.current = null;
+    }
+
+    return () => {
+      if (previewUrl) {
+        revokeTimerRef.current = window.setTimeout(() => {
+          window.URL.revokeObjectURL(previewUrl);
+        }, 0);
+      }
+    };
+  }, [message.previewUrl]);
 
   const handleCopy = async () => {
-    const plainText = message.blocks
-      ? message.blocks.map((b) => b.content ?? b.label ?? b.items?.join(', ') ?? '').join('\n')
-      : message.content;
     try {
-      await navigator.clipboard.writeText(plainText);
+      await navigator.clipboard.writeText(message.content || '');
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard API unavailable — fail silently, non-critical action.
+      setCopied(false);
     }
   };
 
-  if (isUser) {
+  if (message.messageType === 'SYSTEM') {
     return (
-      <div className='flex animate-fade-in-up flex-col items-end gap-1'>
-        <div className='max-w-115 rounded-(--radius-card) rounded-tr-sm bg-(--primary-color) px-4 py-2.5 text-[14.5px] leading-relaxed text-white'>
-          {message.content}
-        </div>
-        {message.time && (
-          <span className='px-1 text-[11px] text-(--text-tertiary)'>{message.time}</span>
-        )}
-      </div>
+      <p className='whitespace-pre-wrap rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-800'>
+        {message.content}
+      </p>
     );
   }
 
   return (
-    <div className='flex animate-fade-in-up items-start gap-3'>
-      <div className='mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft)'>
-        {message.role === 'advisor' ? <Headset size={16} className='text-(--primary-color)' strokeWidth={2} /> : <Bot size={16} className='text-(--primary-color)' strokeWidth={2} />}
-      </div>
-
-      <div className='flex max-w-135 flex-col gap-2'>
+    <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''}`}>
+      {!isUser && (
+        <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft) text-(--primary-color)'>
+          {isStaff ? <Headset size={16} /> : <Bot size={16} />}
+        </div>
+      )}
+      <div className={`flex min-w-0 max-w-135 flex-col gap-2 ${isUser ? 'items-end' : ''}`}>
         <div
-          className={`flex flex-col gap-3 rounded-(--radius-card) rounded-tl-sm border bg-white px-4 py-3 shadow-(--shadow-card) ${
-            message.isFallback ? 'border-dashed border-gray-200' : 'border-(--border-subtle)'
-          }`}
+          className={`max-w-full rounded-(--radius-card) px-4 py-3 ${isUser ? 'bg-(--primary-color) text-white' : 'border border-(--border-subtle) bg-white text-gray-800'}`}
         >
-          {message.isFallback && (
-            <div className='flex items-center gap-1.5 text-[12px] font-medium text-(--text-tertiary)'>
-              <AlertCircle size={13} />
-              Chưa tìm thấy câu trả lời chính xác
-            </div>
+          <p className='whitespace-pre-wrap wrap-anywhere text-[14.5px] leading-relaxed'>
+            <MessageContent content={message.content} />
+          </p>
+          {imageUrl && message.fileType?.startsWith('image/') && (
+            <a
+              href={imageUrl}
+              target={fileUrl ? '_blank' : undefined}
+              rel='noreferrer'
+              aria-label='Mở ảnh đính kèm'
+              className='mt-2 block'
+            >
+              <img
+                src={imageUrl}
+                alt='Ảnh đính kèm'
+                loading='lazy'
+                className='max-h-72 max-w-full rounded-lg object-contain'
+              />
+            </a>
           )}
-          {message.role === 'advisor' ? <p className='text-[14.5px] leading-relaxed text-gray-800'>{message.content}</p> : message.blocks.map((block, i) => (
-              <AnswerBlock key={i} block={block} />
-            ))}
-        </div>
-
-        <div className='flex items-center gap-3 px-1'>
-          {message.time && (
-            <span className='text-[11px] text-(--text-tertiary)'>{message.role === 'advisor' ? `${message.advisorName || 'Cán bộ tư vấn'} · ` : ''}{message.time}</span>
+          {fileUrl && !message.fileType?.startsWith('image/') && (
+            <a
+              href={fileUrl}
+              target='_blank'
+              rel='noreferrer'
+              className={`mt-2 flex max-w-72 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium ${isUser ? 'border-white/30 text-white' : 'border-gray-200 text-blue-700'}`}
+            >
+              <FileText size={18} className='shrink-0' />
+              <span className='truncate'>{message.fileName || 'Mở tệp đính kèm'}</span>
+            </a>
           )}
-          {message.role !== 'advisor' && <button
-            type='button'
-            onClick={handleCopy}
-            className='flex items-center gap-1 text-[12px] font-medium text-(--text-tertiary) transition-colors hover:text-(--primary-color)'
-          >
-            {copied ? <Check size={13} /> : <Copy size={13} />}
-            {copied ? 'Đã sao chép' : 'Sao chép'}
-          </button>}
         </div>
-
-        {message.source && (
-          <div className='flex items-start gap-2 rounded-(--radius-card) border border-(--border-subtle) bg-(--surface-muted) px-3.5 py-2.5'>
-            <ExternalLink size={13} className='mt-0.5 shrink-0 text-(--text-tertiary)' />
-            <p className='text-[12px] leading-relaxed text-(--text-secondary)'>
-              Nguồn tham khảo: <span className='font-medium text-gray-600'>{message.source}</span>
-            </p>
-          </div>
-        )}
-
-        {message.followUps?.length > 0 && (
-          <div className='flex flex-wrap gap-2 pt-0.5'>
-            {message.followUps.map((q) => (
-              <button
-                key={q}
-                type='button'
-                onClick={() => onFollowUp(q)}
-                className='rounded-(--radius-pill) border border-(--border-subtle) bg-white px-3.5 py-1.5 text-[12.5px] font-medium text-gray-600 transition-colors hover:border-(--primary-color) hover:text-(--primary-color)'
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className='flex items-center gap-3 px-1 text-[11px] text-(--text-tertiary)'>
+          {isStaff && <span>Cán bộ tư vấn</span>}
+          {time && (
+            <time dateTime={message.createdAt} title={date.toLocaleString('vi-VN')}>
+              {time}
+            </time>
+          )}
+          {message.pending && <span role='status'>Đang gửi...</span>}
+          {message.failed && (
+            <span role='alert' className='text-red-600'>
+              Gửi thất bại
+            </span>
+          )}
+          {!isUser && (
+            <button
+              type='button'
+              onClick={handleCopy}
+              className='flex items-center gap-1 hover:text-(--primary-color)'
+            >
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              {copied ? 'Đã sao chép' : 'Sao chép'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
