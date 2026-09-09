@@ -1,10 +1,22 @@
 export const DOCUMENT_STATUS = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE',
-  PROCESSING: 'PROCESSING',
-  FAILED: 'FAILED',
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED',
 };
 
 export const DOCUMENT_STATUS_OPTIONS = Object.values(DOCUMENT_STATUS);
 
-export const DOCUMENT_FILE_TYPES = ['PDF', 'DOCX', 'TXT'];
+export const DOCUMENT_FILE_TYPES = [
+  {
+    value: 'application/pdf',
+    label: 'PDF',
+  },
+  {
+    value: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    label: 'DOCX',
+  },
+  {
+    value: 'text/plain',
+    label: 'TXT',
+  },
+];
