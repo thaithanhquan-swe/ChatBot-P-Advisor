@@ -19,17 +19,29 @@ const FAQControls = ({ categories, searchTerm, activeCategory, onSearch, onCateg
     </div>
 
     <div className='flex flex-wrap justify-center gap-2.5'>
+      <button
+        type='button'
+        aria-pressed={activeCategory === 'ALL'}
+        onClick={() => onCategoryChange('ALL')}
+        className={`cursor-pointer rounded-full border px-5 py-2 font-medium transition-colors ${
+          activeCategory === 'ALL'
+            ? 'border-(--primary-color) bg-(--primary-color) text-white'
+            : 'border-gray-300 bg-white text-gray-600 hover:border-(--primary-color) hover:text-(--primary-color)'
+        }`}
+      >
+        Tất cả
+    </button>
       {categories.map((category) => {
-        const isActive = activeCategory === category;
+        const isActive = String(activeCategory) === String(category.id);
         return (
           <button
-            key={category}
+            key={category.id}
             type='button'
             aria-pressed={isActive}
-            onClick={() => onCategoryChange(category)}
+            onClick={() => onCategoryChange(category.id)}
             className={`cursor-pointer rounded-full border px-5 py-2 font-medium transition-colors ${isActive ? 'border-(--primary-color) bg-(--primary-color) text-white' : 'border-gray-300 bg-white text-gray-600 hover:border-(--primary-color) hover:text-(--primary-color)'}`}
           >
-            {category}
+            {category.name}
           </button>
         );
       })}

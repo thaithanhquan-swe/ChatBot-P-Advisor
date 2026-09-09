@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ModalShell from '../ModalShell/ModalShell';
 
-const emptyForm = { question: '', answer: '', categoryId: '', status: 'PUBLISHED' };
+const emptyForm = { question: '', answer: '', faqCategoryId: '', status: 'PUBLISHED' };
 function FAQFormModal({ open, faq, categories, onClose, onSubmit }) {
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
@@ -13,10 +13,10 @@ function FAQFormModal({ open, faq, categories, onClose, onSubmit }) {
               id: faq.id,
               question: faq.question,
               answer: faq.answer,
-              categoryId: String(faq.categoryId),
+              faqCategoryId: String(faq.faqCategoryId),
               status: faq.status,
             }
-          : { ...emptyForm, categoryId: categories[0] ? String(categories[0].id) : '' }
+          : { ...emptyForm, faqCategoryId: categories[0] ? String(categories[0].id) : '' }
       );
     setErrors({});
   }, [open, faq, categories]);
@@ -26,14 +26,14 @@ function FAQFormModal({ open, faq, categories, onClose, onSubmit }) {
     const nextErrors = {};
     if (!form.question.trim()) nextErrors.question = 'Vui lòng nhập câu hỏi.';
     if (!form.answer.trim()) nextErrors.answer = 'Vui lòng nhập câu trả lời.';
-    if (!form.categoryId) nextErrors.categoryId = 'Vui lòng chọn danh mục.';
+    if (!form.faqCategoryId) nextErrors.faqCategoryId = 'Vui lòng chọn danh mục.';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
     onSubmit({
       ...form,
       question: form.question.trim(),
       answer: form.answer.trim(),
-      categoryId: Number(form.categoryId),
+      faqCategoryId: form.faqCategoryId,
     });
   };
   return (
@@ -63,10 +63,10 @@ function FAQFormModal({ open, faq, categories, onClose, onSubmit }) {
           />
         </Field>
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
-          <Field label='Danh mục' required error={errors.categoryId}>
+          <Field label='Danh mục' required error={errors.faqCategoryId}>
             <select
-              value={form.categoryId}
-              onChange={(e) => set('categoryId', e.target.value)}
+              value={form.faqCategoryId}
+              onChange={(e) => set('faqCategoryId', e.target.value)}
               className='h-10 w-full rounded-lg border border-slate-200 px-3 text-xs outline-none focus:border-red-300'
             >
               <option value=''>Chọn danh mục</option>

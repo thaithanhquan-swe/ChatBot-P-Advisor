@@ -10,7 +10,7 @@ function CategoryFormModal({ open, category, onClose, onSubmit }) {
   const submit = (e) => {
     e.preventDefault();
     if (!form.name.trim()) return setError('Tên danh mục là bắt buộc.');
-    onSubmit({ ...form, name: form.name.trim(), description: form.description.trim() });
+    onSubmit({ ...form, name: form.name.trim(), description: form.description?.trim() || '' });
   };
   return (
     <ModalShell

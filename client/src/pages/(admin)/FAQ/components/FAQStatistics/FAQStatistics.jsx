@@ -1,28 +1,28 @@
 import { CircleSlash2, FilePenLine, HelpCircle, Send } from 'lucide-react';
 
-function FAQStatistics({ faqs }) {
+function FAQStatistics({ stats }) {
   const cards = [
     {
       label: 'Tổng FAQ',
-      value: faqs.length,
+      value: stats.total,
       icon: HelpCircle,
       className: 'bg-blue-50 text-blue-600',
     },
     {
       label: 'Đã xuất bản',
-      value: faqs.filter((item) => item.status === 'PUBLISHED').length,
+      value: stats.published,
       icon: Send,
       className: 'bg-emerald-50 text-emerald-600',
     },
     {
       label: 'Bản nháp',
-      value: faqs.filter((item) => item.status === 'DRAFT').length,
+      value: stats.draft,
       icon: FilePenLine,
       className: 'bg-amber-50 text-amber-600',
     },
     {
       label: 'Đang ẩn',
-      value: faqs.filter((item) => item.status === 'HIDDEN').length,
+      value: stats.hidden,
       icon: CircleSlash2,
       className: 'bg-slate-100 text-slate-600',
     },

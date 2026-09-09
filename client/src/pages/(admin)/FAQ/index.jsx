@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import FAQHeader from './components/FAQHeader/FAQHeader';
 import FAQStatistics from './components/FAQStatistics/FAQStatistics';
 import FAQFilter from './components/FAQFilter/FAQFilter';
@@ -6,6 +6,19 @@ import FAQTable from './components/FAQTable/FAQTable';
 import FAQFormModal from './components/FAQFormModal/FAQFormModal';
 import FAQDetailModal from './components/FAQDetailModal/FAQDetailModal';
 import CategoryManagementModal from './components/CategoryManagementModal/CategoryManagementModal';
+import {
+  getFaqsForManagement,
+  createFaq,
+  updateFaq,
+  deleteFaq,
+} from '../../../services/faq-service';
+
+import {
+  getFaqCategories,
+  createFaqCategory,
+  updateFaqCategory,
+  deleteFaqCategory,
+} from '../../../services/faq-category-service';
 
 const initialCategories = [
   {
@@ -108,7 +121,7 @@ const initialFaqs = [
 const emptyFilters = {
   search: '',
   status: 'ALL',
-  categoryId: 'ALL',
+  faqCategoryId: 'ALL',
   fromDate: '',
   toDate: '',
   sortBy: 'updatedAt',
@@ -116,81 +129,212 @@ const emptyFilters = {
 };
 
 function FAQ() {
-  const [categories, setCategories] = useState(initialCategories);
-  const [faqs, setFaqs] = useState(initialFaqs);
+  // const [categories, setCategories] = useState(initialCategories);
+  // const [faqs, setFaqs] = useState(initialFaqs);
+  const [categories, setCategories] = useState([]);
+  const [faqs, setFaqs] = useState([]);
+  const [faqStats, setFaqStats] = useState({ total: 0, published: 0, draft: 0, hidden: 0,});
+  const [totalFaqs, setTotalFaqs] = useState(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState(emptyFilters);
   const [faqModal, setFaqModal] = useState({ open: false, item: null });
   const [detailFaq, setDetailFaq] = useState(null);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  const loadFaqs = async () => {
+    try {
+      const data = await getFaqsForManagement({
+        keyword: debouncedSearch || undefined,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+        faqCategoryId:
+          filters.faqCategoryId === 'ALL' ? undefined : filters.faqCategoryId,
+        updatedFrom: filters.fromDate || undefined,
+        updatedTo: filters.toDate || undefined,
+        sortBy: filters.sortBy,
+        sortDirection: filters.sortOrder,
+        page: page,
+        size: pageSize,
+      });
+
+      setFaqs(data.content || []);
+      setTotalFaqs(data.totalElements || 0);
+      setTotalPages(data.totalPages || 1);
+    }catch (error) {
+        console.error('Lỗi tải FAQ:', error);
+      }
+  };
+
+  const loadFaqStats = async () => {
+    try {
+      const [allData, publishedData, draftData, hiddenData] = await Promise.all([
+        getFaqsForManagement({
+          page: 0,
+          size: 1,
+        }),
+
+        getFaqsForManagement({
+          status: 'PUBLISHED',
+          page: 0,
+          size: 1,
+        }),
+
+        getFaqsForManagement({
+          status: 'DRAFT',
+          page: 0,
+          size: 1,
+        }),
+
+        getFaqsForManagement({
+          status: 'HIDDEN',
+          page: 0,
+          size: 1,
+        }),
+      ]);
+
+      setFaqStats({
+        total: allData.totalElements || 0,
+        published: publishedData.totalElements || 0,
+        draft: draftData.totalElements || 0,
+        hidden: hiddenData.totalElements || 0,
+      });
+    } catch (error) {
+      console.error('Lỗi tải thống kê FAQ:', error);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await getFaqCategories({
+        page: 0,
+        size: 100,
+      });
+
+      // console.log('CATEGORY API:', data);
+      // console.log('CATEGORIES:', data.content);
+      
+      // console.log(
+      //   'CATEGORY STATUS:',
+      //   data.content.map((item) => ({
+      //     name: item.name,
+      //     status: item.status,
+      //   }))
+      // );
+
+      setCategories(data.content || []);
+    } catch (error) {
+        console.error('Lỗi tải danh mục FAQ:', error);
+      }
+  };
+
+  useEffect(() => {
+    loadFaqs();
+  }, [
+    debouncedSearch,
+    filters.status,
+    filters.faqCategoryId,
+    filters.fromDate,
+    filters.toDate,
+    filters.sortBy,
+    filters.sortOrder,
+    page,
+    pageSize,
+  ]);
+
+  useEffect(() => {
+    loadCategories();
+    loadFaqStats();
+  }, []);
+
+  useEffect(() => {
+    setPage(0);
+  }, [
+    debouncedSearch,
+    filters.status,
+    filters.faqCategoryId,
+    filters.fromDate,
+    filters.toDate,
+    filters.sortBy,
+    filters.sortOrder,
+  ]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [filters.search]);
 
   const categoryMap = useMemo(
     () => Object.fromEntries(categories.map((category) => [category.id, category])),
     [categories]
   );
 
-  const filteredFaqs = useMemo(() => {
-    const search = filters.search.trim().toLowerCase();
-    const result = faqs.filter((faq) => {
-      const matchesSearch = !search || faq.question.toLowerCase().includes(search);
-      const matchesStatus = filters.status === 'ALL' || faq.status === filters.status;
-      const matchesCategory =
-        filters.categoryId === 'ALL' || faq.categoryId === Number(filters.categoryId);
-      const matchesFrom = !filters.fromDate || faq.updatedDate >= filters.fromDate;
-      const matchesTo = !filters.toDate || faq.updatedDate <= filters.toDate;
-      return matchesSearch && matchesStatus && matchesCategory && matchesFrom && matchesTo;
-    });
+  
 
-    return [...result].sort((a, b) => {
-      let left = a[filters.sortBy] ?? '';
-      let right = b[filters.sortBy] ?? '';
-      if (filters.sortBy === 'category') {
-        left = categoryMap[a.categoryId]?.name ?? '';
-        right = categoryMap[b.categoryId]?.name ?? '';
+  const handleSaveFaq = async (payload) => {
+    try {
+      if (payload.id) {
+        await updateFaq(payload.id, {
+          question: payload.question,
+          answer: payload.answer,
+          faqCategoryId: payload.faqCategoryId,
+          status: payload.status,
+        });
+      } else {
+          await createFaq({
+            question: payload.question,
+            answer: payload.answer,
+            faqCategoryId: payload.faqCategoryId,
+            status: payload.status,
+          });
+        }
+
+      setFaqModal({ open: false, item: null });
+
+      await loadFaqs();
+      await loadFaqStats();
+    } catch (error) {
+      console.error('Lỗi lưu FAQ:', error);
+    }
+  };
+
+  const handleDeleteFaq = async (faq) => {
+    if (!window.confirm(`Bạn có chắc muốn xóa FAQ “${faq.question}”?`)) {
+      return;
+    }
+
+    try {
+      await deleteFaq(faq.id);
+
+      await loadFaqs();
+      await loadFaqStats();
+    } catch (error) {
+        console.error('Lỗi xóa FAQ:', error);
       }
-      const comparison = String(left).localeCompare(String(right), 'vi', { numeric: true });
-      return filters.sortOrder === 'ASC' ? comparison : -comparison;
-    });
-  }, [faqs, filters, categoryMap]);
-
-  const handleSaveFaq = (payload) => {
-    const now = '23/08/2026 19:54';
-    if (payload.id) {
-      setFaqs((items) =>
-        items.map((item) =>
-          item.id === payload.id
-            ? { ...item, ...payload, updatedAt: now, updatedDate: '2026-08-23' }
-            : item
-        )
-      );
-    } else {
-      setFaqs((items) => [
-        {
-          ...payload,
-          id: Date.now(),
-          creator: 'Admin PTIT',
-          createdAt: now,
-          updatedAt: now,
-          updatedDate: '2026-08-23',
-        },
-        ...items,
-      ]);
-    }
-    setFaqModal({ open: false, item: null });
   };
 
-  const handleDeleteFaq = (faq) => {
-    if (window.confirm(`Bạn có chắc muốn xóa FAQ “${faq.question}”?`)) {
-      setFaqs((items) => items.filter((item) => item.id !== faq.id));
-    }
-  };
+  const handleStatusChange = async (id, status) => {
+    const faq = faqs.find((item) => item.id === id);
 
-  const handleStatusChange = (id, status) => {
-    const now = '23/08/2026 19:54';
-    setFaqs((items) =>
-      items.map((item) =>
-        item.id === id ? { ...item, status, updatedAt: now, updatedDate: '2026-08-23' } : item
-      )
-    );
+    if (!faq) return;
+
+    try {
+      await updateFaq(id, {
+        question: faq.question,
+        answer: faq.answer,
+        faqCategoryId: faq.faqCategoryId,
+        status,
+      });
+
+      await loadFaqs();
+      await loadFaqStats();
+    } catch (error) {
+      console.error('Lỗi cập nhật trạng thái FAQ:', error);
+    }
   };
 
   return (
@@ -200,7 +344,7 @@ function FAQ() {
         onCreateFaq={() => setFaqModal({ open: true, item: null })}
       />
 
-      <FAQStatistics faqs={faqs} />
+      <FAQStatistics stats={faqStats} />
       <FAQFilter
         filters={filters}
         categories={categories}
@@ -209,33 +353,40 @@ function FAQ() {
       />
       <div className='mt-5'>
         <FAQTable
-          faqs={filteredFaqs}
+          faqs={faqs}
           categoryMap={categoryMap}
           onView={setDetailFaq}
           onEdit={(item) => setFaqModal({ open: true, item })}
           onDelete={handleDeleteFaq}
           onStatusChange={handleStatusChange}
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
+          totalFaqs={totalFaqs}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
         />
       </div>
 
       <FAQFormModal
         open={faqModal.open}
         faq={faqModal.item}
-        categories={categories.filter((category) => category.status === 'ACTIVE')}
+        // categories={categories.filter((category) => category.status === 'ACTIVE')}
+        categories={categories}
         onClose={() => setFaqModal({ open: false, item: null })}
         onSubmit={handleSaveFaq}
       />
 
       <FAQDetailModal
         faq={detailFaq}
-        category={detailFaq ? categoryMap[detailFaq.categoryId] : null}
+        category={detailFaq ? categoryMap[detailFaq.faqCategoryId] : null}
         onClose={() => setDetailFaq(null)}
       />
 
       <CategoryManagementModal
         open={categoryModalOpen}
         categories={categories}
-        setCategories={setCategories}
+        loadCategories={loadCategories}
         onClose={() => setCategoryModalOpen(false)}
       />
     </div>

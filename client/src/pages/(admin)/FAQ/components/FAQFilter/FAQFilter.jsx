@@ -36,8 +36,8 @@ function FAQFilter({ filters, categories, onChange, onReset }) {
         />
         <Select
           label='Danh mục'
-          value={filters.categoryId}
-          onChange={(value) => set('categoryId', value)}
+          value={filters.faqCategoryId}
+          onChange={(value) => set('faqCategoryId', value)}
           options={[
             ['ALL', 'Tất cả danh mục'],
             ...categories.map((item) => [String(item.id), item.name]),

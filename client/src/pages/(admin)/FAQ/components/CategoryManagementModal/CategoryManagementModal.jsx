@@ -2,15 +2,56 @@ import { useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import ModalShell from '../ModalShell/ModalShell';
 import CategoryFormModal from '../CategoryFormModal/CategoryFormModal';
-function CategoryManagementModal({ open, categories, setCategories, onClose }) {
+import {
+  createFaqCategory,
+  updateFaqCategory,
+  deleteFaqCategory,
+} from '../../../../../services/faq-category-service';
+function CategoryManagementModal({ open, categories, loadCategories, onClose }) {
   const [formModal, setFormModal] = useState({ open: false, category: null });
-  const save = (payload) => {
-    const now = '23/08/2026 19:54';
-    if (payload.id) setCategories((items) => items.map((item) => item.id === payload.id ? { ...item, ...payload, updatedAt: now } : item));
-    else setCategories((items) => [...items, { ...payload, id: Date.now(), createdAt: now, updatedAt: now }]);
-    setFormModal({ open: false, category: null });
+  const save = async (payload) => {
+    try {
+      if (payload.id) {
+        await updateFaqCategory(payload.id, {
+          name: payload.name,
+          description: payload.description,
+          status: payload.status,
+        });
+      } else {
+        await createFaqCategory({
+          name: payload.name,
+          description: payload.description,
+          status: payload.status,
+        });
+      }
+
+      setFormModal({
+        open: false,
+        category: null,
+      });
+
+      await loadCategories();
+    } catch (error) {
+      console.error('Lỗi lưu danh mục FAQ:', error);
+    }
   };
-  const remove = (category) => { if (window.confirm(`Bạn có chắc muốn xóa danh mục “${category.name}”?`)) setCategories((items) => items.filter((item) => item.id !== category.id)); };
+  const remove = async (category) => {
+    if (
+      !window.confirm(
+        `Bạn có chắc muốn xóa danh mục “${category.name}”?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteFaqCategory(category.id);
+
+      await loadCategories();
+    } catch (error) {
+      console.error('Lỗi xóa danh mục FAQ:', error);
+    }
+  };
   return <>
     <ModalShell open={open} onClose={onClose} title='Quản lý danh mục FAQ' description='Danh mục ACTIVE có thể được chọn khi tạo hoặc chỉnh sửa FAQ.' size='max-w-5xl'>
       <div className='p-6'>

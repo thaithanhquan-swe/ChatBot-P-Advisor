@@ -1,7 +1,7 @@
 import { HelpCircle } from 'lucide-react';
 import FAQTableRow from '../FAQTableRow/FAQTableRow';
 
-function FAQTable({ faqs, categoryMap, onView, onEdit, onDelete, onStatusChange }) {
+function FAQTable({ faqs,categoryMap,onView,onEdit,onDelete,onStatusChange,page,setPage,totalPages,totalFaqs,pageSize,setPageSize, }) {
   return (
     <section className='min-w-0 rounded-xl border border-slate-200 bg-white'>
       <div className='flex items-center justify-between border-b border-slate-100 px-5 py-4'>
@@ -37,7 +37,7 @@ function FAQTable({ faqs, categoryMap, onView, onEdit, onDelete, onStatusChange 
               <FAQTableRow
                 key={faq.id}
                 faq={faq}
-                category={categoryMap[faq.categoryId]}
+                category={categoryMap[faq.faqCategoryId]}
                 onView={onView}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -57,16 +57,74 @@ function FAQTable({ faqs, categoryMap, onView, onEdit, onDelete, onStatusChange 
         )}
       </div>
       <div className='flex items-center justify-between border-t border-slate-100 px-5 py-3'>
-        <p className='text-[10px] text-slate-500'>Hiển thị {faqs.length} kết quả</p>
-        <div className='flex gap-1'>
-          {['‹', '1', '›'].map((item) => (
+        <p className='text-[10px] text-slate-500'>
+          Hiển thị{' '}
+          {totalFaqs === 0 ? 0 : page * pageSize + 1}
+          {' - '}
+          {Math.min((page + 1) * pageSize, totalFaqs)}
+          {' / '}
+          {totalFaqs} FAQ
+        </p>
+
+        <div className='flex items-center gap-3'>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(0);
+            }}
+            className='h-7 rounded-md border border-slate-200 px-2 text-[10px] text-slate-600 outline-none'
+          >
+            <option value={10}>10 / trang</option>
+            <option value={20}>20 / trang</option>
+            <option value={50}>50 / trang</option>
+          </select>
+
+          <div className='flex items-center gap-1'>
+            {/* Nút Previous */}
             <button
-              key={item}
-              className={`h-7 min-w-7 rounded-md border px-2 text-[10px] ${item === '1' ? 'border-[#D71920] bg-[#D71920] text-white' : 'border-slate-200 text-slate-500'}`}
+              type='button'
+              disabled={page === 0}
+              onClick={() => setPage((current) => current - 1)}
+              className={`h-7 min-w-7 rounded-md border px-2 text-[10px] ${
+                page === 0
+                  ? 'cursor-not-allowed border-slate-200 text-slate-300'
+                  : 'cursor-pointer border-slate-200 text-slate-500 hover:bg-slate-50'
+              }`}
             >
-              {item}
+              ‹
             </button>
-          ))}
+
+            {/* Các số trang */}
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index}
+                type='button'
+                onClick={() => setPage(index)}
+                className={`h-7 min-w-7 rounded-md border px-2 text-[10px] ${
+                  page === index
+                    ? 'border-[#D71920] bg-[#D71920] text-white'
+                    : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+
+            {/* Nút Next */}
+            <button
+              type='button'
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage((current) => current + 1)}
+              className={`h-7 min-w-7 rounded-md border px-2 text-[10px] ${
+                page >= totalPages - 1
+                  ? 'cursor-not-allowed border-slate-200 text-slate-300'
+                  : 'cursor-pointer border-slate-200 text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              ›
+            </button>
+          </div>
         </div>
       </div>
     </section>
