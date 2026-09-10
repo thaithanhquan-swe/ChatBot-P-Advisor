@@ -1,13 +1,15 @@
 import FAQItem from '../FAQItem/FAQItem';
 
 const FAQList = ({ faqs, isLoading, expandedId, searchTerm, onToggle, onAskInChat }) => {
-  if (isLoading)
+  if (isLoading) {
     return <div className='py-10 text-center italic text-gray-500'>Đang tải dữ liệu...</div>;
+  }
 
   if (faqs.length === 0) {
     return (
       <div className='py-10 text-center italic text-gray-500'>
-        Không tìm thấy câu hỏi phù hợp với từ khóa &quot;{searchTerm}&quot;.
+        Không tìm thấy câu hỏi phù hợp
+        {searchTerm ? ` với từ khóa "${searchTerm}".` : '.'}
       </div>
     );
   }

@@ -1,43 +1,141 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { faqCategories, faqData } from '../../../data/data';
+
 import FAQControls from './components/FAQControls/FAQControls';
 import FAQHeader from './components/FAQHeader/FAQHeader';
 import FAQList from './components/FAQList/FAQList';
 
+import { getFaqs } from '../../../services/faq-service';
+import { getFaqCategories } from '../../../services/faq-category-service';
+
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Tất cả');
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  const [activeCategory, setActiveCategory] = useState('ALL');
+
+  const [categories, setCategories] = useState([]);
+
   const [expandedId, setExpandedId] = useState(null);
+
   const [isLoading, setIsLoading] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    // TODO: Thay thế bằng API thật khi backend FAQ sẵn sàng.
+    let cancelled = false;
+
+    async function loadFaqs() {
+      try {
+        const faqResult = await getFaqs({
+          keyword: debouncedSearchTerm || undefined,
+
+          faqCategoryId: activeCategory === 'ALL' ? undefined : activeCategory,
+
+          page: 0,
+          size: 20,
+        });
+
+        if (!cancelled) {
+          setFaqs(faqResult.content ?? []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Lỗi tải FAQ public:', error);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadFaqs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearchTerm, activeCategory]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
-      setFaqs(faqData);
-      setIsLoading(false);
-    }, 500);
+      setDebouncedSearchTerm(searchTerm.trim());
+    }, 400);
 
     return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCategories() {
+      try {
+        const categoryResult = await getFaqCategories({
+          page: 0,
+          size: 100,
+        });
+
+        if (!cancelled) {
+          setCategories(categoryResult.content ?? []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Lỗi tải danh mục FAQ:', error);
+        }
+      }
+    }
+
+    loadCategories();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const filteredFaqs = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLocaleLowerCase('vi');
+  /*
+   * Khi user quay trở lại tab FAQ,
+   * lấy dữ liệu mới nhất.
+   */
+  useEffect(() => {
+    async function handleFocus() {
+      try {
+        const [faqResult, categoryResult] = await Promise.all([
+          getFaqs({
+            keyword: debouncedSearchTerm || undefined,
 
-    return faqs.filter((faq) => {
-      const matchesCategory = activeCategory === 'Tất cả' || faq.category === activeCategory;
-      const matchesSearch =
-        faq.question.toLocaleLowerCase('vi').includes(normalizedSearch) ||
-        faq.answer.toLocaleLowerCase('vi').includes(normalizedSearch);
+            faqCategoryId: activeCategory === 'ALL' ? undefined : activeCategory,
 
-      return matchesCategory && matchesSearch;
-    });
-  }, [activeCategory, faqs, searchTerm]);
+            page: 0,
+            size: 20,
+          }),
 
-  const handleCategoryChange = (category) => {
-    setActiveCategory(category);
+          getFaqCategories({
+            page: 0,
+            size: 100,
+          }),
+        ]);
+
+        setFaqs(faqResult.content ?? []);
+
+        setCategories(categoryResult.content ?? []);
+      } catch (error) {
+        console.error('Lỗi refresh FAQ:', error);
+      }
+    }
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [debouncedSearchTerm, activeCategory]);
+
+  const handleCategoryChange = (categoryId) => {
+    setActiveCategory(String(categoryId));
+
     setExpandedId(null);
   };
 
@@ -46,21 +144,28 @@ const FAQ = () => {
   };
 
   const handleAskInChat = (question) => {
-    navigate('/chatai', { state: { initialQuestion: question } });
+    navigate('/chatai', {
+      state: {
+        initialQuestion: question,
+        autoSend: true,
+      },
+    });
   };
 
   return (
     <main className='mx-auto max-w-225 px-5 py-10'>
       <FAQHeader />
+
       <FAQControls
-        categories={faqCategories}
+        categories={categories}
         searchTerm={searchTerm}
         activeCategory={activeCategory}
         onSearch={setSearchTerm}
         onCategoryChange={handleCategoryChange}
       />
+
       <FAQList
-        faqs={filteredFaqs}
+        faqs={faqs}
         isLoading={isLoading}
         expandedId={expandedId}
         searchTerm={searchTerm}

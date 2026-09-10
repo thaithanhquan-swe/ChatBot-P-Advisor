@@ -7,13 +7,6 @@ export async function getFaqs({ keyword, faqCategoryId, page = 0, size = 10 } = 
   return data.result;
 }
 
-// The public detail endpoint only returns published FAQs.
-export async function getFaqById(id) {
-  const data = await http.get(`/faq/${id}`);
-  return data.result;
-}
-
-// Date filters use YYYY-MM-DD, matching the backend LocalDate parameters.
 export async function getFaqsForManagement({
   keyword,
   status,
@@ -38,21 +31,25 @@ export async function getFaqsForManagement({
       size,
     },
   });
+
   return data.result;
 }
 
-/** @param {{ question: string, answer: string, faqCategoryId: string, status?: string }} faq */
-export async function createFaq(faq) {
-  const data = await http.post('/faq', faq);
+export async function getFaqById(id) {
+  const data = await http.get(`/faq/${id}`);
   return data.result;
 }
 
-export async function updateFaq(id, faq) {
-  const data = await http.put(`/faq/${id}`, faq);
+export async function createFaq(payload) {
+  const data = await http.post('/faq', payload);
+  return data.result;
+}
+
+export async function updateFaq(id, payload) {
+  const data = await http.put(`/faq/${id}`, payload);
   return data.result;
 }
 
 export async function deleteFaq(id) {
-  const data = await http.delete(`/faq/${id}`);
-  return data;
+  return http.delete(`/faq/${id}`);
 }

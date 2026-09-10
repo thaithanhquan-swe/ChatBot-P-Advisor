@@ -21,7 +21,7 @@ function GoToTop({ visibleAfter = 300 }) {
       aria-label='Cuộn lên đầu trang'
       onClick={scrollToTop}
       className={`
-      group fixed right-10 bottom-20 z-50
+      group fixed right-10 bottom-25 z-50
       flex size-13 items-center justify-center
       rounded-full
       border-2 border-white

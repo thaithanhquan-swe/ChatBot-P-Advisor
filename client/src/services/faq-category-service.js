@@ -1,28 +1,23 @@
 import http from '@/lib/http';
 
-export async function getFaqCategories(page = 0, size = 10) {
+export async function getFaqCategories({ page = 0, size = 100 } = {}) {
   const data = await http.get('/faq-categories', {
     params: { page, size },
   });
+
   return data.result;
 }
 
-export async function getFaqCategoryById(id) {
-  const data = await http.get(`/faq-categories/${id}`);
+export async function createFaqCategory(payload) {
+  const data = await http.post('/faq-categories', payload);
   return data.result;
 }
 
-export async function createFaqCategory(category) {
-  const data = await http.post('/faq-categories', category);
-  return data.result;
-}
-
-export async function updateFaqCategory(id, category) {
-  const data = await http.put(`/faq-categories/${id}`, category);
+export async function updateFaqCategory(id, payload) {
+  const data = await http.put(`/faq-categories/${id}`, payload);
   return data.result;
 }
 
 export async function deleteFaqCategory(id) {
-  const data = await http.delete(`/faq-categories/${id}`);
-  return data;
+  return http.delete(`/faq-categories/${id}`);
 }
