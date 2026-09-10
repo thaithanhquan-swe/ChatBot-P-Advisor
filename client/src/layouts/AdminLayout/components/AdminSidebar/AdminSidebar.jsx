@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { BarChart3, BookOpen, CircleHelp, FileText, LayoutDashboard, MessageSquareText, Settings, Users } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  CircleHelp,
+  FileText,
+  LayoutDashboard,
+  MessageSquareText,
+  Settings,
+  Users,
+} from 'lucide-react';
 import { getCurrentUser } from '@/services/user-service';
 import AdminFooter from '../AdminFooter/AdminFooter';
 
@@ -42,12 +51,6 @@ function AdminSidebar() {
       label: 'Cấu hình hệ thống',
       path: '/admin/settings',
       icon: Settings,
-      adminOnly: true,
-    },
-    {
-      label: 'Báo cáo & Thống kê',
-      path: '/admin/reports',
-      icon: BarChart3,
       adminOnly: true,
     },
   ];
