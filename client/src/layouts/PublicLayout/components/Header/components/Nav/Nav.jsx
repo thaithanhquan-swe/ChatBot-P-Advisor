@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   CircleQuestionMark,
+  FileText,
   House,
   LayoutDashboard,
   LogIn,
@@ -55,6 +56,7 @@ const Nav = () => {
     { label: 'Trang chủ', href: '/', icon: House },
     { label: 'Trang chat', href: '/chatai', icon: MessageCircleMore },
     { label: 'FAQ', href: '/faq', icon: CircleQuestionMark },
+    { label: 'Tài liệu', href: '/documents', icon: FileText },
     { label: 'Yêu cầu tư vấn', href: '/consultation-request', icon: User },
     ...(canAccessAdmin ? [{ label: 'Trang quản trị', href: '/admin', icon: LayoutDashboard }] : []),
   ];
