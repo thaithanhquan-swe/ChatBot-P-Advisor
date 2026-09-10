@@ -55,3 +55,20 @@ export async function updateDocument(id, document) {
 export async function deleteDocument(id) {
   return http.delete(`/documents/${id}`);
 }
+
+export async function downloadDocumentFile(fileUrl) {
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
+  const normalizedBaseUrl = apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`;
+  const resolvedUrl = new URL(fileUrl, normalizedBaseUrl);
+  const apiOrigin = new URL(normalizedBaseUrl).origin;
+
+  if (resolvedUrl.origin === apiOrigin) {
+    return http.get(resolvedUrl.toString(), { responseType: 'blob' });
+  }
+
+  const response = await fetch(resolvedUrl.toString());
+  if (!response.ok) {
+    throw new Error(`Không thể tải tài liệu (${response.status})`);
+  }
+  return response.blob();
+}

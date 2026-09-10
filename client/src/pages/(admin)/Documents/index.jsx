@@ -6,13 +6,12 @@ import DocumentStatistics from './components/DocumentStatistics/DocumentStatisti
 import DocumentFilter from './components/DocumentFilter/DocumentFilter';
 import DocumentTable from './components/DocumentTable/DocumentTable';
 import DocumentFormModal from './components/DocumentFormModal/DocumentFormModal';
-import DocumentDetailModal from './components/DocumentDetailModal/DocumentDetailModal';
 import DeleteDocumentModal from './components/DeleteDocumentModal/DeleteDocumentModal';
 
 import {
   createDocument,
   deleteDocument,
-  getDocumentById,
+  downloadDocumentFile,
   getDocuments,
   updateDocument,
 } from '@/services/document-service';
@@ -44,7 +43,6 @@ function Documents() {
     item: null,
   });
 
-  const [detailDocument, setDetailDocument] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
@@ -121,6 +119,35 @@ function Documents() {
     }
   };
 
+  const handleDownloadDocument = async (document) => {
+    if (!document?.fileUrl) {
+      toast.error('Tài liệu không có đường dẫn tải xuống');
+      return;
+    }
+
+    let objectUrl;
+    try {
+      const fileBlob = await downloadDocumentFile(document.fileUrl);
+      objectUrl = window.URL.createObjectURL(fileBlob);
+
+      const link = window.document.createElement('a');
+      link.href = objectUrl;
+      link.download = document.fileName || 'document';
+      link.style.display = 'none';
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Đang tải tài liệu xuống');
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể tải tài liệu xuống');
+    } finally {
+      if (objectUrl) {
+        window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
+      }
+    }
+  };
+
   const handleFilterChange = (updater) => {
     setFilters((current) => (typeof updater === 'function' ? updater(current) : updater));
 
@@ -130,16 +157,6 @@ function Documents() {
   const handleResetFilter = () => {
     setFilters(EMPTY_FILTERS);
     setPage(1);
-  };
-
-  const handleViewDocument = async (document) => {
-    try {
-      const result = await getDocumentById(document.id);
-      setDetailDocument(result);
-    } catch (error) {
-      console.error(error);
-      toast.error('Không thể tải chi tiết tài liệu');
-    }
   };
 
   const handleSaveDocument = async (payload) => {
@@ -225,7 +242,6 @@ function Documents() {
           pageSize={PAGE_SIZE}
           loading={loading}
           onPageChange={setPage}
-          onView={handleViewDocument}
           onEdit={(item) =>
             setFormModal({
               open: true,
@@ -233,6 +249,7 @@ function Documents() {
             })
           }
           onDelete={setDeleteTarget}
+          onDownload={handleDownloadDocument}
         />
       </div>
 
@@ -251,8 +268,6 @@ function Documents() {
           onSubmit={handleSaveDocument}
         />
       )}
-
-      <DocumentDetailModal document={detailDocument} onClose={() => setDetailDocument(null)} />
 
       <DeleteDocumentModal
         document={deleteTarget}

@@ -17,9 +17,9 @@ function DocumentTable({
   pageSize,
   loading,
   onPageChange,
-  onView,
   onEdit,
   onDelete,
+  onDownload,
 }) {
   return (
     <Card className='min-w-0 overflow-hidden'>
@@ -73,9 +73,9 @@ function DocumentTable({
                   <DocumentTableRow
                     key={document.id}
                     document={document}
-                    onView={onView}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onDownload={onDownload}
                   />
                 ))}
           </TableBody>

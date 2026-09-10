@@ -1,4 +1,4 @@
-import { Download, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Download, Pencil, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,18 +24,10 @@ const fileTypeClass = {
   'text/plain': 'bg-slate-100 text-slate-600',
 };
 
-function DocumentTableRow({ document, onView, onEdit, onDelete }) {
+function DocumentTableRow({ document, onEdit, onDelete, onDownload }) {
   return (
     <TableRow className='border-slate-100'>
       <TableCell>
-        <button
-          type='button'
-          onClick={() => onView(document)}
-          className='max-w-[270px] text-left text-[12px] font-semibold text-slate-800 transition hover:text-[#D71920] hover:underline'
-        >
-          {document.title}
-        </button>
-
         {document.description && (
           <p className='mt-1 max-w-[270px] truncate text-[10px] text-slate-400'>
             {document.description}
@@ -75,15 +67,11 @@ function DocumentTableRow({ document, onView, onEdit, onDelete }) {
 
       <TableCell>
         <div className='flex justify-end gap-1'>
-          <ActionButton title='Xem chi tiết' onClick={() => onView(document)}>
-            <Eye size={14} />
-          </ActionButton>
-
           <ActionButton title='Chỉnh sửa' onClick={() => onEdit(document)}>
             <Pencil size={14} />
           </ActionButton>
 
-          <ActionButton title='Tải xuống' onClick={() => onView(document)}>
+          <ActionButton title='Tải xuống' onClick={() => onDownload(document)}>
             <Download size={14} />
           </ActionButton>
 
