@@ -35,6 +35,8 @@ public interface ChatSessionRepository extends JpaRepository<ChatSession, String
 
     Page<ChatSession> findAllByAssignedStaffId(String assignedStaffId, Pageable pageable);
 
+    long countByUserId(String userId);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
             update ChatSession session

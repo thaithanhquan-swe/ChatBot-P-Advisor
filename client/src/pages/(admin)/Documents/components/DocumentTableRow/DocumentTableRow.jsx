@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Download, Eye, Pencil, Trash2 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -81,6 +81,10 @@ function DocumentTableRow({ document, onView, onEdit, onDelete }) {
 
           <ActionButton title='Chỉnh sửa' onClick={() => onEdit(document)}>
             <Pencil size={14} />
+          </ActionButton>
+
+          <ActionButton title='Tải xuống' onClick={() => onView(document)}>
+            <Download size={14} />
           </ActionButton>
 
           <ActionButton danger title='Xóa' onClick={() => onDelete(document)}>

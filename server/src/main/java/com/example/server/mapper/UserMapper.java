@@ -16,6 +16,8 @@ public interface UserMapper {
     @Mapping(target = "firebaseUid", ignore = true)
     User toUser(UserRegisterRequest request);
 
+    @Mapping(target = "created_at", source = "createdAt")
+    @Mapping(target = "updated_at", source = "updatedAt")
     UserResponse toUserResponse (User user);
 
     CurrentUserResponse toCurrentUserResponse(User user);

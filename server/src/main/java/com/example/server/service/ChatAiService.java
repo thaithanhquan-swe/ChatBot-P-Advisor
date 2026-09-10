@@ -64,7 +64,7 @@ public class ChatAiService {
             ChatMessageResponse userMessage,
             MultipartFile image) {
 
-        if (!chatMessageService.isBotHandling(sessionToken)) {
+        if (!chatMessageService.canBotReply(sessionToken)) {
             return ChatExchangeResponse.builder()
                     .userMessage(userMessage)
                     .build();
@@ -96,7 +96,9 @@ public class ChatAiService {
             if (sanitizedAnswer == null || sanitizedAnswer.isBlank()) {
                 sanitizedAnswer = "Chưa có đủ thông tin để trả lời câu hỏi này.";
             }
-            ChatMessageResponse botMessage = chatMessageService.saveBotMessage(sessionToken, sanitizedAnswer);
+            ChatMessageResponse botMessage = chatMessageService
+                    .saveBotMessageIfAllowed(sessionToken, sanitizedAnswer)
+                    .orElse(null);
             return ChatExchangeResponse.builder()
                     .userMessage(userMessage)
                     .botMessage(botMessage)
@@ -105,7 +107,7 @@ public class ChatAiService {
             throw exception;
         } catch (Exception exception) {
             log.error("Spring AI request failed for chat session {}", userMessage.getChatSessionId(), exception);
-            chatMessageService.saveSystemMessage(
+            chatMessageService.saveSystemMessageIfAllowed(
                     sessionToken,
                     "Không thể kết nối trợ lý AI lúc này. Vui lòng thử lại sau.");
             throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);

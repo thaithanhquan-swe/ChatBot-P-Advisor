@@ -119,24 +119,35 @@ public class ChatMessageService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isBotHandling(String sessionToken) {
+    public boolean canBotReply(String sessionToken) {
         ChatSession session = findByToken(sessionToken);
         validateReadAccess(session);
-        return session.getStatus() == ChatSessionStatus.BOT_HANDLING;
+        return isBotReplyAllowed(session);
     }
 
     @Transactional
-    public ChatMessageResponse saveBotMessage(String sessionToken, String content) {
+    public Optional<ChatMessageResponse> saveBotMessageIfAllowed(String sessionToken, String content) {
         ChatSession session = findByTokenForUpdate(sessionToken);
-        return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.TEXT,
-                normalizeContent(content));
+        if (!isBotReplyAllowed(session)) {
+            return Optional.empty();
+        }
+        return Optional.of(saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.TEXT,
+                normalizeContent(content)));
     }
 
     @Transactional
-    public ChatMessageResponse saveSystemMessage(String sessionToken, String content) {
+    public Optional<ChatMessageResponse> saveSystemMessageIfAllowed(String sessionToken, String content) {
         ChatSession session = findByTokenForUpdate(sessionToken);
-        return saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.SYSTEM,
-                normalizeContent(content));
+        if (!isBotReplyAllowed(session)) {
+            return Optional.empty();
+        }
+        return Optional.of(saveMessage(session, null, ChatMessageSender.BOT, ChatMessageType.SYSTEM,
+                normalizeContent(content)));
+    }
+
+    private boolean isBotReplyAllowed(ChatSession session) {
+        return session.getStatus() == ChatSessionStatus.BOT_HANDLING
+                || session.getStatus() == ChatSessionStatus.WAITING_FOR_STAFF;
     }
 
     private ChatMessageResponse saveMessage(ChatSession session, String senderId,

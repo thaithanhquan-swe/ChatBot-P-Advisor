@@ -37,10 +37,12 @@ public class User {
     boolean emailVerified = false;
 
     @CreationTimestamp
-    Instant created_at;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    Instant createdAt;
 
     @UpdateTimestamp
-    Instant updated_at;
+    @Column(name = "updated_at", nullable = false)
+    Instant updatedAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

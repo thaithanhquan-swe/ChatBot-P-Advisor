@@ -1,86 +1,158 @@
-import { CalendarDays, ChevronDown, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { RotateCcw, SlidersHorizontal } from 'lucide-react';
 
-function UserFilter() {
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+function UserFilter({ filters, statistics, onChange, onReset, loading }) {
   return (
-    <aside className='mt-5 rounded-xl border border-slate-200 bg-white p-4'>
-      <div className='mb-4 flex items-center justify-between'>
-        <h2 className='text-[15px] font-bold text-slate-900'>Bộ lọc</h2>
-        <SlidersHorizontal size={18} className='text-slate-500' />
-      </div>
-      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[repeat(2,minmax(150px,1fr))_minmax(230px,1.4fr)_repeat(2,minmax(150px,1fr))_auto_auto]'>
-        <FilterSelect label='Vai trò' value='Tất cả vai trò' />
-        <FilterSelect label='Trạng thái' value='Tất cả trạng thái' />
+    <Card className='mt-5'>
+      <CardHeader className='pb-4'>
+        <CardTitle className='flex items-center justify-between text-base'>
+          Bộ lọc
+          <SlidersHorizontal className='h-4 w-4 text-muted-foreground' />
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <div className='grid grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-6'>
+          <FilterSelect
+            label='Vai trò'
+            value={filters.role}
+            onChange={(value) => onChange('role', value)}
+          >
+            <SelectItem value='ALL'>Tất cả vai trò</SelectItem>
+
+            <SelectItem value='USER'>Người dùng</SelectItem>
+
+            <SelectItem value='ADVISOR'>Tư vấn viên</SelectItem>
+
+            <SelectItem value='ADMIN'>Quản trị viên</SelectItem>
+          </FilterSelect>
+
+          <FilterSelect
+            label='Xác thực email'
+            value={filters.emailVerified}
+            onChange={(value) => onChange('emailVerified', value)}
+          >
+            <SelectItem value='ALL'>Tất cả trạng thái</SelectItem>
+
+            <SelectItem value='true'>Đã xác thực</SelectItem>
+
+            <SelectItem value='false'>Chưa xác thực</SelectItem>
+          </FilterSelect>
+
+          <div className='space-y-2'>
+            <Label>Ngày tạo từ</Label>
+
+            <Input
+              type='date'
+              value={filters.createdFrom}
+              onChange={(event) => onChange('createdFrom', event.target.value)}
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Label>Ngày tạo đến</Label>
+
+            <Input
+              type='date'
+              value={filters.createdTo}
+              onChange={(event) => onChange('createdTo', event.target.value)}
+            />
+          </div>
+
+          <FilterSelect
+            label='Sắp xếp theo'
+            value={filters.sortBy}
+            onChange={(value) => onChange('sortBy', value)}
+          >
+            <SelectItem value='createdAt'>Ngày tạo</SelectItem>
+
+            <SelectItem value='updatedAt'>Ngày cập nhật</SelectItem>
+
+            <SelectItem value='username'>Tên đăng nhập</SelectItem>
+
+            <SelectItem value='email'>Email</SelectItem>
+          </FilterSelect>
+
+          <FilterSelect
+            label='Thứ tự'
+            value={filters.sortDirection}
+            onChange={(value) => onChange('sortDirection', value)}
+          >
+            <SelectItem value='DESC'>Giảm dần</SelectItem>
+
+            <SelectItem value='ASC'>Tăng dần</SelectItem>
+          </FilterSelect>
+        </div>
+
+        <div className='mt-4 flex justify-end'>
+          <Button type='button' variant='outline' onClick={onReset} disabled={loading}>
+            <RotateCcw className='mr-2 h-4 w-4' />
+            Xóa bộ lọc
+          </Button>
+        </div>
+
+        <Separator className='my-5' />
+
         <div>
-          <p className='mb-2 text-[11px] font-medium text-slate-700'>Ngày tạo</p>
-          <div className='grid grid-cols-2 gap-2'>
-            <DateInput placeholder='Từ ngày' />
-            <DateInput placeholder='Đến ngày' />
+          <h3 className='mb-3 text-sm font-semibold'>Phân bổ vai trò</h3>
+
+          <div className='grid gap-3 sm:grid-cols-3'>
+            <RoleItem label='Người dùng' value={statistics?.userCount} dotClassName='bg-blue-500' />
+
+            <RoleItem
+              label='Tư vấn viên'
+              value={statistics?.advisorCount}
+              dotClassName='bg-orange-500'
+            />
+
+            <RoleItem
+              label='Quản trị viên'
+              value={statistics?.adminCount}
+              dotClassName='bg-red-500'
+            />
           </div>
         </div>
-        <FilterSelect label='Sắp xếp theo' value='Ngày tạo' />
-        <FilterSelect label='Thứ tự' value='Mới nhất trước' />
-        <button
-          type='button'
-          className='flex h-9 w-full items-center justify-center rounded-lg bg-[#D71920] px-4 text-[11px] font-semibold text-white transition hover:bg-[#b9151b] xl:w-auto'
-        >
-          Áp dụng bộ lọc
-        </button>
-        <button
-          type='button'
-          className='flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 text-[11px] text-slate-600 transition hover:border-red-200 hover:text-[#D71920] xl:w-auto'
-        >
-          <RotateCcw size={13} /> Xóa bộ lọc
-        </button>
-      </div>
-      <div className='mt-5 border-t border-slate-100 pt-4'>
-        <h3 className='mb-4 text-[13px] font-bold text-slate-900'>Phân bổ vai trò</h3>
-        <div className='space-y-3 text-[10px]'>
-          <RoleItem color='bg-blue-500' label='Người dùng' value='1,186' />
-          <RoleItem color='bg-orange-500' label='Tư vấn viên' value='46' />
-          <RoleItem color='bg-[#D71920]' label='Quản trị viên' value='16' />
-        </div>
-      </div>
-    </aside>
+      </CardContent>
+    </Card>
   );
 }
 
-function FilterSelect({ label, value }) {
+function FilterSelect({ label, value, onChange, children }) {
   return (
-    <div>
-      <label className='mb-2 block text-[11px] font-medium text-slate-700'>{label}</label>
-      <button
-        type='button'
-        className='flex h-9 w-full items-center justify-between rounded-lg border border-slate-200 px-3 text-[10px] text-slate-600'
-      >
-        <span>{value}</span>
-        <ChevronDown size={14} />
-      </button>
+    <div className='space-y-2'>
+      <Label>{label}</Label>
+
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className='w-full'>
+          <SelectValue />
+        </SelectTrigger>
+
+        <SelectContent>{children}</SelectContent>
+      </Select>
     </div>
   );
 }
 
-function DateInput({ placeholder }) {
+function RoleItem({ label, value = 0, dotClassName }) {
   return (
-    <div className='relative'>
-      <input
-        type='text'
-        placeholder={placeholder}
-        className='h-9 w-full rounded-lg border border-slate-200 px-2 pr-7 text-[9px] outline-none focus:border-red-300'
-      />
-      <CalendarDays
-        size={13}
-        className='absolute right-2 top-1/2 -translate-y-1/2 text-slate-400'
-      />
-    </div>
-  );
-}
+    <div className='flex items-center gap-2 rounded-lg border px-3 py-2'>
+      <span className={`h-2 w-2 rounded-full ${dotClassName}`} />
 
-function RoleItem({ color, label, value }) {
-  return (
-    <div className='flex items-center gap-2'>
-      <span className={`h-2 w-2 rounded-full ${color}`} />
-      <span className='flex-1 text-slate-600'>{label}</span>
-      <span className='font-medium text-slate-500'>{value}</span>
+      <span className='flex-1 text-sm text-muted-foreground'>{label}</span>
+
+      <span className='text-sm font-medium'>{Number(value || 0).toLocaleString('vi-VN')}</span>
     </div>
   );
 }

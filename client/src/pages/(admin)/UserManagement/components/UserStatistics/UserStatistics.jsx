@@ -1,52 +1,68 @@
-import { ShieldCheck, UserCheck, UserRoundCog, Users } from 'lucide-react';
+import { BadgeCheck, ShieldCheck, UserRoundCog, Users } from 'lucide-react';
 
-const statistics = [
-  {
-    label: 'Tổng người dùng',
-    value: '1,248',
-    description: 'Tất cả tài khoản',
-    icon: Users,
-    tone: 'bg-blue-50 text-blue-600',
-  },
-  {
-    label: 'Đang hoạt động',
-    value: '1,186',
-    description: '95% tổng tài khoản',
-    icon: UserCheck,
-    tone: 'bg-emerald-50 text-emerald-600',
-  },
-  {
-    label: 'Tư vấn viên',
-    value: '46',
-    description: 'Tài khoản advisor',
-    icon: UserRoundCog,
-    tone: 'bg-orange-50 text-orange-500',
-  },
-  {
-    label: 'Quản trị viên',
-    value: '16',
-    description: 'Tài khoản admin',
-    icon: ShieldCheck,
-    tone: 'bg-red-50 text-[#D71920]',
-  },
-];
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
-function UserStatistics() {
+function UserStatistics({ data, loading }) {
+  const total = data?.totalUsers ?? 0;
+
+  const items = [
+    {
+      label: 'Tổng người dùng',
+      value: total,
+      description: 'Tất cả tài khoản',
+      icon: Users,
+      iconClassName: 'bg-blue-50 text-blue-600',
+    },
+    {
+      label: 'Đã xác thực',
+      value: data?.verifiedUsers ?? 0,
+      description: total
+        ? `${Math.round(((data?.verifiedUsers ?? 0) / total) * 100)}% tổng tài khoản`
+        : '0% tổng tài khoản',
+      icon: BadgeCheck,
+      iconClassName: 'bg-emerald-50 text-emerald-600',
+    },
+    {
+      label: 'Tư vấn viên',
+      value: data?.advisorCount ?? 0,
+      description: 'Tài khoản advisor',
+      icon: UserRoundCog,
+      iconClassName: 'bg-orange-50 text-orange-600',
+    },
+    {
+      label: 'Quản trị viên',
+      value: data?.adminCount ?? 0,
+      description: 'Tài khoản admin',
+      icon: ShieldCheck,
+      iconClassName: 'bg-red-50 text-red-600',
+    },
+  ];
+
   return (
     <section className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
-      {statistics.map(({ label, value, description, icon: Icon, tone }) => (
-        <div key={label} className='rounded-xl border border-slate-200 bg-white p-4'>
-          <div className='flex items-center gap-3'>
-            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${tone}`}>
-              <Icon size={21} strokeWidth={1.8} />
+      {items.map(({ label, value, description, icon: Icon, iconClassName }) => (
+        <Card key={label}>
+          <CardContent className='flex items-center gap-4 p-5'>
+            <div
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${iconClassName}`}
+            >
+              <Icon className='h-5 w-5' />
             </div>
+
             <div>
-              <p className='text-[11px] text-slate-500'>{label}</p>
-              <p className='mt-0.5 text-[23px] font-bold leading-none text-slate-900'>{value}</p>
-              <p className='mt-1 text-[10px] text-slate-400'>{description}</p>
+              <p className='text-sm text-muted-foreground'>{label}</p>
+
+              {loading ? (
+                <Skeleton className='my-1 h-7 w-20' />
+              ) : (
+                <p className='text-2xl font-bold'>{Number(value).toLocaleString('vi-VN')}</p>
+              )}
+
+              <p className='text-xs text-muted-foreground'>{description}</p>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
     </section>
   );
