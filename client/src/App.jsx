@@ -12,6 +12,7 @@ import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/(admin)/Dashboard';
 import FAQ from './pages/(admin)/FAQ';
 import Documents from './pages/(admin)/Documents';
+import AdmissionDocuments from './pages/(public)/AdmissionDocuments';
 import ConsultationRequests from './pages/(admin)/ConsultationRequests';
 import FAQPublic from './pages/(public)/FAQ';
 import ConsultationRequestPage from './pages/(public)/ConsultationRequest';
@@ -28,6 +29,7 @@ function App() {
         <Route path='chatai' element={<ChatAI />} />
         <Route path='/faq' element={<FAQPublic />} />
         <Route path='consultation-request' element={<ConsultationRequestPage />} />
+        <Route path='documents' element={<AdmissionDocuments />} />
       </Route>
 
       <Route element={<AuthLayout />}>
