@@ -14,15 +14,10 @@ function FAQHeader({ onManageCategories, onCreateFaq }) {
         </p>
       </div>
       <div className='flex flex-wrap gap-2'>
-        <Button
-          variant='outline'
-          onClick={onManageCategories}
-        >
+        <Button variant='outline' onClick={onManageCategories}>
           <FolderCog size={16} /> Quản lý danh mục
         </Button>
-        <Button
-          onClick={onCreateFaq}
-        >
+        <Button onClick={onCreateFaq}>
           <Plus size={17} /> Thêm FAQ
         </Button>
       </div>

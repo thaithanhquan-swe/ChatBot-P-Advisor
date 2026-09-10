@@ -1,393 +1,363 @@
 import { useEffect, useMemo, useState } from 'react';
+import { HelpCircle } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { Card, CardContent } from '@/components/ui/card';
+import { getApiErrorMessage } from '@/lib/http';
+
+import { createFaq, deleteFaq, getFaqsForManagement, updateFaq } from '@/services/faq-service';
+
+import { getFaqCategories } from '@/services/faq-category-service';
+
 import FAQHeader from './components/FAQHeader/FAQHeader';
-import FAQStatistics from './components/FAQStatistics/FAQStatistics';
-import FAQFilter from './components/FAQFilter/FAQFilter';
-import FAQTable from './components/FAQTable/FAQTable';
-import FAQFormModal from './components/FAQFormModal/FAQFormModal';
-import FAQDetailModal from './components/FAQDetailModal/FAQDetailModal';
-import CategoryManagementModal from './components/CategoryManagementModal/CategoryManagementModal';
-import {
-  getFaqsForManagement,
-  createFaq,
-  updateFaq,
-  deleteFaq,
-} from '../../../services/faq-service';
+import FaqFilters from './components/FAQFilter/FAQFilter';
+import FaqTable from './components/FAQTable/FAQTable';
+import FaqDetailDialog from './components/FaqDetailDialog/FaqDetailDialog';
+import FaqFormDialog from './components/FaqFormDialog/FaqFormDialog';
+import CategoryManagementDialog from './components/CategoryManagementDialog/CategoryManagementDialog';
 
-import {
-  getFaqCategories,
-  createFaqCategory,
-  updateFaqCategory,
-  deleteFaqCategory,
-} from '../../../services/faq-category-service';
-
-const initialCategories = [
-  {
-    id: 1,
-    name: 'Tuyển sinh',
-    description: 'Thông tin tuyển sinh, phương thức xét tuyển và điểm chuẩn.',
-    status: 'ACTIVE',
-    createdAt: '01/05/2026 09:00',
-    updatedAt: '15/08/2026 14:20',
-  },
-  {
-    id: 2,
-    name: 'Học phí - Học bổng',
-    description: 'Thông tin học phí, chính sách miễn giảm và học bổng.',
-    status: 'ACTIVE',
-    createdAt: '02/05/2026 10:10',
-    updatedAt: '14/08/2026 09:15',
-  },
-  {
-    id: 3,
-    name: 'Ngành học',
-    description: 'Thông tin các ngành và chương trình đào tạo.',
-    status: 'ACTIVE',
-    createdAt: '03/05/2026 08:30',
-    updatedAt: '12/08/2026 16:40',
-  },
-  {
-    id: 4,
-    name: 'Đời sống sinh viên',
-    description: 'Ký túc xá, câu lạc bộ và hoạt động sinh viên.',
-    status: 'INACTIVE',
-    createdAt: '05/05/2026 11:00',
-    updatedAt: '10/08/2026 13:05',
-  },
-];
-
-const initialFaqs = [
-  {
-    id: 1,
-    question: 'Năm 2026 Học viện có những phương thức xét tuyển nào?',
-    answer:
-      'Học viện áp dụng các phương thức xét tuyển theo đề án tuyển sinh được công bố chính thức, bao gồm xét tuyển theo kết quả thi và các phương thức phù hợp khác.',
-    categoryId: 1,
-    status: 'PUBLISHED',
-    creator: 'Admin PTIT',
-    createdAt: '18/08/2026 09:30',
-    updatedAt: '22/08/2026 15:10',
-    updatedDate: '2026-08-22',
-  },
-  {
-    id: 2,
-    question: 'Học phí chương trình đại trà được tính như thế nào?',
-    answer:
-      'Học phí được tính theo số tín chỉ đăng ký và mức thu áp dụng cho từng năm học, ngành học theo quy định của Học viện.',
-    categoryId: 2,
-    status: 'PUBLISHED',
-    creator: 'Admin PTIT',
-    createdAt: '17/08/2026 14:00',
-    updatedAt: '21/08/2026 10:25',
-    updatedDate: '2026-08-21',
-  },
-  {
-    id: 3,
-    question: 'Ngành Công nghệ thông tin đào tạo những chuyên ngành nào?',
-    answer:
-      'Nội dung chuyên ngành được tổ chức theo chương trình đào tạo hiện hành của Học viện. Sinh viên được học kiến thức nền tảng và các học phần chuyên sâu theo định hướng.',
-    categoryId: 3,
-    status: 'DRAFT',
-    creator: 'Cán bộ TS',
-    createdAt: '16/08/2026 08:45',
-    updatedAt: '20/08/2026 16:05',
-    updatedDate: '2026-08-20',
-  },
-  {
-    id: 4,
-    question: 'Sinh viên có thể đăng ký ở ký túc xá không?',
-    answer:
-      'Sinh viên có nhu cầu có thể đăng ký ký túc xá theo thông báo và chỉ tiêu từng năm của Học viện.',
-    categoryId: 4,
-    status: 'HIDDEN',
-    creator: 'Admin PTIT',
-    createdAt: '15/08/2026 11:20',
-    updatedAt: '19/08/2026 09:00',
-    updatedDate: '2026-08-19',
-  },
-  {
-    id: 5,
-    question: 'Có học bổng dành cho sinh viên có thành tích tốt không?',
-    answer:
-      'Học viện có các chính sách học bổng khuyến khích học tập và các chương trình học bổng khác theo từng thời kỳ.',
-    categoryId: 2,
-    status: 'PUBLISHED',
-    creator: 'Admin PTIT',
-    createdAt: '14/08/2026 13:35',
-    updatedAt: '18/08/2026 14:45',
-    updatedDate: '2026-08-18',
-  },
-];
-
-const emptyFilters = {
-  search: '',
+const DEFAULT_FILTERS = {
+  keyword: '',
   status: 'ALL',
   faqCategoryId: 'ALL',
-  fromDate: '',
-  toDate: '',
+  updatedFrom: '',
+  updatedTo: '',
   sortBy: 'updatedAt',
-  sortOrder: 'DESC',
+  sortDirection: 'DESC',
 };
 
 function FAQ() {
-  // const [categories, setCategories] = useState(initialCategories);
-  // const [faqs, setFaqs] = useState(initialFaqs);
-  const [categories, setCategories] = useState([]);
   const [faqs, setFaqs] = useState([]);
-  const [faqStats, setFaqStats] = useState({ total: 0, published: 0, draft: 0, hidden: 0,});
-  const [totalFaqs, setTotalFaqs] = useState(0);
+  const [categories, setCategories] = useState([]);
+
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
+
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [filters, setFilters] = useState(emptyFilters);
-  const [faqModal, setFaqModal] = useState({ open: false, item: null });
+  const [size, setSize] = useState(10);
+  const [totalElements, setTotalElements] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [formDialog, setFormDialog] = useState({
+    open: false,
+    faq: null,
+  });
+
   const [detailFaq, setDetailFaq] = useState(null);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
-  const loadFaqs = async () => {
-    try {
-      const data = await getFaqsForManagement({
-        keyword: debouncedSearch || undefined,
-        status: filters.status === 'ALL' ? undefined : filters.status,
-        faqCategoryId:
-          filters.faqCategoryId === 'ALL' ? undefined : filters.faqCategoryId,
-        updatedFrom: filters.fromDate || undefined,
-        updatedTo: filters.toDate || undefined,
-        sortBy: filters.sortBy,
-        sortDirection: filters.sortOrder,
-        page: page,
-        size: pageSize,
-      });
+  const categoryMap = useMemo(
+    () => Object.fromEntries(categories.map((category) => [String(category.id), category])),
+    [categories]
+  );
 
-      setFaqs(data.content || []);
-      setTotalFaqs(data.totalElements || 0);
-      setTotalPages(data.totalPages || 1);
-    }catch (error) {
-        console.error('Lỗi tải FAQ:', error);
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCategories() {
+      try {
+        const data = await getFaqCategories({
+          page: 0,
+          size: 100,
+        });
+
+        if (!cancelled) {
+          setCategories(data.content ?? []);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load FAQ categories:', error);
+
+          toast.error(getApiErrorMessage(error, 'Không thể tải danh mục FAQ.'));
+        }
       }
-  };
-
-  const loadFaqStats = async () => {
-    try {
-      const [allData, publishedData, draftData, hiddenData] = await Promise.all([
-        getFaqsForManagement({
-          page: 0,
-          size: 1,
-        }),
-
-        getFaqsForManagement({
-          status: 'PUBLISHED',
-          page: 0,
-          size: 1,
-        }),
-
-        getFaqsForManagement({
-          status: 'DRAFT',
-          page: 0,
-          size: 1,
-        }),
-
-        getFaqsForManagement({
-          status: 'HIDDEN',
-          page: 0,
-          size: 1,
-        }),
-      ]);
-
-      setFaqStats({
-        total: allData.totalElements || 0,
-        published: publishedData.totalElements || 0,
-        draft: draftData.totalElements || 0,
-        hidden: hiddenData.totalElements || 0,
-      });
-    } catch (error) {
-      console.error('Lỗi tải thống kê FAQ:', error);
     }
-  };
 
-  const loadCategories = async () => {
+    fetchCategories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(filters.keyword.trim());
+      setPage(0);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [filters.keyword]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchFaqs() {
+      try {
+        setLoading(true);
+
+        const data = await getFaqsForManagement({
+          keyword: debouncedKeyword || undefined,
+          status: filters.status === 'ALL' ? undefined : filters.status,
+          faqCategoryId: filters.faqCategoryId === 'ALL' ? undefined : filters.faqCategoryId,
+          updatedFrom: filters.updatedFrom || undefined,
+          updatedTo: filters.updatedTo || undefined,
+          sortBy: filters.sortBy,
+          sortDirection: filters.sortDirection,
+          page,
+          size,
+        });
+
+        if (cancelled) return;
+
+        setFaqs(data.content ?? []);
+        setTotalElements(data.totalElements ?? 0);
+        setTotalPages(data.totalPages ?? 0);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Failed to load FAQs:', error);
+
+          toast.error(getApiErrorMessage(error, 'Không thể tải danh sách FAQ.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchFaqs();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    debouncedKeyword,
+    filters.status,
+    filters.faqCategoryId,
+    filters.updatedFrom,
+    filters.updatedTo,
+    filters.sortBy,
+    filters.sortDirection,
+    page,
+    size,
+  ]);
+
+  async function reloadFaqs() {
+    try {
+      setLoading(true);
+
+      const data = await getFaqsForManagement({
+        keyword: debouncedKeyword || undefined,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+        faqCategoryId: filters.faqCategoryId === 'ALL' ? undefined : filters.faqCategoryId,
+        updatedFrom: filters.updatedFrom || undefined,
+        updatedTo: filters.updatedTo || undefined,
+        sortBy: filters.sortBy,
+        sortDirection: filters.sortDirection,
+        page,
+        size,
+      });
+
+      setFaqs(data.content ?? []);
+      setTotalElements(data.totalElements ?? 0);
+      setTotalPages(data.totalPages ?? 0);
+    } catch (error) {
+      console.error('Failed to reload FAQs:', error);
+
+      toast.error(getApiErrorMessage(error, 'Không thể tải lại danh sách FAQ.'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function reloadCategories() {
     try {
       const data = await getFaqCategories({
         page: 0,
         size: 100,
       });
 
-      // console.log('CATEGORY API:', data);
-      // console.log('CATEGORIES:', data.content);
-      
-      // console.log(
-      //   'CATEGORY STATUS:',
-      //   data.content.map((item) => ({
-      //     name: item.name,
-      //     status: item.status,
-      //   }))
-      // );
-
-      setCategories(data.content || []);
+      setCategories(data.content ?? []);
     } catch (error) {
-        console.error('Lỗi tải danh mục FAQ:', error);
-      }
+      console.error('Failed to reload FAQ categories:', error);
+
+      toast.error(getApiErrorMessage(error, 'Không thể tải lại danh mục FAQ.'));
+    }
+  }
+
+  const handleFilterChange = (name, value) => {
+    setFilters((current) => ({
+      ...current,
+      [name]: value,
+    }));
+
+    if (name !== 'keyword') {
+      setPage(0);
+    }
   };
 
-  useEffect(() => {
-    loadFaqs();
-  }, [
-    debouncedSearch,
-    filters.status,
-    filters.faqCategoryId,
-    filters.fromDate,
-    filters.toDate,
-    filters.sortBy,
-    filters.sortOrder,
-    page,
-    pageSize,
-  ]);
-
-  useEffect(() => {
-    loadCategories();
-    loadFaqStats();
-  }, []);
-
-  useEffect(() => {
+  const handleResetFilters = () => {
+    setFilters(DEFAULT_FILTERS);
+    setDebouncedKeyword('');
     setPage(0);
-  }, [
-    debouncedSearch,
-    filters.status,
-    filters.faqCategoryId,
-    filters.fromDate,
-    filters.toDate,
-    filters.sortBy,
-    filters.sortOrder,
-  ]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(filters.search);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [filters.search]);
-
-  const categoryMap = useMemo(
-    () => Object.fromEntries(categories.map((category) => [category.id, category])),
-    [categories]
-  );
-
-  
+  };
 
   const handleSaveFaq = async (payload) => {
     try {
-      if (payload.id) {
-        await updateFaq(payload.id, {
-          question: payload.question,
-          answer: payload.answer,
-          faqCategoryId: payload.faqCategoryId,
-          status: payload.status,
-        });
+      setSaving(true);
+
+      if (formDialog.faq) {
+        await updateFaq(formDialog.faq.id, payload);
+
+        toast.success('Đã cập nhật FAQ.');
       } else {
-          await createFaq({
-            question: payload.question,
-            answer: payload.answer,
-            faqCategoryId: payload.faqCategoryId,
-            status: payload.status,
-          });
-        }
+        await createFaq(payload);
 
-      setFaqModal({ open: false, item: null });
-
-      await loadFaqs();
-      await loadFaqStats();
-    } catch (error) {
-      console.error('Lỗi lưu FAQ:', error);
-    }
-  };
-
-  const handleDeleteFaq = async (faq) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa FAQ “${faq.question}”?`)) {
-      return;
-    }
-
-    try {
-      await deleteFaq(faq.id);
-
-      await loadFaqs();
-      await loadFaqStats();
-    } catch (error) {
-        console.error('Lỗi xóa FAQ:', error);
+        toast.success('Đã tạo FAQ.');
       }
+
+      setFormDialog({
+        open: false,
+        faq: null,
+      });
+
+      await reloadFaqs();
+    } catch (error) {
+      console.error('Failed to save FAQ:', error);
+
+      toast.error(getApiErrorMessage(error, 'Không thể lưu FAQ.'));
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleStatusChange = async (id, status) => {
-    const faq = faqs.find((item) => item.id === id);
-
-    if (!faq) return;
-
+  const handleDeleteFaq = async (id) => {
     try {
-      await updateFaq(id, {
+      await deleteFaq(id);
+
+      toast.success('Đã xóa FAQ.');
+
+      await reloadFaqs();
+    } catch (error) {
+      console.error('Failed to delete FAQ:', error);
+
+      toast.error(getApiErrorMessage(error, 'Không thể xóa FAQ.'));
+    }
+  };
+
+  const handleStatusChange = async (faq, status) => {
+    try {
+      await updateFaq(faq.id, {
         question: faq.question,
         answer: faq.answer,
         faqCategoryId: faq.faqCategoryId,
         status,
       });
 
-      await loadFaqs();
-      await loadFaqStats();
+      toast.success('Đã cập nhật trạng thái FAQ.');
+
+      await reloadFaqs();
     } catch (error) {
-      console.error('Lỗi cập nhật trạng thái FAQ:', error);
+      console.error('Failed to update FAQ status:', error);
+
+      toast.error(getApiErrorMessage(error, 'Không thể cập nhật trạng thái FAQ.'));
     }
   };
 
   return (
-    <div className='mx-auto max-w-[1600px]'>
+    <div className='mx-auto max-w-[1600px] space-y-5'>
       <FAQHeader
-        onManageCategories={() => setCategoryModalOpen(true)}
-        onCreateFaq={() => setFaqModal({ open: true, item: null })}
+        onManageCategories={() => setCategoryDialogOpen(true)}
+        onCreateFaq={() =>
+          setFormDialog({
+            open: true,
+            faq: null,
+          })
+        }
       />
 
-      <FAQStatistics stats={faqStats} />
-      <FAQFilter
+      <Card>
+        <CardContent className='flex items-center gap-4 p-5'>
+          <div className='flex size-10 items-center justify-center rounded-lg bg-muted'>
+            <HelpCircle className='size-5' />
+          </div>
+
+          <div>
+            <p className='text-sm text-muted-foreground'>Kết quả phù hợp</p>
+
+            <p className='text-2xl font-bold'>{totalElements}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <FaqFilters
         filters={filters}
         categories={categories}
-        onChange={setFilters}
-        onReset={() => setFilters(emptyFilters)}
+        onChange={handleFilterChange}
+        onReset={handleResetFilters}
       />
-      <div className='mt-5'>
-        <FAQTable
-          faqs={faqs}
-          categoryMap={categoryMap}
-          onView={setDetailFaq}
-          onEdit={(item) => setFaqModal({ open: true, item })}
-          onDelete={handleDeleteFaq}
-          onStatusChange={handleStatusChange}
-          page={page}
-          setPage={setPage}
-          totalPages={totalPages}
-          totalFaqs={totalFaqs}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
+
+      <FaqTable
+        faqs={faqs}
+        categoryMap={categoryMap}
+        loading={loading}
+        page={page}
+        size={size}
+        totalElements={totalElements}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        onSizeChange={(value) => {
+          setSize(value);
+          setPage(0);
+        }}
+        onView={setDetailFaq}
+        onEdit={(faq) =>
+          setFormDialog({
+            open: true,
+            faq,
+          })
+        }
+        onDelete={handleDeleteFaq}
+        onStatusChange={handleStatusChange}
+      />
+
+      {formDialog.open && (
+        <FaqFormDialog
+          open
+          faq={formDialog.faq}
+          categories={categories}
+          saving={saving}
+          onOpenChange={(open) => {
+            if (!open) {
+              setFormDialog({
+                open: false,
+                faq: null,
+              });
+            }
+          }}
+          onSubmit={handleSaveFaq}
         />
-      </div>
+      )}
 
-      <FAQFormModal
-        open={faqModal.open}
-        faq={faqModal.item}
-        // categories={categories.filter((category) => category.status === 'ACTIVE')}
-        categories={categories}
-        onClose={() => setFaqModal({ open: false, item: null })}
-        onSubmit={handleSaveFaq}
-      />
-
-      <FAQDetailModal
+      <FaqDetailDialog
         faq={detailFaq}
-        category={detailFaq ? categoryMap[detailFaq.faqCategoryId] : null}
-        onClose={() => setDetailFaq(null)}
+        category={detailFaq ? categoryMap[String(detailFaq.faqCategoryId)] : null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDetailFaq(null);
+          }
+        }}
       />
 
-      <CategoryManagementModal
-        open={categoryModalOpen}
+      <CategoryManagementDialog
+        open={categoryDialogOpen}
         categories={categories}
-        loadCategories={loadCategories}
-        onClose={() => setCategoryModalOpen(false)}
+        onOpenChange={setCategoryDialogOpen}
+        onChanged={reloadCategories}
       />
     </div>
   );
