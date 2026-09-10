@@ -1,14 +1,13 @@
 package com.example.server.service;
 
-import com.example.server.dto.response.AdminUserResponse;
-import com.example.server.dto.response.CurrentUserResponse;
-import com.example.server.dto.response.PageResponse;
-import com.example.server.dto.response.UserStatisticsResponse;
+import com.example.server.dto.request.UserUpdateRequest;
+import com.example.server.dto.response.*;
 import com.example.server.entity.User;
 import com.example.server.exception.AppException;
 import com.example.server.exception.ErrorCode;
 import com.example.server.mapper.UserMapper;
 import com.example.server.repository.ChatSessionRepository;
+import com.example.server.repository.RoleRepository;
 import com.example.server.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,8 +38,10 @@ public class UserService {
             "email", "email");
 
     UserRepository userRepository;
+    RoleRepository roleRepository;
     ChatSessionRepository chatSessionRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
 
     public CurrentUserResponse getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -133,5 +136,19 @@ public class UserService {
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
+    }
+
+    public UserResponse adminUpdateUser(String userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        userMapper.updateUser(user, request);
+
+        if (request.getRoles() != null) {
+            var roles = roleRepository.findAllByNameIn(request.getRoles());
+            user.setRoles(new HashSet<>(roles));
+        }
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

@@ -1,21 +1,16 @@
 package com.example.server.controller;
 
 import com.example.server.dto.ApiResponse;
-import com.example.server.dto.response.AdminUserResponse;
-import com.example.server.dto.response.CurrentUserResponse;
-import com.example.server.dto.response.PageResponse;
-import com.example.server.dto.response.UserStatisticsResponse;
+import com.example.server.dto.request.UserUpdateRequest;
+import com.example.server.dto.response.*;
 import com.example.server.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
@@ -67,6 +62,14 @@ public class UserController {
     public ApiResponse<AdminUserResponse> getUserById(@PathVariable String id) {
         return ApiResponse.<AdminUserResponse>builder()
                 .result(userService.getUserById(id))
+                .build();
+    }
+
+    @PutMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    ApiResponse<UserResponse> adminUpdateUser(@PathVariable String userId, @RequestBody @Valid UserUpdateRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.adminUpdateUser(userId, request))
                 .build();
     }
 }

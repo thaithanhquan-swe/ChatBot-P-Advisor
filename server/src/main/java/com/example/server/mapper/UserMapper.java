@@ -22,8 +22,6 @@ public interface UserMapper {
 
     CurrentUserResponse toCurrentUserResponse(User user);
 
-    List<UserResponse> toUserResponseList(List<User> users);
-
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "firebaseUid", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
