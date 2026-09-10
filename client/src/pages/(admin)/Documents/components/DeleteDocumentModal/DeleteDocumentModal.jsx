@@ -1,42 +1,59 @@
-import { AlertTriangle } from 'lucide-react';
-import ModalShell from '../ModalShell/ModalShell';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
-function DeleteDocumentModal({ document, onClose, onConfirm }) {
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
+function DeleteDocumentModal({ document, onClose, onConfirm, loading }) {
   return (
-    <ModalShell open={Boolean(document)} onClose={onClose} title='Xóa tài liệu' size='max-w-md'>
-      {document && (
-        <div className='p-6'>
-          <div className='flex gap-3 rounded-xl border border-red-100 bg-red-50 p-4'>
-            <AlertTriangle size={21} className='mt-0.5 shrink-0 text-[#D71920]' />
-            <div>
-              <p className='text-sm font-semibold text-slate-900'>
-                Bạn có chắc chắn muốn xóa tài liệu này không?
-              </p>
-              <p className='mt-1 text-xs leading-5 text-slate-500'>
-                “{document.title}” sẽ bị loại khỏi danh sách tài liệu của hệ thống.
-              </p>
-            </div>
+    <AlertDialog
+      open={Boolean(document)}
+      onOpenChange={(open) => {
+        if (!open && !loading) {
+          onClose();
+        }
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <div className='mb-2 flex h-11 w-11 items-center justify-center rounded-full bg-red-50'>
+            <AlertTriangle size={20} className='text-[#D71920]' />
           </div>
 
-          <div className='mt-5 flex justify-end gap-2'>
-            <button
-              type='button'
-              onClick={onClose}
-              className='h-10 rounded-lg border border-slate-200 px-4 text-xs font-semibold text-slate-600 hover:bg-slate-50'
-            >
-              Hủy
-            </button>
-            <button
-              type='button'
-              onClick={() => onConfirm(document)}
-              className='h-10 rounded-lg bg-[#D71920] px-5 text-xs font-semibold text-white hover:bg-[#b9151b]'
-            >
-              Xóa
-            </button>
-          </div>
-        </div>
-      )}
-    </ModalShell>
+          <AlertDialogTitle>Xóa tài liệu</AlertDialogTitle>
+
+          <AlertDialogDescription>
+            Bạn có chắc chắn muốn xóa{' '}
+            <span className='font-semibold text-slate-700'>“{document?.title}”</span>? Hành động này
+            không thể hoàn tác.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={loading}>Hủy</AlertDialogCancel>
+
+          <AlertDialogAction
+            disabled={loading}
+            onClick={(event) => {
+              event.preventDefault();
+
+              onConfirm(document);
+            }}
+            className='bg-[#D71920] hover:bg-[#b9151b]'
+          >
+            {loading && <Loader2 size={15} className='mr-2 animate-spin' />}
+            Xóa
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

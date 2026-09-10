@@ -125,7 +125,7 @@ function ChatAI() {
                   <MessageBubble key={message.id} message={message} />
                 ))}
                 {chat.operation === 'send' &&
-                  (chat.session?.status === 'BOT_HANDLING' ? (
+                  (['BOT_HANDLING', 'WAITING_FOR_STAFF'].includes(chat.session?.status) ? (
                     <TypingIndicator />
                   ) : (
                     <p role='status' className='text-sm text-gray-500'>
@@ -169,6 +169,8 @@ function ChatAI() {
           placeholder={
             chat.session?.status === 'STAFF_HANDLING'
               ? 'Nhập tin nhắn cho cán bộ tư vấn...'
+              : chat.session?.status === 'WAITING_FOR_STAFF'
+                ? 'Hỏi chatbot trong lúc chờ cán bộ tư vấn...'
               : 'Nhập câu hỏi về tuyển sinh PTIT...'
           }
         />

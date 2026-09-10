@@ -1,83 +1,199 @@
-import { ChevronLeft, ChevronRight, Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Eye, Loader2 } from 'lucide-react';
 
-const initialUsers = [
-  { id: 1, name: 'Nguyễn Văn A', email: 'nva@student.ptit.edu.vn', role: 'USER', status: 'ACTIVE', createdAt: '22/08/2026', updatedAt: '22/08/2026' },
-  { id: 2, name: 'Trần Thị B', email: 'ttb@ptit.edu.vn', role: 'ADVISOR', status: 'ACTIVE', createdAt: '20/08/2026', updatedAt: '21/08/2026' },
-  { id: 3, name: 'Lê Văn C', email: 'lvc@admin.ptit.edu.vn', role: 'ADMIN', status: 'INACTIVE', createdAt: '15/08/2026', updatedAt: '18/08/2026' },
-];
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
-const roleStyles = {
-  ADMIN: 'bg-red-50 text-[#D71920]',
-  ADVISOR: 'bg-orange-50 text-orange-600',
-  USER: 'bg-blue-50 text-blue-600',
+const roleClassNames = {
+  ADMIN: 'border-transparent bg-red-50 text-red-600 hover:bg-red-50',
+  ADVISOR: 'border-transparent bg-orange-50 text-orange-600 hover:bg-orange-50',
+  USER: 'border-transparent bg-blue-50 text-blue-600 hover:bg-blue-50',
 };
 
-function UserTable() {
-  const [users, setUsers] = useState(initialUsers);
+const formatDate = (value) => {
+  if (!value) {
+    return '—';
+  }
 
-  const handleDelete = (id, name) => {
-    if (window.confirm(`Bạn có chắc chắn muốn vô hiệu hóa/xóa tài khoản của "${name}" không?`)) {
-      setUsers((currentUsers) => currentUsers.filter((user) => user.id !== id));
-    }
-  };
+  return new Intl.DateTimeFormat('vi-VN', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(value));
+};
 
-  const handleEdit = (user) => {
-    window.alert(`Mở bảng chỉnh sửa cho tài khoản: ${user.name} (${user.email})`);
-  };
+function UserTable({ page, loading, onPageChange, onView }) {
+  const users = page?.content ?? [];
+
+  const currentPage = page?.pageNumber ?? 0;
+
+  const pageSize = page?.pageSize ?? 20;
+
+  const totalPages = page?.totalPages ?? 0;
+
+  const totalElements = page?.totalElements ?? 0;
+
+  const start = totalElements > 0 ? currentPage * pageSize + 1 : 0;
+
+  const end = Math.min((currentPage + 1) * pageSize, totalElements);
 
   return (
-    <div className='overflow-hidden rounded-lg border border-slate-200'>
+    <div className='overflow-hidden rounded-md border'>
       <div className='overflow-x-auto'>
-        <table className='w-full min-w-[900px] text-left'>
-          <thead className='bg-slate-50/70 text-[10px] font-semibold text-slate-600'>
-            <tr>
-              <th className='px-4 py-3'>Người dùng</th><th className='px-4 py-3'>Email</th>
-              <th className='px-4 py-3'>Vai trò</th><th className='px-4 py-3'>Trạng thái</th>
-              <th className='px-4 py-3'>Ngày tạo</th><th className='px-4 py-3'>Cập nhật</th>
-              <th className='px-4 py-3 text-right'>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length ? users.map((user) => (
-              <tr key={user.id} className='border-b border-slate-100 text-[10px] hover:bg-slate-50/70'>
-                <td className='px-4 py-3'><p className='font-semibold text-slate-800'>{user.name}</p><p className='mt-1 text-[9px] text-slate-400'>UID-{String(user.id).padStart(4, '0')}</p></td>
-                <td className='px-4 py-3 text-slate-600'>{user.email}</td>
-                <td className='px-4 py-3'><Badge className={roleStyles[user.role]}>{user.role}</Badge></td>
-                <td className='px-4 py-3'><Badge className={user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'} dot>{user.status === 'ACTIVE' ? 'Hoạt động' : 'Vô hiệu hóa'}</Badge></td>
-                <td className='px-4 py-3 text-slate-600'>{user.createdAt}</td>
-                <td className='px-4 py-3 text-slate-600'>{user.updatedAt}</td>
-                <td className='px-4 py-3'><div className='flex justify-end gap-1'>
-                  <ActionButton title='Xem chi tiết'><Eye size={14} /></ActionButton>
-                  <ActionButton title='Chỉnh sửa' onClick={() => handleEdit(user)}><Edit size={14} /></ActionButton>
-                  <ActionButton title='Vô hiệu hóa' onClick={() => handleDelete(user.id, user.name)}><Trash2 size={14} /></ActionButton>
-                  <ActionButton title='Thêm thao tác'><MoreVertical size={14} /></ActionButton>
-                </div></td>
-              </tr>
-            )) : <tr><td colSpan='7' className='px-4 py-8 text-center text-[11px] text-slate-500'>Không có dữ liệu người dùng.</td></tr>}
-          </tbody>
-        </table>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Người dùng</TableHead>
+
+              <TableHead>Liên hệ</TableHead>
+
+              <TableHead>Vai trò</TableHead>
+
+              <TableHead>Xác thực</TableHead>
+
+              <TableHead>Phiên chat</TableHead>
+
+              <TableHead>Ngày tạo</TableHead>
+
+              <TableHead>Cập nhật</TableHead>
+
+              <TableHead className='text-right'>Chi tiết</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={8} className='h-32'>
+                  <div className='flex items-center justify-center gap-2 text-sm text-muted-foreground'>
+                    <Loader2 className='h-4 w-4 animate-spin' />
+                    Đang tải dữ liệu người dùng...
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : users.length > 0 ? (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <p className='font-medium'>{user.username || 'Chưa đặt tên'}</p>
+
+                    <p
+                      className='mt-1 max-w-40 truncate text-xs text-muted-foreground'
+                      title={user.id}
+                    >
+                      {user.id}
+                    </p>
+                  </TableCell>
+
+                  <TableCell>
+                    <p>{user.email || '—'}</p>
+
+                    <p className='mt-1 text-xs text-muted-foreground'>
+                      {user.phone || 'Chưa có SĐT'}
+                    </p>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className='flex flex-wrap gap-1'>
+                      {user.roles?.length ? (
+                        user.roles.map((role) => (
+                          <Badge
+                            key={role}
+                            variant='outline'
+                            className={roleClassNames[role] ?? ''}
+                          >
+                            {role}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className='text-muted-foreground'>—</span>
+                      )}
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <Badge
+                      variant='outline'
+                      className={
+                        user.emailVerified
+                          ? 'border-transparent bg-emerald-50 text-emerald-600 hover:bg-emerald-50'
+                          : 'border-transparent bg-amber-50 text-amber-700 hover:bg-amber-50'
+                      }
+                    >
+                      {user.emailVerified ? 'Đã xác thực' : 'Chưa xác thực'}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell>{user.chatSessionCount ?? 0}</TableCell>
+
+                  <TableCell>{formatDate(user.createdAt)}</TableCell>
+
+                  <TableCell>{formatDate(user.updatedAt)}</TableCell>
+
+                  <TableCell className='text-right'>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      title='Xem chi tiết'
+                      onClick={() => onView(user.id)}
+                    >
+                      <Eye className='h-4 w-4' />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className='h-32 text-center text-muted-foreground'>
+                  Không tìm thấy người dùng phù hợp.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
-      <div className='flex flex-col items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-[10px] text-slate-500 sm:flex-row'>
-        <span>Hiển thị 1 - {users.length} trong tổng số 1,248 người dùng</span>
-        <div className='flex items-center gap-1'>
-          <PageButton><ChevronLeft size={14} /></PageButton><PageButton active>1</PageButton><PageButton>2</PageButton><PageButton>3</PageButton><PageButton><ChevronRight size={14} /></PageButton>
+
+      <div className='flex flex-col items-center justify-between gap-3 border-t px-4 py-3 sm:flex-row'>
+        <p className='text-sm text-muted-foreground'>
+          Hiển thị {start} - {end} trong tổng số {Number(totalElements).toLocaleString('vi-VN')}{' '}
+          người dùng
+        </p>
+
+        <div className='flex items-center gap-2'>
+          <Button
+            type='button'
+            variant='outline'
+            size='icon'
+            disabled={loading || currentPage <= 0}
+            onClick={() => onPageChange(currentPage - 1)}
+          >
+            <ChevronLeft className='h-4 w-4' />
+          </Button>
+
+          <span className='px-2 text-sm text-muted-foreground'>
+            Trang {totalPages ? currentPage + 1 : 0}/{totalPages}
+          </span>
+
+          <Button
+            type='button'
+            variant='outline'
+            size='icon'
+            disabled={loading || totalPages === 0 || currentPage + 1 >= totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+          >
+            <ChevronRight className='h-4 w-4' />
+          </Button>
         </div>
       </div>
     </div>
   );
-}
-
-function Badge({ children, className, dot = false }) {
-  return <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[9px] font-medium ${className}`}>{dot && <span className='h-1.5 w-1.5 rounded-full bg-current' />}{children}</span>;
-}
-
-function ActionButton({ children, title, onClick }) {
-  return <button type='button' title={title} onClick={onClick} className='flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-red-200 hover:text-[#D71920]'>{children}</button>;
-}
-
-function PageButton({ children, active = false }) {
-  return <button type='button' className={`flex h-8 w-8 items-center justify-center rounded-md ${active ? 'bg-[#D71920] font-semibold text-white' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`}>{children}</button>;
 }
 
 export default UserTable;

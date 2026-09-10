@@ -1,24 +1,24 @@
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 
-const UserToolbar = () => {
+import { Input } from '@/components/ui/input';
+
+function UserToolbar({ value, onChange }) {
   return (
-    <div className='mb-4'>
-      <h2 className='mb-4 text-[15px] font-bold text-slate-900'>Danh sách người dùng</h2>
-      <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4'>
-        <div className='relative sm:col-span-2'>
-          <Search size={16} className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-400' />
+    <div className='mb-5'>
+      <h2 className='mb-4 text-base font-semibold'>Danh sách người dùng</h2>
+
+      <div className='relative max-w-2xl'>
+        <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+
         <Input
-            className='pl-9 text-[11px]'
-          placeholder='Tìm kiếm theo họ tên hoặc email...'
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className='pl-9'
+          placeholder='Tìm theo tên đăng nhập, email hoặc số điện thoại...'
         />
-        </div>
-        <Select aria-label='Vai trò'><option>Tất cả vai trò</option></Select>
-        <Select aria-label='Sắp xếp'><option>Mới nhất</option></Select>
       </div>
     </div>
   );
-};
+}
 
 export default UserToolbar;

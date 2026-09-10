@@ -17,7 +17,7 @@ const ChatHeader = ({
   const statusLabel =
     {
       BOT_HANDLING: 'Đang trò chuyện với trợ lý AI',
-      WAITING_FOR_STAFF: 'Đang chờ cán bộ tiếp nhận',
+      WAITING_FOR_STAFF: 'Đang chờ cán bộ · Chatbot vẫn hỗ trợ',
       STAFF_HANDLING: 'Đang tư vấn trực tiếp',
     }[status] || 'Bắt đầu cuộc trò chuyện mới';
 
