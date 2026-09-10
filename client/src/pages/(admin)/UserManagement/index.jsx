@@ -4,13 +4,15 @@ import { Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import { getApiErrorMessage } from '@/lib/http';
-import { getUserById, getUsers, getUserStatistics } from '@/services/user-service';
 
+import { getUserById, getUsers, getUserStatistics, updateUser } from '@/services/user-service';
+
+import UserEditDialog from './components/UserEditDialog/UserEditDialog';
 import UserFilter from './components/UserFilter/UserFilter';
 import UserHeader from './components/UserHeader/UserHeader';
+import UserStatistics from './components/UserStatistics/UserStatistics';
 import UserTable from './components/UserTable/UserTable';
 import UserToolbar from './components/UserToolbar/UserToolbar';
-import UserStatistics from './components/UserStatistics/UserStatistics';
 
 const defaultFilters = {
   role: 'ALL',
@@ -19,6 +21,12 @@ const defaultFilters = {
   createdTo: '',
   sortBy: 'createdAt',
   sortDirection: 'DESC',
+};
+
+const defaultEditForm = {
+  username: '',
+  phone: '',
+  role: 'USER',
 };
 
 function UserManagement() {
@@ -41,6 +49,12 @@ function UserManagement() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
 
+  const [editUser, setEditUser] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editSaving, setEditSaving] = useState(false);
+
+  const [editForm, setEditForm] = useState(defaultEditForm);
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedKeyword(keyword);
@@ -57,7 +71,10 @@ function UserManagement() {
 
     const fetchUsers = async () => {
       if (filters.createdFrom && filters.createdTo && filters.createdFrom > filters.createdTo) {
-        setError('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+        if (active) {
+          setError('Ngày bắt đầu không được lớn hơn ngày kết thúc.');
+          setLoading(false);
+        }
 
         return;
       }
@@ -87,7 +104,7 @@ function UserManagement() {
       }
     };
 
-    fetchUsers();
+    void fetchUsers();
 
     return () => {
       active = false;
@@ -117,12 +134,29 @@ function UserManagement() {
       }
     };
 
-    fetchStatistics();
+    void fetchStatistics();
 
     return () => {
       active = false;
     };
   }, []);
+
+  const refreshUsers = async () => {
+    const result = await getUsers({
+      ...filters,
+      keyword: debouncedKeyword,
+      page: pageNumber,
+      size: 20,
+    });
+
+    setPage(result);
+  };
+
+  const refreshStatistics = async () => {
+    const result = await getUserStatistics();
+
+    setStatistics(result);
+  };
 
   const handleFilterChange = (key, value) => {
     setPageNumber(0);
@@ -135,10 +169,8 @@ function UserManagement() {
 
   const resetFilters = () => {
     setFilters(defaultFilters);
-
     setKeyword('');
     setDebouncedKeyword('');
-
     setPageNumber(0);
     setError('');
   };
@@ -159,6 +191,55 @@ function UserManagement() {
       setError(getApiErrorMessage(requestError, 'Không thể tải chi tiết người dùng.'));
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditUser(user);
+
+    setEditForm({
+      username: user.username ?? '',
+      phone: user.phone ?? '',
+      role: user.roles?.[0] ?? 'USER',
+    });
+
+    setEditOpen(true);
+    setError('');
+  };
+
+  const handleEditOpenChange = (open) => {
+    setEditOpen(open);
+
+    if (!open) {
+      setEditUser(null);
+      setEditForm(defaultEditForm);
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editUser) {
+      return;
+    }
+
+    try {
+      setEditSaving(true);
+      setError('');
+
+      await updateUser(editUser.id, {
+        username: editForm.username.trim(),
+        phone: editForm.phone.trim(),
+        roles: [editForm.role],
+      });
+
+      setEditOpen(false);
+      setEditUser(null);
+      setEditForm(defaultEditForm);
+
+      await Promise.all([refreshUsers(), refreshStatistics()]);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Không thể cập nhật người dùng.'));
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -196,6 +277,7 @@ function UserManagement() {
             setPageNumber(nextPage);
           }}
           onView={viewUser}
+          onEdit={handleEditUser}
         />
       </div>
 
@@ -204,6 +286,15 @@ function UserManagement() {
         onOpenChange={setDetailOpen}
         user={selectedUser}
         loading={detailLoading}
+      />
+
+      <UserEditDialog
+        open={editOpen}
+        onOpenChange={handleEditOpenChange}
+        form={editForm}
+        setForm={setEditForm}
+        saving={editSaving}
+        onSubmit={handleUpdateUser}
       />
     </div>
   );
@@ -236,7 +327,7 @@ function UserDetailDialog({ open, onOpenChange, user, loading }) {
 
             <Detail label='Vai trò' value={user.roles?.join(', ') || 'Chưa có'} />
 
-            <Detail label='Số phiên chat' value={user.chatSessionCount} />
+            <Detail label='Số phiên chat' value={user.chatSessionCount ?? 0} />
 
             <Detail label='Ngày tạo' value={formatDate(user.createdAt)} />
 
