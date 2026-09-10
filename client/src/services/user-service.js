@@ -55,3 +55,9 @@ export async function getUserById(id) {
   const data = await http.get(`/users/${id}`);
   return data.result;
 }
+
+export async function updateUser(userId, user) {
+  const data = await http.put(`/users/${userId}`, user);
+
+  return data.result;
+}

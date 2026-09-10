@@ -1,7 +1,8 @@
-import { ChevronLeft, ChevronRight, Eye, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Loader2, Pencil } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
 import {
   Table,
   TableBody,
@@ -13,7 +14,9 @@ import {
 
 const roleClassNames = {
   ADMIN: 'border-transparent bg-red-50 text-red-600 hover:bg-red-50',
+
   ADVISOR: 'border-transparent bg-orange-50 text-orange-600 hover:bg-orange-50',
+
   USER: 'border-transparent bg-blue-50 text-blue-600 hover:bg-blue-50',
 };
 
@@ -28,7 +31,7 @@ const formatDate = (value) => {
   }).format(new Date(value));
 };
 
-function UserTable({ page, loading, onPageChange, onView }) {
+function UserTable({ page, loading, onPageChange, onView, onEdit }) {
   const users = page?.content ?? [];
 
   const currentPage = page?.pageNumber ?? 0;
@@ -63,7 +66,7 @@ function UserTable({ page, loading, onPageChange, onView }) {
 
               <TableHead>Cập nhật</TableHead>
 
-              <TableHead className='text-right'>Chi tiết</TableHead>
+              <TableHead className='text-right'>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -137,15 +140,27 @@ function UserTable({ page, loading, onPageChange, onView }) {
                   <TableCell>{formatDate(user.updatedAt)}</TableCell>
 
                   <TableCell className='text-right'>
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='icon'
-                      title='Xem chi tiết'
-                      onClick={() => onView(user.id)}
-                    >
-                      <Eye className='h-4 w-4' />
-                    </Button>
+                    <div className='flex justify-end gap-1'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='icon'
+                        title='Chỉnh sửa người dùng'
+                        onClick={() => onEdit(user)}
+                      >
+                        <Pencil className='h-4 w-4' />
+                      </Button>
+
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='icon'
+                        title='Xem chi tiết'
+                        onClick={() => onView(user.id)}
+                      >
+                        <Eye className='h-4 w-4' />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
