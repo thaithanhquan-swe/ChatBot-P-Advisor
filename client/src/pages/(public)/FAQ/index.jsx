@@ -10,55 +10,14 @@ import { getFaqCategories } from '../../../services/faq-category-service';
 
 const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState('');
-
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-
   const [activeCategory, setActiveCategory] = useState('ALL');
-
   const [categories, setCategories] = useState([]);
-
   const [expandedId, setExpandedId] = useState(null);
-
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadFaqs() {
-      try {
-        const faqResult = await getFaqs({
-          keyword: debouncedSearchTerm || undefined,
-
-          faqCategoryId: activeCategory === 'ALL' ? undefined : activeCategory,
-
-          page: 0,
-          size: 20,
-        });
-
-        if (!cancelled) {
-          setFaqs(faqResult.content ?? []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.error('Lỗi tải FAQ public:', error);
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    loadFaqs();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedSearchTerm, activeCategory]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,43 +30,14 @@ const FAQ = () => {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadCategories() {
+    const loadData = async () => {
       try {
-        const categoryResult = await getFaqCategories({
-          page: 0,
-          size: 100,
-        });
+        setIsLoading(true);
 
-        if (!cancelled) {
-          setCategories(categoryResult.content ?? []);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.error('Lỗi tải danh mục FAQ:', error);
-        }
-      }
-    }
-
-    loadCategories();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  /*
-   * Khi user quay trở lại tab FAQ,
-   * lấy dữ liệu mới nhất.
-   */
-  useEffect(() => {
-    async function handleFocus() {
-      try {
         const [faqResult, categoryResult] = await Promise.all([
           getFaqs({
             keyword: debouncedSearchTerm || undefined,
-
             faqCategoryId: activeCategory === 'ALL' ? undefined : activeCategory,
-
             page: 0,
             size: 20,
           }),
@@ -118,13 +48,84 @@ const FAQ = () => {
           }),
         ]);
 
-        setFaqs(faqResult.content ?? []);
+        if (cancelled) return;
 
-        setCategories(categoryResult.content ?? []);
+        const activeCategories = (categoryResult.content ?? []).filter(
+          (category) => category.status === 'ACTIVE'
+        );
+
+        const activeCategoryIds = new Set(activeCategories.map((category) => String(category.id)));
+
+        const visibleFaqs = (faqResult.content ?? []).filter((faq) =>
+          activeCategoryIds.has(String(faq.faqCategoryId))
+        );
+
+        setCategories(activeCategories);
+        setFaqs(visibleFaqs);
+
+        if (activeCategory !== 'ALL' && !activeCategoryIds.has(String(activeCategory))) {
+          setActiveCategory('ALL');
+          setExpandedId(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Lỗi tải FAQ public:', error);
+
+          setFaqs([]);
+          setCategories([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearchTerm, activeCategory]);
+
+  useEffect(() => {
+    const handleFocus = async () => {
+      try {
+        const [faqResult, categoryResult] = await Promise.all([
+          getFaqs({
+            keyword: debouncedSearchTerm || undefined,
+            faqCategoryId: activeCategory === 'ALL' ? undefined : activeCategory,
+            page: 0,
+            size: 20,
+          }),
+
+          getFaqCategories({
+            page: 0,
+            size: 100,
+          }),
+        ]);
+
+        const activeCategories = (categoryResult.content ?? []).filter(
+          (category) => category.status === 'ACTIVE'
+        );
+
+        const activeCategoryIds = new Set(activeCategories.map((category) => String(category.id)));
+
+        const visibleFaqs = (faqResult.content ?? []).filter((faq) =>
+          activeCategoryIds.has(String(faq.faqCategoryId))
+        );
+
+        setCategories(activeCategories);
+        setFaqs(visibleFaqs);
+
+        if (activeCategory !== 'ALL' && !activeCategoryIds.has(String(activeCategory))) {
+          setActiveCategory('ALL');
+          setExpandedId(null);
+        }
       } catch (error) {
         console.error('Lỗi refresh FAQ:', error);
       }
-    }
+    };
 
     window.addEventListener('focus', handleFocus);
 
@@ -135,7 +136,6 @@ const FAQ = () => {
 
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(String(categoryId));
-
     setExpandedId(null);
   };
 

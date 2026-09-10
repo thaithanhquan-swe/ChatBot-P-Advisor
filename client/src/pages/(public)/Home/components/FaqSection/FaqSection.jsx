@@ -1,27 +1,46 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getFaqCategories } from '@/services/faq-category-service';
+
 import { ChevronRight, MessageCircle } from 'lucide-react';
+
+import { getFaqCategories } from '@/services/faq-category-service';
 
 const FaqSection = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    let active = true;
+    let mounted = true;
 
-    const fetchCategories = async () => {
+    const loadCategories = async () => {
       try {
-        const page = await getFaqCategories(0, 6);
-        if (active) setCategories(page.content || []);
+        const page = await getFaqCategories(0, 20);
+
+        if (!mounted) return;
+
+        const activeCategories = (page.content || [])
+          .filter((category) => category.status === 'ACTIVE')
+          .slice(0, 6);
+
+        setCategories(activeCategories);
       } catch {
-        if (active) setCategories([]);
+        if (mounted) {
+          setCategories([]);
+        }
       }
     };
 
-    fetchCategories();
+    const handleFocus = () => {
+      void loadCategories();
+    };
+
+    void loadCategories();
+
+    window.addEventListener('focus', handleFocus);
 
     return () => {
-      active = false;
+      mounted = false;
+
+      window.removeEventListener('focus', handleFocus);
     };
   }, []);
 
@@ -32,9 +51,11 @@ const FaqSection = () => {
           <div className='mx-auto flex h-11 w-11 items-center justify-center rounded-(--radius-card) bg-(--primary-color-soft)'>
             <MessageCircle size={20} className='text-(--primary-color)' />
           </div>
+
           <h2 className='mt-4 text-[24px] font-bold text-gray-900 sm:text-[28px]'>
             Danh mục câu hỏi phổ biến
           </h2>
+
           <p className='mt-2 text-[14.5px] text-(--text-secondary)'>
             Khám phá các chủ đề thường được quan tâm
           </p>
@@ -51,6 +72,7 @@ const FaqSection = () => {
                 className='group relative flex min-h-42 overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_4px_18px_rgba(31,24,25,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-(--primary-color-border) hover:shadow-[0_14px_32px_rgba(179,0,0,0.10)]'
               >
                 <span className='absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-(--primary-color) transition-transform duration-300 group-hover:scale-x-100' />
+
                 <span className='pointer-events-none absolute top-4 right-4 text-[64px] leading-none font-black text-gray-50 transition-colors duration-300 group-hover:text-(--primary-color-soft)'>
                   {number}
                 </span>
@@ -59,9 +81,11 @@ const FaqSection = () => {
                   <span className='text-[11px] font-bold tracking-[0.16em] text-(--primary-color)'>
                     CHỦ ĐỀ {number}
                   </span>
+
                   <h3 className='mt-3 max-w-[85%] text-[17px] leading-snug font-bold text-gray-900 transition-colors group-hover:text-(--primary-color)'>
                     {category.name}
                   </h3>
+
                   {category.description && (
                     <p className='mt-2 line-clamp-2 text-[13px] leading-relaxed text-(--text-secondary)'>
                       {category.description}
