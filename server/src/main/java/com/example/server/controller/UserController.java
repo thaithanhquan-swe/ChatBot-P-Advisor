@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @GetMapping("/statistics")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<UserStatisticsResponse> getStatistics() {
         return ApiResponse.<UserStatisticsResponse>builder()
                 .result(userService.getStatistics())

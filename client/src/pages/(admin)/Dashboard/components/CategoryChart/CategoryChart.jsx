@@ -126,14 +126,15 @@ function CategoryChart({ consultations = [], consultationStats = {} }) {
         >
           <motion.div
             animate={{
-              inset: hoveredCategory !== null ? 40 : 38,
+              width: hoveredCategory !== null ? 90 : 94,
+              height: hoveredCategory !== null ? 90 : 94,
             }}
             transition={{
               type: 'spring',
               stiffness: 260,
               damping: 26,
             }}
-            className='absolute flex items-center justify-center rounded-full bg-white'
+            className='absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white'
           >
             <div className='text-center'>
               <motion.p
