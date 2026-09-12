@@ -1,66 +1,104 @@
-import { Bell, FileText, MessageCircle, UserRound } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FileText, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const activities = [
-  {
-    title: 'Admin PTIT đã cập nhật FAQ: Học phí năm 2025',
-    time: '10 phút trước',
-    icon: FileText,
-  },
-  {
-    title: 'Admin PTIT đã trả lời câu hỏi tồn đọng',
-    time: '35 phút trước',
-    icon: MessageCircle,
-  },
-  {
-    title: 'User support@ptit.edu.vn đăng nhập hệ thống',
-    time: '1 giờ trước',
-    icon: UserRound,
-  },
-  {
-    title: 'Admin PTIT đã thêm tài liệu mới: Đề án tuyển sinh 2025',
-    time: '2 giờ trước',
-    icon: FileText,
-  },
-  {
-    title: 'Backup hệ thống hoàn tất',
-    time: '3 giờ trước',
-    icon: Bell,
-  },
-];
+const formatTime = (value) =>
+  value
+    ? new Date(value).toLocaleString('vi-VN', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+    : '-';
 
-function ActivityList() {
+function ActivityList({ faqs = [], consultations = [] }) {
+  const activities = [
+    ...faqs.slice(0, 3).map((faq) => ({
+      title: `FAQ được cập nhật: ${faq.question}`,
+      time: faq.updatedAt || faq.createdAt,
+      icon: FileText,
+    })),
+    ...consultations.slice(0, 2).map((request) => ({
+      title: `Yêu cầu tư vấn: ${request.question}`,
+      time: request.createdAt,
+      icon: MessageCircle,
+    })),
+  ].sort((first, second) => new Date(second.time || 0) - new Date(first.time || 0));
+
   return (
     <div>
       <div className='mb-5 flex items-center justify-between'>
         <h2 className='text-[15px] font-bold text-slate-900'>Hoạt động hệ thống gần đây</h2>
 
-        <button type='button' className='text-[12px] font-medium text-[#D71920] hover:underline'>
-          Xem tất cả →
-        </button>
+        <Link to='/admin/faq' className='text-[12px] font-medium text-[#D71920] hover:underline'>
+          Xem tất cả
+        </Link>
       </div>
 
-      <div className='space-y-1'>
-        {activities.map((item, index) => {
+      <motion.div
+        initial='hidden'
+        animate='visible'
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.09,
+            },
+          },
+        }}
+        className='space-y-1'
+      >
+        {activities.slice(0, 5).map((item, index) => {
           const Icon = item.icon;
 
           return (
-            <div
+            <motion.div
               key={index}
-              className='flex items-center gap-3 rounded-lg px-2 py-3 hover:bg-slate-50'
+              variants={{
+                hidden: {
+                  opacity: 0,
+                  x: 14,
+                },
+                visible: {
+                  opacity: 1,
+                  x: 0,
+                  transition: {
+                    duration: 0.4,
+                    ease: [0.22, 1, 0.36, 1],
+                  },
+                },
+              }}
+              whileHover={{
+                x: 4,
+              }}
+              className='group flex items-center gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-slate-50'
             >
-              <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-[#D71920]'>
+              <motion.div
+                whileHover={{
+                  scale: 1.1,
+                  rotate: -4,
+                }}
+                className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-[#D71920]'
+              >
                 <Icon size={17} strokeWidth={1.7} />
-              </div>
+              </motion.div>
 
               <div className='min-w-0 flex-1'>
-                <p className='truncate text-[12px] font-medium text-slate-700'>{item.title}</p>
+                <p className='truncate text-[12px] font-medium text-slate-700 transition-colors group-hover:text-[#D71920]'>
+                  {item.title}
+                </p>
 
-                <p className='mt-1 text-[10px] text-slate-400'>{item.time}</p>
+                <p className='mt-1 text-[10px] text-slate-400'>{formatTime(item.time)}</p>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+
+        {!activities.length ? (
+          <p className='py-8 text-center text-sm text-muted-foreground'>
+            Chưa có hoạt động gần đây.
+          </p>
+        ) : null}
+      </motion.div>
     </div>
   );
 }

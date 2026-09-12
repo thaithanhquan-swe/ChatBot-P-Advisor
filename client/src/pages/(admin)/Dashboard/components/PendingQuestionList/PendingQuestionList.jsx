@@ -1,66 +1,94 @@
-import { UserRound } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
-const pendingQuestions = [
-  {
-    question: 'Điểm chuẩn ngành CNTT năm 2025 là bao nhiêu?',
-    category: 'Tuyển sinh',
-    time: '10 phút trước',
-  },
-  {
-    question: 'Học phí chương trình chất lượng cao là bao nhiêu?',
-    category: 'Học phí – Học bổng',
-    time: '35 phút trước',
-  },
-  {
-    question: 'Các phương thức xét tuyển năm 2025?',
-    category: 'Tuyển sinh',
-    time: '1 giờ trước',
-  },
-  {
-    question: 'Ngành An toàn thông tin học chương trình gì?',
-    category: 'Ngành học',
-    time: '2 giờ trước',
-  },
-  {
-    question: 'Có ký túc xá cho sinh viên không?',
-    category: 'Khác',
-    time: '3 giờ trước',
-  },
-];
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
-function PendingQuestionList() {
+const formatTime = (value) =>
+  value
+    ? new Date(value).toLocaleString('vi-VN', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+    : '-';
+
+function PendingQuestionList({ items = [] }) {
   return (
     <div>
       <div className='mb-5 flex items-center justify-between'>
-        <h2 className='text-[15px] font-bold text-slate-900'>Câu hỏi tồn đọng mới nhất</h2>
+        <h2 className='text-[15px] font-bold text-slate-900'>Lượt hỏi dạo gần đây</h2>
 
-        <button type='button' className='text-[12px] font-medium text-[#D71920] hover:underline'>
-          Xem tất cả →
-        </button>
+        <Link
+          to='/admin/messages'
+          className='text-[12px] font-medium text-[#D71920] hover:underline'
+        >
+          Xem tất cả
+        </Link>
       </div>
 
-      <div className='space-y-1'>
-        {pendingQuestions.map((item, index) => (
-          <div
-            key={index}
-            className='flex items-center gap-3 rounded-lg px-2 py-3 hover:bg-slate-50'
-          >
-            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-[#D71920]'>
-              <UserRound size={18} strokeWidth={1.7} />
-            </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Người dùng</TableHead>
 
-            <div className='min-w-0 flex-1'>
-              <p className='truncate text-[12px] font-medium text-slate-700'>{item.question}</p>
+            <TableHead>Phiên chat</TableHead>
 
-              <span className='mt-1 inline-flex rounded-md bg-red-50 px-2 py-0.5 text-[9px] font-medium text-[#D71920]'>
-                {item.category}
-              </span>
-            </div>
+            <TableHead className='text-right'>Thời gian</TableHead>
+          </TableRow>
+        </TableHeader>
 
-            <span className='hidden shrink-0 text-[10px] text-slate-400 sm:block'>{item.time}</span>
-          </div>
-        ))}
-      </div>
+        <TableBody>
+          {items.slice(0, 5).map((item, index) => (
+            <motion.tr
+              key={item.id || item.sessionToken}
+              initial={{
+                opacity: 0,
+                x: -12,
+              }}
+              animate={{
+                opacity: 1,
+                x: 0,
+              }}
+              transition={{
+                delay: index * 0.09,
+                duration: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              whileHover={{
+                x: 3,
+              }}
+              className='border-b transition-colors hover:bg-slate-50'
+            >
+              <TableCell className='font-medium'>
+                {item.username || item.userEmail || 'Khách'}
+              </TableCell>
+
+              <TableCell>
+                <Badge className='bg-red-50 text-[#D71920]'>{item.title || 'Cần tư vấn'}</Badge>
+              </TableCell>
+
+              <TableCell className='text-right text-xs text-muted-foreground'>
+                {formatTime(item.createdAt)}
+              </TableCell>
+            </motion.tr>
+          ))}
+
+          {!items.length ? (
+            <TableRow>
+              <TableCell colSpan={3} className='py-8 text-center text-sm text-muted-foreground'>
+                Không có phiên chat tồn đọng.
+              </TableCell>
+            </TableRow>
+          ) : null}
+        </TableBody>
+      </Table>
     </div>
   );
 }
