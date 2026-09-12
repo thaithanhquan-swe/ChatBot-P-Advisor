@@ -41,6 +41,12 @@ public class SystemConfig {
     @Column(name = "hero_description", nullable = false, columnDefinition = "TEXT")
     String heroDescription;
 
+    @Column(name = "footer_about_description", columnDefinition = "TEXT")
+    String footerAboutDescription;
+
+    @Column(name = "admission_links", columnDefinition = "LONGTEXT")
+    String admissionLinks;
+
     @Column(name = "hero_slides", nullable = false, columnDefinition = "LONGTEXT")
     String heroSlides;
 

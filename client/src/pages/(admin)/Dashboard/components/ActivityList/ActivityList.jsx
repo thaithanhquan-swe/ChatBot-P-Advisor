@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { FileText, MessageCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const formatTime = (value) =>
   value
@@ -28,10 +27,6 @@ function ActivityList({ faqs = [], consultations = [] }) {
     <div>
       <div className='mb-5 flex items-center justify-between'>
         <h2 className='text-[15px] font-bold text-slate-900'>Hoạt động hệ thống gần đây</h2>
-
-        <Link to='/admin/faq' className='text-[12px] font-medium text-[#D71920] hover:underline'>
-          Xem tất cả
-        </Link>
       </div>
 
       <motion.div

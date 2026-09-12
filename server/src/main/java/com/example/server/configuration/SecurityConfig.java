@@ -56,6 +56,7 @@ public class SecurityConfig {
                         "/chat-sessions/*",
                         "/chat-messages/*",
                         "/uploads/chat-messages/**",
+                        "/uploads/system-config/**",
                         "/documents"
                 ).permitAll()
                 .requestMatchers("/ws/**").permitAll()

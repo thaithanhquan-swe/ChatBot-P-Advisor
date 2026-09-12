@@ -1,6 +1,10 @@
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { useSystemConfig } from '@/contexts/system-config-context';
 
 const FooterContact = () => {
+  const { config } = useSystemConfig();
+  if (!config) return null;
+  const phoneHref = config.footerPhone.replace(/[^+\d]/g, '');
   return (
     <div>
       <h3 className='mb-4 text-[15px] font-bold uppercase'>Liên hệ</h3>
@@ -8,29 +12,29 @@ const FooterContact = () => {
       <div className='space-y-3'>
         {/* Phone */}
         <a
-          href='tel:02437562468'
+          href={`tel:${phoneHref}`}
           className='flex items-start gap-3 text-[13px] text-white/90 transition hover:text-white'
         >
           <Phone size={16} className='mt-0.5 shrink-0' />
 
-          <span>(024) 3756 2468</span>
+          <span>{config.footerPhone}</span>
         </a>
 
         {/* Email */}
         <a
-          href='mailto:tuyensinh@ptit.edu.vn'
+          href={`mailto:${config.footerEmail}`}
           className='flex items-start gap-3 text-[13px] text-white/90 transition hover:text-white'
         >
           <Mail size={16} className='mt-0.5 shrink-0' />
 
-          <span>tuyensinh@ptit.edu.vn</span>
+          <span>{config.footerEmail}</span>
         </a>
 
         {/* Address */}
         <div className='flex items-start gap-3 text-[13px] leading-[1.6] text-white/90'>
           <MapPin size={17} className='mt-0.5 shrink-0' />
 
-          <span>11 Đường Nguyễn Đình Chiểu, Sài Gòn, Hồ Chí Minh, Việt Nam</span>
+          <span>{config.footerAddress}</span>
         </div>
       </div>
     </div>

@@ -1,18 +1,27 @@
 package com.example.server.service;
 
 import com.example.server.dto.request.HeroSlideRequest;
+import com.example.server.dto.request.AdmissionLinkRequest;
 import com.example.server.dto.request.SystemConfigRequest;
 import com.example.server.dto.response.HeroSlideResponse;
+import com.example.server.dto.response.AdmissionLinkResponse;
 import com.example.server.dto.response.SystemConfigResponse;
+import com.example.server.dto.response.SystemConfigImageResponse;
 import com.example.server.entity.SystemConfig;
+import com.example.server.exception.AppException;
+import com.example.server.exception.ErrorCode;
 import com.example.server.repository.SystemConfigRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,20 +29,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SystemConfigService {
     private final SystemConfigRepository systemConfigRepository;
+    private final FileStorageService fileStorageService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @NonFinal
+    @Value("${app.config.context-path}")
+    String contextPath;
+
+    @NonFinal
+    @Value("${app.system-config.storage-location}")
+    String storageLocation;
 
     @Transactional
     public SystemConfigResponse getPublicConfig() {
-        return toResponse(getOrCreate());
+        return systemConfigRepository.findById(SystemConfig.DEFAULT_ID)
+                .map(this::toResponse)
+                .orElse(null);
     }
 
     @Transactional
     public SystemConfigResponse update(SystemConfigRequest request) {
-        SystemConfig config = getOrCreate();
+        SystemConfig config = systemConfigRepository.findById(SystemConfig.DEFAULT_ID)
+                .orElseGet(() -> SystemConfig.builder().id(SystemConfig.DEFAULT_ID).build());
         config.setHeroBadge(request.getHeroBadge());
         config.setHeroTitle(request.getHeroTitle());
         config.setHeroHighlightedTitle(request.getHeroHighlightedTitle());
         config.setHeroDescription(request.getHeroDescription());
+        config.setFooterAboutDescription(request.getFooterAboutDescription());
+        config.setAdmissionLinks(serializeAdmissionLinks(request.getAdmissionLinks()));
         config.setHeroSlides(serializeSlides(request.getHeroSlides()));
         config.setAdmissionHotline(request.getAdmissionHotline());
         config.setAdmissionEmail(request.getAdmissionEmail());
@@ -47,34 +70,25 @@ public class SystemConfigService {
         return toResponse(systemConfigRepository.save(config));
     }
 
-    private SystemConfig getOrCreate() {
-        return systemConfigRepository.findById(SystemConfig.DEFAULT_ID)
-                .orElseGet(() -> systemConfigRepository.save(defaultConfig()));
-    }
+    public SystemConfigImageResponse uploadImage(MultipartFile file) {
+        if (file == null || file.isEmpty() || file.getContentType() == null
+                || !file.getContentType().toLowerCase().startsWith("image/")) {
+            throw new AppException(ErrorCode.SYSTEM_CONFIG_IMAGE_INVALID);
+        }
 
-    private SystemConfig defaultConfig() {
-        return SystemConfig.builder()
-                .id(SystemConfig.DEFAULT_ID)
-                .heroBadge("TRỢ LÝ TUYỂN SINH PTIT")
-                .heroTitle("Chọn đúng hướng đi,")
-                .heroHighlightedTitle("bắt đầu từ một câu hỏi.")
-                .heroDescription("P-Advisor giúp thí sinh và phụ huynh tìm hiểu ngành học, học phí, học bổng và quy trình tuyển sinh PTIT bằng những câu trả lời dễ hiểu, nhanh chóng.")
-                .heroSlides(serializeSlides(List.of(HeroSlideRequest.builder()
-                        .imageUrl("/images/hero-placeholder.jpg")
-                        .eyebrow("HỌC VIỆN PTIT")
-                        .caption("Đổi mới · Sáng tạo · Chất lượng")
-                        .displayOrder(1)
-                        .build())))
-                .admissionHotline("024 3773 1861")
-                .admissionEmail("tuyensinh@ptit.edu.vn")
-                .websiteUrl("https://ptit.edu.vn")
-                .facebookUrl("https://fb.com/HocvienPTIT")
-                .footerPhone("(024) 3756 2468")
-                .footerEmail("tuyensinh@ptit.edu.vn")
-                .footerAddress("11 Đường Nguyễn Đình Chiểu, Sài Gòn, Hồ Chí Minh, Việt Nam")
-                .weekdayWorkingHours("Thứ 2 – Thứ 6: 7h30 – 17h00")
-                .saturdayWorkingHours("Thứ 7: 7h30 – 11h30")
-                .build();
+        try {
+            FileStorageService.StoredFile storedFile = fileStorageService.store(
+                    file,
+                    storageLocation,
+                    contextPath + "/uploads/system-config");
+            return new SystemConfigImageResponse(
+                    storedFile.publicUrl(),
+                    storedFile.originalName(),
+                    storedFile.contentType(),
+                    storedFile.size());
+        } catch (IOException exception) {
+            throw new AppException(ErrorCode.SYSTEM_CONFIG_IMAGE_STORAGE_ERROR);
+        }
     }
 
     private SystemConfigResponse toResponse(SystemConfig config) {
@@ -84,6 +98,8 @@ public class SystemConfigService {
                 .heroTitle(config.getHeroTitle())
                 .heroHighlightedTitle(config.getHeroHighlightedTitle())
                 .heroDescription(config.getHeroDescription())
+                .footerAboutDescription(config.getFooterAboutDescription())
+                .admissionLinks(deserializeAdmissionLinks(config.getAdmissionLinks()))
                 .heroSlides(deserializeSlides(config.getHeroSlides()))
                 .admissionHotline(config.getAdmissionHotline())
                 .admissionEmail(config.getAdmissionEmail())
@@ -115,6 +131,28 @@ public class SystemConfigService {
                     .toList();
         } catch (JsonProcessingException exception) {
             throw new IllegalStateException("Stored hero slides are invalid", exception);
+        }
+    }
+
+    private String serializeAdmissionLinks(List<AdmissionLinkRequest> links) {
+        try {
+            return objectMapper.writeValueAsString(links);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Cannot serialize admission links", exception);
+        }
+    }
+
+    private List<AdmissionLinkResponse> deserializeAdmissionLinks(String serializedLinks) {
+        if (serializedLinks == null || serializedLinks.isBlank()) {
+            return List.of();
+        }
+        try {
+            return objectMapper.readValue(serializedLinks, new TypeReference<List<AdmissionLinkResponse>>() {})
+                    .stream()
+                    .sorted(Comparator.comparing(AdmissionLinkResponse::getDisplayOrder))
+                    .toList();
+        } catch (JsonProcessingException exception) {
+            throw new IllegalStateException("Stored admission links are invalid", exception);
         }
     }
 }

@@ -10,14 +10,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class DocumentStorageConfig implements WebMvcConfigurer {
     private final String storageLocation;
     private final String chatMessageStorageLocation;
+    private final String systemConfigStorageLocation;
     private final FileStorageService fileStorageService;
 
     public DocumentStorageConfig(
             @Value("${app.document.storage-location}") String storageLocation,
             @Value("${app.chat-message.storage-location}") String chatMessageStorageLocation,
+            @Value("${app.system-config.storage-location}") String systemConfigStorageLocation,
             FileStorageService fileStorageService) {
         this.storageLocation = storageLocation;
         this.chatMessageStorageLocation = chatMessageStorageLocation;
+        this.systemConfigStorageLocation = systemConfigStorageLocation;
         this.fileStorageService = fileStorageService;
     }
 
@@ -30,5 +33,9 @@ public class DocumentStorageConfig implements WebMvcConfigurer {
                 .resolveStorageRoot(chatMessageStorageLocation).toUri().toString();
         registry.addResourceHandler("/uploads/chat-messages/**")
                 .addResourceLocations(chatMessageResourceLocation);
+        String systemConfigResourceLocation = fileStorageService
+                .resolveStorageRoot(systemConfigStorageLocation).toUri().toString();
+        registry.addResourceHandler("/uploads/system-config/**")
+                .addResourceLocations(systemConfigResourceLocation);
     }
 }

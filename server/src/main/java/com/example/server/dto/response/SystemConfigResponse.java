@@ -21,6 +21,8 @@ public class SystemConfigResponse {
     String heroTitle;
     String heroHighlightedTitle;
     String heroDescription;
+    String footerAboutDescription;
+    List<AdmissionLinkResponse> admissionLinks;
     List<HeroSlideResponse> heroSlides;
     String admissionHotline;
     String admissionEmail;

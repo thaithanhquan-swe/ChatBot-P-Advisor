@@ -2,27 +2,18 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Globe, Mail, Phone } from 'lucide-react';
 
 import { FacebookIcon } from '../../../../../assets/icons';
-
-const channels = [
-  {
-    icon: Phone,
-    label: 'Hotline tuyển sinh',
-    value: '024 3773 1861',
-  },
-  {
-    icon: Mail,
-    label: 'Email',
-    value: 'tuyensinh@ptit.edu.vn',
-  },
-  {
-    icon: Globe,
-    label: 'Website',
-    value: 'https://ptit.edu.vn',
-  },
-];
+import { useSystemConfig } from '@/contexts/system-config-context';
 
 const SupportChannels = () => {
   const prefersReducedMotion = useReducedMotion();
+  const { config, loading } = useSystemConfig();
+  if (loading) return <section className='h-64 animate-pulse rounded-2xl bg-slate-100' aria-label='Đang tải kênh hỗ trợ' />;
+  if (!config) return null;
+  const channels = [
+    { icon: Phone, label: 'Hotline tuyển sinh', value: config.admissionHotline },
+    { icon: Mail, label: 'Email', value: config.admissionEmail },
+    { icon: Globe, label: 'Website', value: config.websiteUrl },
+  ];
 
   return (
     <motion.section
@@ -149,7 +140,9 @@ const SupportChannels = () => {
               Facebook
             </p>
 
-            <p className='font-medium text-gray-900'>fb.com/HocvienPTIT</p>
+            <a href={config.facebookUrl} target='_blank' rel='noreferrer' className='font-medium text-gray-900'>
+              {config.facebookUrl.replace(/^https?:\/\//, '')}
+            </a>
           </div>
         </motion.div>
       </motion.div>

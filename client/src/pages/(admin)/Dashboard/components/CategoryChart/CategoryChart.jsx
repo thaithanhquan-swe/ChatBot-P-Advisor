@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const colors = ['#D71920', '#F97316', '#FBBF24', '#94A3B8'];
 
@@ -90,7 +91,15 @@ function CategoryChart({ consultations = [], consultationStats = {} }) {
 
   return (
     <div>
-      <h2 className='mb-5 text-[15px] font-bold text-slate-900'>Phân loại yêu cầu tư vấn</h2>
+      <div className='flex justify-between'>
+        <h2 className='mb-5 text-[15px] font-bold text-slate-900'>Phân loại yêu cầu tư vấn</h2>
+        <Link
+          to='/admin/consultation-requests'
+          className='text-[12px] font-medium text-[#D71920] hover:underline'
+        >
+          Xem tất cả
+        </Link>
+      </div>
 
       <div className='flex flex-col items-center justify-center gap-7 sm:flex-row'>
         <motion.div

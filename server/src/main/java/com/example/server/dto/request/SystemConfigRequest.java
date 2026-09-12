@@ -34,6 +34,13 @@ public class SystemConfigRequest {
     @Size(max = 2000, message = "SYSTEM_CONFIG_SLOGAN_INVALID")
     String heroDescription;
 
+    @NotBlank(message = "SYSTEM_CONFIG_FOOTER_DESCRIPTION_INVALID")
+    @Size(max = 2000, message = "SYSTEM_CONFIG_FOOTER_DESCRIPTION_INVALID")
+    String footerAboutDescription;
+
+    @NotNull(message = "SYSTEM_CONFIG_ADMISSION_LINKS_INVALID")
+    List<@Valid AdmissionLinkRequest> admissionLinks;
+
     @NotNull(message = "SYSTEM_CONFIG_SLIDES_INVALID")
     List<@Valid HeroSlideRequest> heroSlides;
 

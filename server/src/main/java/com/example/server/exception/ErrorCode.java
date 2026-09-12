@@ -59,6 +59,11 @@ public enum ErrorCode {
     SYSTEM_CONFIG_SLIDE_TEXT_INVALID(1048, "Hero slide text is invalid", HttpStatus.BAD_REQUEST),
     SYSTEM_CONFIG_SLIDE_ORDER_INVALID(1049, "Hero slide display order is required", HttpStatus.BAD_REQUEST),
     SYSTEM_CONFIG_CONTACT_INVALID(1050, "Contact or working-hours information is required or too long", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_IMAGE_INVALID(1051, "A valid image file is required", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_IMAGE_STORAGE_ERROR(1052, "Could not store system configuration image", HttpStatus.INTERNAL_SERVER_ERROR),
+    SYSTEM_CONFIG_FOOTER_DESCRIPTION_INVALID(1053, "Footer description is required or too long", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_ADMISSION_LINKS_INVALID(1054, "Admission links are required", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_ADMISSION_LINK_INVALID(1055, "Admission link title or URL is invalid", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

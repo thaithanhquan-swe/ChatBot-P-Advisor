@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { images } from '@/assets/images';
+import { getSystemConfigImageUrl, useSystemConfig } from '@/contexts/system-config-context';
 import {
   ArrowRight,
   Bot,
@@ -12,26 +12,16 @@ import {
   Zap,
 } from 'lucide-react';
 
-const heroSlides = [
-  {
-    image: images.truong_ptit,
-    alt: 'Trụ sở Học viện Công nghệ Bưu chính Viễn thông (PTIT)',
-    label: 'HỌC VIỆN PTIT',
-    caption: 'Đổi mới · Sáng tạo · Chất lượng',
-  },
-  {
-    image: images.truong_ptit_lineart,
-    alt: 'Minh họa khuôn viên Học viện Công nghệ Bưu chính Viễn thông',
-    label: 'KHÔNG GIAN PTIT',
-    caption: 'Nơi khởi đầu những lựa chọn tương lai',
-  },
-];
-
 const Hero = () => {
+  const { config, loading } = useSystemConfig();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef(null);
+
+  if (loading) return <section className='h-160 animate-pulse bg-slate-50' aria-label='Đang tải nội dung trang chủ' />;
+  if (!config) return null;
+  const heroSlides = config.heroSlides ?? [];
 
   const changeSlide = (direction) => {
     setSelectedIndex(
@@ -77,17 +67,16 @@ const Hero = () => {
           <div className='max-w-145'>
             <span className='inline-flex items-center gap-2 rounded-(--radius-pill) border border-(--primary-color-border) bg-white/80 px-4 py-2 text-[12px] font-bold tracking-[0.04em] text-(--primary-color) shadow-sm'>
               <Bot size={15} />
-              TRỢ LÝ TUYỂN SINH PTIT
+              {config.heroBadge}
             </span>
 
             <h1 className='mt-6 text-[34px] leading-[1.15] font-extrabold tracking-[-0.02em] text-gray-950 sm:text-[44px] lg:text-[52px]'>
-              Chọn đúng hướng đi,
-              <span className='block text-(--primary-color)'>bắt đầu từ một câu hỏi.</span>
+              {config.heroTitle}
+              {config.heroHighlightedTitle && <span className='block text-(--primary-color)'>{config.heroHighlightedTitle}</span>}
             </h1>
 
             <p className='mt-5 max-w-135 text-[15px] leading-7 text-(--text-secondary) sm:text-[16px]'>
-              P-Advisor giúp thí sinh và phụ huynh tìm hiểu ngành học, học phí, học bổng và quy
-              trình tuyển sinh PTIT bằng những câu trả lời dễ hiểu, nhanh chóng.
+              {config.heroDescription}
             </p>
 
             <div className='mt-8 flex flex-wrap items-center gap-3'>
@@ -126,7 +115,7 @@ const Hero = () => {
             </div>
           </div>
 
-          <div className='relative mx-auto w-full max-w-155 lg:pr-5'>
+          {!!heroSlides.length && <div className='relative mx-auto w-full max-w-155 lg:pr-5'>
             <div
               className='relative aspect-[1.08/1] touch-none select-none perspective-distant'
               onPointerDown={handlePointerDown}
@@ -145,22 +134,22 @@ const Hero = () => {
 
                   return (
                     <div
-                      key={slide.image}
+                      key={`${slide.imageUrl}-${slide.displayOrder ?? index}`}
                       className={`absolute inset-0 cursor-grab overflow-hidden rounded-[1.75rem] border-8 border-white bg-(--surface-muted) shadow-[0_24px_60px_-24px_rgba(98,17,28,0.45)] [transform-style:preserve-3d] active:cursor-grabbing ${
                         isDragging ? '' : 'transition-transform duration-300 ease-out'
                       }`}
                       style={{ transform, zIndex: isFront ? 2 : 1 }}
                     >
                       <img
-                        src={slide.image}
-                        alt={slide.alt}
+                        src={getSystemConfigImageUrl(slide.imageUrl)}
+                        alt={slide.caption}
                         className='h-full w-full object-cover'
                       />
                       <div className='absolute inset-0 bg-linear-to-t from-[#2d0d12]/70 via-transparent to-transparent' />
                       <div className='absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4 text-white'>
                         <div>
                           <p className='text-[11px] font-bold tracking-[0.16em] text-white/70'>
-                            {slide.label}
+                            {slide.eyebrow}
                           </p>
                           <p className='mt-1 text-[16px] font-bold'>{slide.caption}</p>
                         </div>
@@ -194,7 +183,7 @@ const Hero = () => {
               <div className='absolute right-5 bottom-5 z-10 flex gap-1.5' aria-label='Chọn ảnh'>
                 {heroSlides.map((slide, index) => (
                   <button
-                    key={slide.image}
+                    key={`${slide.imageUrl}-${slide.displayOrder ?? index}`}
                     type='button'
                     onPointerDown={(event) => event.stopPropagation()}
                     onClick={() => {
@@ -209,7 +198,7 @@ const Hero = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
     </section>
