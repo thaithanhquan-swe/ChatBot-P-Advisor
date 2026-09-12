@@ -54,7 +54,8 @@ public class SecurityConfig {
                         "/faqs/{id}",
                         "/chat-sessions/*",
                         "/chat-messages/*",
-                        "/uploads/chat-messages/**"
+                        "/uploads/chat-messages/**",
+                        "/documents"
                 ).permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/chat-sessions/*").permitAll()

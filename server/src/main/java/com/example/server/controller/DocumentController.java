@@ -43,7 +43,6 @@ public class DocumentController {
                 .build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     @GetMapping
     public ApiResponse<PageResponse<DocumentResponse>> getAll(
             @RequestParam(required = false) String keyword,

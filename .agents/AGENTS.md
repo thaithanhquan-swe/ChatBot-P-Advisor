@@ -1,131 +1,163 @@
-# AGENTS.md
+AGENTS.md
 
-This file defines the rules AI coding agents must follow when working in this repository.
+This file contains repository-wide instructions for AI coding agents, including Codex, Antigravity, and similar tools.
 
-The main principle is:
+Core principle: Understand the existing implementation first. Make the smallest correct change possible. Do not redesign working code unless the task explicitly requires it.
 
-> **Understand the existing implementation first. Make the smallest correct change possible. Do not redesign working code unless the task explicitly requires it.**
+1. Agent Workflow
 
----
+Before making any code changes:
 
-# 1. General Rules
+Read this AGENTS.md file completely.
 
-* Follow the existing project structure, naming conventions, architecture, and coding style.
-* Read related code before making changes.
-* Preserve existing business logic unless the task explicitly requires changing it.
-* Do not introduce new dependencies unless they are clearly necessary.
-* Do not perform unrelated refactoring.
-* Only modify files relevant to the requested task.
-* Prefer small, focused changes over large rewrites.
-* Reuse existing utilities, services, components, DTOs, enums, and patterns before creating new ones.
-* Do not duplicate logic that already exists elsewhere in the project.
-* Do not rename files, classes, methods, APIs, database fields, or variables unless necessary.
-* Do not change public API contracts without explicit requirements.
-* Do not remove existing functionality just because it appears unused.
-* Do not modify configuration, environment variables, Docker files, deployment files, or build configuration unless the task requires it.
-* Avoid speculative improvements outside the requested scope.
+Inspect the files related to the requested task.
 
-Before implementing a task:
+Understand the current data flow and existing implementation.
 
-1. Inspect the relevant files.
-2. Understand the current data flow.
-3. Identify existing patterns used for similar features.
-4. Implement the task using those patterns.
-5. Check that the change does not break existing behavior.
+Find similar features or patterns already used in the project.
 
----
+Plan the smallest change that satisfies the task.
 
-# 2. Scope Discipline
+Implement only the requested scope.
 
-The agent must stay within the requested task.
+Review the final diff before finishing.
 
-Do not:
+When finishing a task:
 
-* Refactor unrelated modules.
-* Reformat the entire file unnecessarily.
-* Rename unrelated variables.
-* Move files without a clear reason.
-* Rewrite working code simply to make it "cleaner".
-* Add features that were not requested.
-* Add abstractions for hypothetical future requirements.
+Check for compile/type/import errors where possible.
 
-If multiple solutions are possible, prefer the solution that:
+Remove temporary logs, debug code, commented experiments, and unused imports.
 
-1. Matches the current codebase.
-2. Changes the fewest files.
-3. Adds the least complexity.
-4. Preserves backward compatibility.
+Make sure unrelated files were not changed.
 
----
+Briefly summarize what was changed and mention any important limitation or assumption.
 
-# 3. Frontend Rules
+If the user's task conflicts with this file, follow the explicit task only when the user clearly requests that exception. Otherwise, preserve these rules.
 
-Applies to:
+2. General Rules
 
-```text
+Follow the existing project structure, architecture, naming conventions, and coding style.
+
+Preserve existing business logic unless the task explicitly requires changing it.
+
+Only modify files relevant to the requested task.
+
+Prefer small, focused changes over broad rewrites.
+
+Do not perform unrelated refactoring or cleanup.
+
+Do not rename files, classes, methods, APIs, database fields, or variables unless necessary.
+
+Do not change public API contracts unless explicitly required.
+
+Do not remove existing functionality just because it appears unused.
+
+Do not introduce new dependencies unless clearly necessary.
+
+Reuse existing components, services, utilities, DTOs, enums, helpers, and patterns before creating new ones.
+
+Do not duplicate logic that already exists elsewhere in the project.
+
+Do not add abstractions for hypothetical future requirements.
+
+Do not modify configuration, environment variables, Docker, deployment, CI/CD, or build files unless the task requires it.
+
+Do not make speculative improvements outside the requested scope.
+
+When multiple solutions are valid, prefer the one that:
+
+Matches the existing codebase.
+
+Changes the fewest files.
+
+Adds the least complexity.
+
+Preserves backward compatibility.
+
+3. Project Structure
+
+Frontend rules apply to:
+
 client/**
-```
 
-## Technology
+Backend rules apply to:
 
-The frontend uses:
+server/**
 
-* React
-* React Router where applicable
-* Tailwind CSS
-* shadcn/ui
-* lucide-react
-* Existing project service/API utilities
+Frontend
 
-Follow the versions and patterns already configured in the project.
+4. Frontend Technology
 
----
+Use the frontend stack already configured in the project:
 
-## Components
+React
 
-* Use React functional components.
-* Follow the existing component structure.
-* Keep page components focused on page-level orchestration.
-* Extract components when a file becomes difficult to read or contains clearly reusable UI sections.
-* Do not over-split components into tiny files without meaningful responsibility.
-* Prefer composition over complicated component logic.
-* Reuse existing shadcn/ui components before creating custom equivalents.
-* Reuse existing project components before adding new ones.
+React Router where applicable
+
+Tailwind CSS
+
+shadcn/ui
+
+lucide-react
+
+Existing project HTTP/API utilities
+
+Do not introduce another UI library unless explicitly required.
+
+5. React Components
+
+Use React functional components.
+
+Follow the existing component and folder structure.
+
+Keep page components focused on page-level orchestration.
+
+Extract components when a section has a clear responsibility or meaningful reuse.
+
+Do not split components into tiny files only to reduce line count.
+
+Reuse existing project components before creating new ones.
+
+Reuse shadcn/ui components when appropriate.
+
+Prefer simple composition over complicated abstractions.
 
 Good extraction candidates include:
 
-* Tables
-* Filters
-* Toolbars
-* Statistics cards
-* Forms
-* Dialogs / modals
-* Reusable sections
+Tables
 
-Do not extract components only to reduce line count.
+Filters
 
----
+Toolbars
 
-## Styling
+Statistics cards
 
-* Use Tailwind CSS for styling.
-* Use shadcn/ui components when appropriate.
-* Use `lucide-react` for icons.
-* Do not introduce another UI library unless explicitly required.
-* Preserve the existing visual language of the application.
-* Avoid unnecessary custom CSS when Tailwind utilities are sufficient.
-* Keep responsive behavior consistent with surrounding pages.
-* Do not redesign existing screens unless the task explicitly requests UI changes.
+Forms
 
----
+Dialogs / modals
 
-## API Calls
+Reusable page sections
 
-API communication must be placed inside the service layer.
+6. Frontend Styling
+
+Use Tailwind CSS for styling.
+
+Use lucide-react for icons.
+
+Preserve the existing visual language of the application.
+
+Avoid custom CSS when Tailwind utilities are sufficient.
+
+Keep responsive behavior consistent with surrounding pages.
+
+Do not redesign existing screens unless the task explicitly asks for a UI redesign.
+
+7. Frontend API Calls
+
+API communication belongs in the service layer.
 
 Preferred flow:
 
-```text
 Component
    ↓
 Service
@@ -133,103 +165,90 @@ Service
 HTTP client
    ↓
 Backend API
-```
 
-Do not call `axios` directly inside React components.
+Do not call axios directly inside React components.
 
-Example:
+Preferred:
 
-```javascript
-// Good
 const users = await getUsers(params);
 
-// Avoid
+Avoid:
+
 const users = await axios.get('/users');
-```
 
-If an API service already exists for the domain, extend it instead of creating a duplicate service.
+If a service already exists for a domain, extend it instead of creating a duplicate service.
 
----
+8. Frontend State & Effects
 
-## State & Effects
+Avoid unnecessary state.
 
-* Avoid unnecessary state.
-* Do not store derived values in state when they can be calculated from existing state or props.
-* Avoid calling `setState` directly inside an effect unless synchronization is actually required.
-* Keep effect dependencies correct.
-* Avoid effects for logic that can happen directly in an event handler.
-* Clean up subscriptions, timers, listeners, and WebSocket handlers where necessary.
-* Avoid duplicate API requests caused by poorly designed effects.
+Do not store derived values in state when they can be calculated from props or existing state.
 
----
+Avoid setState inside an effect unless synchronization is actually required.
 
-## Forms
+Keep effect dependencies correct.
 
-* Follow existing form patterns in the project.
-* Validate user input before submitting when appropriate.
-* Display backend validation/error messages consistently.
-* Prevent duplicate submissions.
-* Preserve loading and disabled states during asynchronous operations.
+Prefer event handlers over effects for event-driven logic.
 
----
+Clean up subscriptions, timers, listeners, and WebSocket handlers when necessary.
 
-## Error Handling
+Avoid duplicate API requests caused by poorly designed effects.
 
-* Handle API failures gracefully.
-* Do not silently swallow errors unless intentionally handled.
-* Use the project's existing notification/toast/error-display approach.
-* Prefer backend error messages or mapped application messages when available.
-* Do not expose technical stack traces to users.
+9. Frontend Forms & Errors
 
----
+Follow existing form patterns.
 
-## Formatting
+Validate user input before submission when appropriate.
 
-Keep the existing Prettier configuration.
+Prevent duplicate submissions.
 
-Current formatting preferences include:
+Preserve loading and disabled states during async operations.
 
-```text
+Handle API failures consistently with the existing project.
+
+Use the existing toast/notification/error-display mechanism.
+
+Prefer backend error messages or mapped application messages when available.
+
+Do not expose technical stack traces to users.
+
+10. Frontend Formatting
+
+Keep the current Prettier style:
+
 printWidth: 80
 tabWidth: 2
 semi: true
 singleQuote: true
 trailingComma: all
 arrowParens: always
-```
 
-Do not manually reformat unrelated code.
+Do not reformat unrelated code.
 
----
+Backend
 
-# 4. Backend Rules
+11. Backend Technology
 
-Applies to:
+Use the backend stack already configured in the project:
 
-```text
-server/**
-```
+Java 21
 
-## Technology
+Spring Boot
 
-The backend uses:
+Spring Security
 
-* Java 21
-* Spring Boot
-* Spring Security
-* Spring Data JPA
-* MapStruct where appropriate
-* Lombok where already used
+Spring Data JPA
 
-Follow the versions configured by the project.
+MapStruct where appropriate
 
----
+Lombok where already used
 
-# 5. Backend Architecture
+Follow the versions already configured by the repository.
+
+12. Backend Architecture
 
 Follow the existing layered architecture:
 
-```text
 Controller
     ↓
 Service
@@ -237,13 +256,9 @@ Service
 Repository
     ↓
 Database
-```
 
-DTOs should be used between the API boundary and domain logic where appropriate.
+API data flow should generally follow:
 
-Typical structure:
-
-```text
 Controller
     ↓
 Request DTO
@@ -253,489 +268,434 @@ Service
 Entity / Repository
     ↓
 Response DTO
-```
 
 Do not bypass layers without a clear reason.
 
----
+13. Controllers
 
-# 6. Controller Rules
+Controllers should only handle:
 
-Controllers should only be responsible for:
+HTTP request/response concerns.
 
-* Receiving HTTP requests.
-* Reading path variables and query parameters.
-* Validating request DTOs.
-* Calling services.
-* Returning API responses.
+Path variables and query parameters.
 
-Controllers must not contain complex business logic.
+Request DTO validation.
 
-Avoid:
+Calling services.
 
-```java
-@PostMapping
-public ApiResponse<?> create(...) {
-    // database queries
-    // complicated validation
-    // business calculations
-    // entity manipulation
-}
-```
+Returning API responses.
 
-Prefer:
+Do not place complex business logic, database queries, or entity manipulation in controllers.
 
-```java
+Preferred:
+
 @PostMapping
 public ApiResponse<ResponseDto> create(@RequestBody RequestDto request) {
     return ApiResponse.<ResponseDto>builder()
             .result(service.create(request))
             .build();
 }
-```
 
----
-
-# 7. Service Rules
+14. Services
 
 Business logic belongs in the Service layer.
 
 Services are responsible for:
 
-* Business validation.
-* Coordinating repositories.
-* Entity lifecycle changes.
-* Authorization-related domain checks.
-* Mapping data when appropriate.
-* Transaction boundaries.
+Business validation.
 
-Keep methods focused on one clear business operation.
+Coordinating repositories.
 
-Do not move business logic into repositories or controllers.
+Entity lifecycle changes.
 
----
+Domain-level authorization checks.
 
-# 8. Repository Rules
+Transaction boundaries.
+
+Mapping when appropriate.
+
+Keep service methods focused on one clear business operation.
+
+15. Repositories
 
 Repositories should only handle persistence and database access.
 
 They may contain:
 
-* Spring Data derived queries.
-* JPQL queries.
-* Native queries when necessary.
-* Specifications or database filtering logic.
+Spring Data derived queries.
 
-Repositories should not contain business decisions.
+JPQL queries.
+
+Native queries when necessary.
+
+Specifications or database filtering logic.
+
+Do not put business decisions in repositories.
 
 Prefer existing repository methods before adding new ones.
 
-Avoid loading unnecessary collections or entities if a specific query can solve the task efficiently.
+Avoid loading unnecessary data when a more focused query is available.
 
----
-
-# 9. DTO Rules
+16. DTOs & Mapping
 
 Do not return JPA entities directly from controllers.
 
 Use:
 
-* Request DTOs for incoming data.
-* Response DTOs for outgoing data.
+Request DTOs for incoming data.
 
-Example:
-
-```text
-UserCreateRequest
-UserUpdateRequest
-UserResponse
-UserDetailResponse
-```
-
-DTOs should expose only fields needed by the API.
+Response DTOs for outgoing data.
 
 Do not expose:
 
-* Password hashes.
-* Internal tokens.
-* Security-sensitive fields.
-* Internal persistence details that clients do not need.
+Password hashes.
 
----
+Internal tokens.
 
-# 10. Mapping
+Security-sensitive fields.
 
-Use MapStruct when mapping logic is straightforward and consistent with existing code.
+Persistence details the client does not need.
 
-Prefer MapStruct for:
+Use MapStruct when mapping is straightforward and consistent with the existing codebase.
 
-```text
-Entity → Response DTO
-Request DTO → Entity
-```
+Manual mapping is acceptable when mapping requires business logic, external data, or MapStruct would make the code more complicated.
 
-Manual mapping is acceptable when:
+Do not introduce MapStruct into unrelated modules only for consistency.
 
-* Mapping requires business logic.
-* Mapping depends on external data.
-* MapStruct would make the implementation more complicated.
-
-Do not introduce MapStruct usage into unrelated modules just for consistency.
-
----
-
-# 11. Exception Handling
+17. Exceptions
 
 Use the project's existing:
 
-```text
 AppException
 ErrorCode
-```
 
-for expected application errors.
+for expected application/business errors.
 
-Example:
+Preferred:
 
-```java
 throw new AppException(ErrorCode.USER_NOT_FOUND);
-```
-
-Do not throw generic runtime exceptions for normal business errors.
 
 Avoid:
 
-```java
 throw new RuntimeException("User not found");
-```
 
-Add a new `ErrorCode` only when an existing error code does not accurately represent the condition.
+Add a new ErrorCode only when no existing error code accurately represents the condition.
 
 Do not expose internal exception details to API consumers.
 
----
+18. Authorization & Security
 
-# 12. Authorization & Security
+Use @PreAuthorize for endpoints that require role-based authorization.
 
-Use `@PreAuthorize` for endpoints that require role-based authorization.
+Examples:
 
-Example:
-
-```java
 @PreAuthorize("hasRole('ADMIN')")
-```
 
-or:
-
-```java
 @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
-```
 
-Do not rely only on frontend restrictions.
+Do not rely only on frontend authorization.
 
 Never:
 
-* Hardcode credentials.
-* Commit secrets.
-* Log access tokens.
-* Log passwords.
-* Return sensitive authentication information unnecessarily.
-* Disable security checks to make a feature work.
+Hardcode credentials.
+
+Commit secrets.
+
+Log passwords.
+
+Log access tokens.
+
+Return sensitive authentication data unnecessarily.
+
+Disable security checks simply to make a feature work.
 
 Follow the existing authentication and authorization flow.
 
----
+19. Transactions
 
-# 13. Transactions
-
-Use `@Transactional` when a business operation updates multiple related records or requires atomic consistency.
-
-Example:
-
-```java
-@Transactional
-public ResponseDto updateSomething(...) {
-    ...
-}
-```
-
-Do not add `@Transactional` everywhere by default.
-
-Read-only operations do not need transactions unless required by the implementation.
+Use @Transactional when a business operation modifies multiple related records or requires atomic consistency.
 
 Keep transaction boundaries primarily in the Service layer.
 
----
+Do not add @Transactional everywhere by default.
 
-# 14. Database & Entity Rules
+Read-only operations do not need a transaction unless the implementation requires one.
 
-* Preserve existing entity relationships unless the task requires changes.
-* Avoid unnecessary eager fetching.
-* Be careful with bidirectional relationships.
-* Do not change database column names casually.
-* Do not change enum values already stored in the database without considering migration impact.
-* Do not add schema changes unrelated to the feature.
-* Preserve created/updated timestamp behavior already used by the project.
+20. Database & Entities
+
+Preserve existing relationships unless the task requires changes.
+
+Avoid unnecessary eager fetching.
+
+Be careful with bidirectional relationships.
+
+Do not casually rename database columns.
+
+Do not change persisted enum values without considering migration impact.
+
+Do not introduce unrelated schema changes.
+
+Preserve existing created/updated timestamp behavior.
 
 When adding fields, consider:
 
-* Nullable behavior.
-* Existing records.
-* Validation.
-* API compatibility.
-* Database migration requirements.
+Nullability.
 
----
+Existing records.
 
-# 15. Pagination, Filtering & Sorting
+Validation.
 
-When a management endpoint already supports pagination, maintain the existing pattern.
+API compatibility.
 
-Typical conventions:
+Migration requirements.
 
-```text
+21. Pagination, Filtering & Sorting
+
+When an endpoint already supports pagination/filtering, preserve the existing project conventions.
+
+Typical parameters include:
+
 page
 size
 sortBy
 sortDirection
 keyword
 status
-```
 
-Reuse existing `PageResponse` or pagination DTOs.
+Reuse the existing PageResponse or pagination DTOs.
 
-Do not introduce a second pagination format unless required.
+Do not introduce a second pagination format unless explicitly required.
 
-Sorting fields should be controlled or validated when necessary to avoid invalid property access.
+Validate or control sorting fields when necessary.
 
----
+22. File Uploads
 
-# 16. File Uploads
+Reuse the existing file storage service and configured storage locations.
 
-For uploaded files:
+Do not duplicate file-storage logic.
 
-* Use the existing storage service and configured storage locations.
-* Do not duplicate file-storage logic.
-* Validate files where the project already has validation patterns.
-* Generate safe stored filenames.
-* Do not trust the original filename as a filesystem path.
-* Preserve existing public URL conventions.
+Validate files using existing project patterns.
+
+Generate safe stored filenames.
+
+Never trust the original filename as a filesystem path.
+
+Preserve existing public URL conventions.
 
 Do not change storage directories unless explicitly requested.
 
----
+23. WebSocket / Realtime
 
-# 17. Realtime / WebSocket
+When modifying realtime features:
 
-When modifying realtime functionality:
+Follow the existing authentication flow.
 
-* Follow the existing authentication flow.
-* Reuse existing realtime event structures.
-* Do not create unnecessary new connections.
-* Handle closed or invalid sessions safely.
-* Clean up disconnected sessions.
-* Avoid broadcasting sensitive data unnecessarily.
+Reuse existing realtime event structures and naming conventions.
 
-When adding an event type, keep naming consistent with existing realtime event types.
+Do not create unnecessary connections.
 
----
+Handle closed or invalid sessions safely.
 
-# 18. AI / RAG Features
+Clean up disconnected sessions.
 
-For AI-related functionality:
+Avoid broadcasting sensitive data unnecessarily.
 
-* Do not allow the model to invent institution-specific information.
-* Prefer information retrieved from the project's approved knowledge sources.
-* Preserve the project's existing fallback behavior when knowledge is insufficient.
-* Do not silently introduce external web-search behavior unless explicitly required.
-* Keep prompts focused and deterministic where appropriate.
-* Avoid sending unnecessary sensitive user data to external AI providers.
-* Reuse the existing AI service abstraction instead of calling providers directly from controllers.
+24. AI / RAG
 
----
+For AI-related features:
 
-# 19. Code Quality
+Do not allow the model to invent institution-specific information.
 
-Prefer readable code over clever code.
+Prefer approved project knowledge sources such as Documents and FAQ.
 
-Good:
+Preserve the existing fallback behavior when knowledge is insufficient.
 
-```java
-User user = userRepository.findById(id)
-        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-```
+Do not silently introduce external web search unless explicitly required.
 
-Avoid unnecessary abstractions like:
+Keep prompts focused and deterministic where appropriate.
 
-```text
-AbstractBaseGenericUniversalServiceFactory
-```
+Avoid sending unnecessary sensitive user data to external AI providers.
 
-unless the project already requires such a pattern.
+Reuse the existing AI service abstraction instead of calling providers directly from controllers.
+
+Code Quality & Safety
+
+25. Code Quality
+
+Prefer readable, straightforward code over clever abstractions.
 
 Use descriptive names.
 
 Prefer:
 
-```text
 assignedStaff
 sessionToken
 guestQuestionCount
-```
 
-over:
+Avoid vague names such as:
 
-```text
 data
 value
 temp
 obj
-```
 
----
+Do not create unnecessary abstractions unless the existing project already uses that pattern.
 
-# 20. Comments
+26. Comments
 
-Do not add comments that simply restate the code.
+Do not add comments that simply repeat the code.
 
-Avoid:
+Comments should explain only things such as:
 
-```java
-// Find user by id
-User user = userRepository.findById(id);
-```
+Non-obvious business rules.
 
-Comments should explain:
+Important implementation constraints.
 
-* Why something unusual is necessary.
-* Non-obvious business rules.
-* Workarounds.
-* Important implementation constraints.
+Necessary workarounds.
 
----
+Why unusual behavior exists.
 
-# 21. Testing & Verification
+27. Testing & Verification
 
 After making changes, verify the relevant behavior where possible.
 
 Check:
 
-* Compilation.
-* Imports.
-* Type errors.
-* Existing API contracts.
-* Null handling.
-* Authorization.
-* Validation.
-* Edge cases affected by the task.
+Compilation/build.
 
-For frontend changes, verify:
+Imports.
 
-* No obvious runtime errors.
-* Loading states still work.
-* Empty states still work.
-* Error states still work.
-* Existing responsive layout is preserved.
+Type errors.
 
-For backend changes, verify:
+Existing API contracts.
 
-* Controller → Service → Repository flow.
-* DTO mapping.
-* Expected exceptions.
-* Transactions where necessary.
-* Security annotations.
+Null handling.
 
-Do not fix unrelated test failures unless the task explicitly asks for it.
+Validation.
 
----
+Authorization.
 
-# 22. Build & Commands
+Edge cases affected by the task.
 
-Do not run destructive commands unless explicitly required.
+Frontend checks should include relevant:
+
+Loading states.
+
+Empty states.
+
+Error states.
+
+Responsive behavior.
+
+Backend checks should include relevant:
+
+Controller → Service → Repository flow.
+
+DTO mapping.
+
+Expected exceptions.
+
+Transaction boundaries.
+
+Security annotations.
+
+Do not fix unrelated test failures unless explicitly requested.
+
+28. Git & Commands
+
+Do not run destructive commands unless explicitly requested.
 
 Avoid commands such as:
 
-```bash
 git reset --hard
 git clean -fd
 git checkout .
 rm -rf
-```
 
 Do not automatically:
 
-* Commit changes.
-* Push changes.
-* Merge branches.
-* Rebase branches.
-* Force push.
+Commit.
 
-unless explicitly requested.
+Push.
 
----
+Merge.
 
-# 23. Git Changes
+Rebase.
+
+Force push.
+
+unless the user explicitly asks for it.
 
 Keep diffs focused.
 
-Before finishing:
+Before finishing, ensure:
 
-* Remove debug code.
-* Remove temporary logs.
-* Remove commented-out experiments.
-* Remove unused imports.
-* Ensure no secrets were added.
-* Ensure unrelated files were not modified.
+No debug code remains.
 
-Do not modify generated files unless required.
+No temporary logs remain.
 
----
+No unused imports remain.
 
-# 24. When Requirements Are Ambiguous
+No secrets were added.
 
-First inspect the existing implementation and infer intent from:
+No unrelated files were modified.
 
-1. Existing code.
-2. Similar modules.
-3. Existing API patterns.
-4. Current naming conventions.
-5. Database/domain structure.
+29. Ambiguous Requirements
 
-Prefer consistency with the existing application over introducing a new pattern.
+When a task is ambiguous, first infer intent from:
+
+Existing implementation.
+
+Similar modules.
+
+Existing API patterns.
+
+Current naming conventions.
+
+Existing database/domain structure.
+
+Prefer consistency with the current application over introducing a new pattern.
 
 If a safe interpretation is possible, implement the smallest reasonable change.
 
 Do not invent new business rules.
 
----
-
-# 25. Definition of Done
+30. Definition of Done
 
 A task is complete when:
 
-* The requested behavior is implemented.
-* Existing business logic outside the task remains unchanged.
-* Architecture rules are respected.
-* Frontend API calls remain in services.
-* Backend business logic remains in services.
-* DTOs are used instead of exposing entities.
-* Security rules remain enforced.
-* Error handling follows `AppException + ErrorCode`.
-* No unnecessary dependency was added.
-* No unrelated refactoring was performed.
-* The resulting code matches the existing style.
-* Debug or temporary code has been removed.
+The requested behavior is implemented.
 
----
+Existing business logic outside the task remains unchanged.
 
-# Final Rule
+Existing architecture and style are preserved.
+
+Frontend API calls remain in services.
+
+Backend business logic remains in services.
+
+DTOs are used instead of exposing entities.
+
+Security rules remain enforced unless explicitly changed by the task.
+
+Expected errors use AppException + ErrorCode.
+
+No unnecessary dependency was added.
+
+No unrelated refactoring was performed.
+
+Temporary/debug code was removed.
+
+The final diff contains only relevant changes.
+
+Final Rule
 
 When deciding between:
 
-> "Improve the architecture"
+Improve or redesign the architecture
 
 and:
 
-> "Solve the requested task while preserving the current architecture"
+Solve the requested task while preserving the current architecture
 
-**Always prefer the second option unless the user explicitly asks for architectural changes.**
+Always prefer the second option unless the user explicitly asks for architectural changes.
