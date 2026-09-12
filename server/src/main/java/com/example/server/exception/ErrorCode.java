@@ -53,6 +53,12 @@ public enum ErrorCode {
     UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_SLOGAN_INVALID(1045, "Hero slogan content is required or too long", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_SLIDES_INVALID(1046, "Hero slides are required", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_SLIDE_IMAGE_INVALID(1047, "Hero slide image URL is required or too long", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_SLIDE_TEXT_INVALID(1048, "Hero slide text is invalid", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_SLIDE_ORDER_INVALID(1049, "Hero slide display order is required", HttpStatus.BAD_REQUEST),
+    SYSTEM_CONFIG_CONTACT_INVALID(1050, "Contact or working-hours information is required or too long", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

@@ -52,6 +52,7 @@ public class SecurityConfig {
                         "/faq-categories/{id}",
                         "/faqs",
                         "/faqs/{id}",
+                        "/systems-config",
                         "/chat-sessions/*",
                         "/chat-messages/*",
                         "/uploads/chat-messages/**",
