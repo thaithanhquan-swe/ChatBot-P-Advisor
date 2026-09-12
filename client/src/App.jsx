@@ -26,20 +26,20 @@ function App() {
     <Routes>
       <Route path='/' element={<PublicLayout />}>
         <Route index element={<Home />} />
-        <Route path='chatai' element={<ChatAI />} />
+        <Route path='/chatai' element={<ChatAI />} />
         <Route path='/faq' element={<FAQPublic />} />
-        <Route path='consultation-request' element={<ConsultationRequestPage />} />
-        <Route path='documents' element={<AdmissionDocuments />} />
+        <Route path='/consultation-request' element={<ConsultationRequestPage />} />
+        <Route path='/documents' element={<AdmissionDocuments />} />
       </Route>
 
       <Route element={<AuthLayout />}>
-        <Route path='login' element={<Login />} />
-        <Route path='register' element={<Register />} />
-        <Route path='verify-email' element={<VerifyEmail />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/verify-email' element={<VerifyEmail />} />
       </Route>
-      
-      <Route path='/forgot-password' element={<ForgotPassword />}/>
-      <Route path='/reset-password' element={<ResetPassword />}/>
+
+      <Route path='/forgot-password' element={<ForgotPassword />} />
+      <Route path='/reset-password' element={<ResetPassword />} />
 
       <Route element={<AdminRoute />}>
         <Route path='/admin' element={<AdminLayout />}>

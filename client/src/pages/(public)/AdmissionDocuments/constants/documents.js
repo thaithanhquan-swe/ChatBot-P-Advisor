@@ -1,100 +1,51 @@
-export const MOCK_DOCUMENTS = [
-  {
-    id: 1,
-    title: 'Đề án tuyển sinh đại học năm 2026',
-    description: 'Thông tin chi tiết về phương thức tuyển sinh, chỉ tiêu, ngành đào tạo và các mốc thời gian quan trọng.',
-    date: '09/09/2026',
-    type: 'PDF',
-    size: '2.4 MB',
-  },
-  {
-    id: 2,
-    title: 'Quy chế tuyển sinh đại học chính quy',
-    description: 'Quy định về tuyển sinh đại học chính quy của Học viện Công nghệ Bưu chính Viễn thông.',
-    date: '08/09/2026',
-    type: 'DOCX',
-    size: '850 KB',
-  },
-  {
-    id: 3,
-    title: 'Hướng dẫn đăng ký xét tuyển trực tuyến',
-    description: 'Hướng dẫn chi tiết các bước đăng ký xét tuyển trực tuyến trên hệ thống của Học viện.',
-    date: '05/09/2026',
-    type: 'PDF',
-    size: '1.1 MB',
-  },
-  {
-    id: 4,
-    title: 'Câu hỏi thường gặp về tuyển sinh',
-    description: 'Tổng hợp các câu hỏi thường gặp và giải đáp về tuyển sinh.',
-    date: '03/09/2026',
-    type: 'TXT',
-    size: '120 KB',
-  },
-  {
-    id: 5,
-    title: 'Quy định về học phí năm 2026',
-    description: 'Thông tin chi tiết về mức học phí, các chính sách miễn giảm và hỗ trợ học phí.',
-    date: '01/09/2026',
-    type: 'DOCX',
-    size: '760 KB',
-  },
-  {
-    id: 6,
-    title: 'Giới thiệu các ngành đào tạo',
-    description: 'Thông tin tổng quan về các ngành đào tạo, chuẩn đầu ra và cơ hội nghề nghiệp.',
-    date: '28/08/2026',
-    type: 'PDF',
-    size: '3.2 MB',
-  },
-  {
-    id: 7,
-    title: 'Thông tin học bổng dành cho tân sinh viên',
-    description: 'Danh sách các chương trình học bổng, điều kiện xét và thời gian đăng ký.',
-    date: '25/08/2026',
-    type: 'PDF',
-    size: '980 KB',
-  },
-  {
-    id: 8,
-    title: 'Lịch các mốc tuyển sinh quan trọng',
-    description: 'Tổng hợp các mốc thời gian quan trọng trong kỳ tuyển sinh đại học năm 2026.',
-    date: '21/08/2026',
-    type: 'PDF',
-    size: '640 KB',
-  },
-  {
-    id: 9,
-    title: 'Hướng dẫn nhập học trực tuyến',
-    description: 'Các bước xác nhận nhập học, chuẩn bị hồ sơ và hoàn tất thủ tục trực tuyến.',
-    date: '18/08/2026',
-    type: 'DOCX',
-    size: '1.4 MB',
-  },
-  {
-    id: 10,
-    title: 'Danh mục hồ sơ nhập học',
-    description: 'Danh sách giấy tờ cần chuẩn bị khi làm thủ tục nhập học tại Học viện.',
-    date: '15/08/2026',
-    type: 'PDF',
-    size: '530 KB',
-  },
-  {
-    id: 11,
-    title: 'Thông tin ký túc xá và hỗ trợ sinh viên',
-    description: 'Thông tin về ký túc xá, các dịch vụ hỗ trợ và đầu mối liên hệ cho tân sinh viên.',
-    date: '10/08/2026',
-    type: 'PDF',
-    size: '1.8 MB',
-  },
-  {
-    id: 12,
-    title: 'Thông tin liên hệ tuyển sinh',
-    description: 'Danh sách kênh tư vấn và thông tin liên hệ của bộ phận tuyển sinh PTIT.',
-    date: '05/08/2026',
-    type: 'TXT',
-    size: '85 KB',
-  },
-];
-
 export const DOCUMENT_TYPES = ['Tất cả định dạng', 'PDF', 'DOCX', 'TXT'];
+
+export const FILE_TYPE_MAPPING = {
+  PDF: 'application/pdf',
+  DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  TXT: 'text/plain',
+};
+
+export function getFileTypeLabel(fileType) {
+  if (!fileType) return 'FILE';
+  const typeStr = fileType.toLowerCase();
+
+  if (typeStr === 'pdf' || typeStr.includes('application/pdf')) return 'PDF';
+  if (
+    typeStr === 'docx' ||
+    typeStr === 'doc' ||
+    typeStr.includes('wordprocessingml') ||
+    typeStr.includes('msword')
+  ) {
+    return 'DOCX';
+  }
+  if (typeStr === 'txt' || typeStr.includes('text/plain')) return 'TXT';
+
+  if (fileType.length <= 5) return fileType.toUpperCase();
+  return 'FILE';
+}
+
+export function formatFileSize(bytes) {
+  if (bytes === undefined || bytes === null || Number.isNaN(Number(bytes))) return '-';
+  if (typeof bytes === 'string' && (bytes.includes('KB') || bytes.includes('MB') || bytes.includes('B'))) {
+    return bytes;
+  }
+  const num = Number(bytes);
+  if (num === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(num) / Math.log(k));
+  return `${parseFloat((num / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
+
+export function formatDate(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
