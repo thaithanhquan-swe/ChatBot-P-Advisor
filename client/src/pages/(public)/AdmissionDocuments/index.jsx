@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { toast } from 'sonner';
 
 import { downloadDocumentFile, getDocuments } from '@/services/document-service';
 import { FILE_TYPE_MAPPING } from './constants/documents';
+
 import DocumentHero from './components/DocumentHero/DocumentHero';
 import DocumentToolbar from './components/DocumentToolbar/DocumentToolbar';
 import DocumentCard from './components/DocumentCard/DocumentCard';
@@ -27,16 +29,21 @@ const AdmissionDocuments = () => {
 
   const [previewDocument, setPreviewDocument] = useState(null);
 
+  const prefersReducedMotion = useReducedMotion();
+
   useEffect(() => {
     let cancelled = false;
 
     const loadDocuments = async () => {
       try {
         setLoading(true);
-        const fileTypeParam = type === 'Tất cả định dạng' ? undefined : FILE_TYPE_MAPPING[type] || type;
+
+        const fileTypeParam =
+          type === 'Tất cả định dạng' ? undefined : FILE_TYPE_MAPPING[type] || type;
 
         let sortBy = 'updatedAt';
         let sortDirection = 'DESC';
+
         if (sort === 'Cũ nhất' || sort === 'oldest') {
           sortBy = 'createdAt';
           sortDirection = 'ASC';
@@ -58,7 +65,9 @@ const AdmissionDocuments = () => {
         if (cancelled) return;
 
         const items = result?.content ?? result?.data ?? result?.items ?? [];
+
         const total = result?.totalElements ?? result?.totalItems ?? result?.total ?? items.length;
+
         const pages = result?.totalPages ?? Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
         setDocuments(items);
@@ -66,6 +75,7 @@ const AdmissionDocuments = () => {
         setTotalPages(pages);
       } catch (error) {
         if (cancelled) return;
+
         console.error(error);
         toast.error('Không thể tải danh sách tài liệu.');
       } finally {
@@ -86,6 +96,7 @@ const AdmissionDocuments = () => {
 
     return () => {
       cancelled = true;
+
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
@@ -107,6 +118,7 @@ const AdmissionDocuments = () => {
         if (cancelled) return;
 
         const items = result?.content ?? result?.data ?? result?.items ?? [];
+
         setLatestDocuments(items);
       } catch (error) {
         if (!cancelled) {
@@ -126,11 +138,11 @@ const AdmissionDocuments = () => {
 
     return () => {
       cancelled = true;
+
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleFocus);
     };
   }, []);
-
 
   const changeSearch = (value) => {
     setSearch(value);
@@ -154,20 +166,27 @@ const AdmissionDocuments = () => {
     }
 
     let objectUrl;
+
     try {
       const fileBlob = await downloadDocumentFile(doc.fileUrl);
+
       objectUrl = window.URL.createObjectURL(fileBlob);
 
       const link = window.document.createElement('a');
+
       link.href = objectUrl;
       link.download = doc.fileName || doc.title || 'document';
       link.style.display = 'none';
+
       window.document.body.appendChild(link);
+
       link.click();
       link.remove();
+
       toast.success('Đang tải tài liệu xuống');
     } catch (error) {
       console.error(error);
+
       toast.error('Không thể tải tài liệu xuống');
     } finally {
       if (objectUrl) {
@@ -177,29 +196,98 @@ const AdmissionDocuments = () => {
   };
 
   return (
-    <div className='bg-white'>
+    <div className='overflow-hidden bg-white'>
       <DocumentHero />
 
       <section className='container relative -mt-1 pb-12 pt-4 lg:pb-16'>
-        <DocumentToolbar
-          search={search}
-          onSearchChange={changeSearch}
-          type={type}
-          onTypeChange={changeType}
-          sort={sort}
-          onSortChange={changeSort}
-        />
+        <motion.div
+          initial={
+            prefersReducedMotion
+              ? false
+              : {
+                  opacity: 0,
+                  y: 18,
+                  scale: 0.99,
+                }
+          }
+          animate={{
+            opacity: 1,
+            y: 0,
+            scale: 1,
+          }}
+          transition={{
+            delay: 0.12,
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          <DocumentToolbar
+            search={search}
+            onSearchChange={changeSearch}
+            type={type}
+            onTypeChange={changeType}
+            sort={sort}
+            onSortChange={changeSort}
+          />
+        </motion.div>
 
         <div className='mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_285px]'>
           <div>
-            <p className='mb-4 text-[13px] font-medium text-gray-700'>Tổng {totalItems} tài liệu</p>
+            <motion.p
+              initial={
+                prefersReducedMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      x: -10,
+                    }
+              }
+              animate={{
+                opacity: 1,
+                x: 0,
+              }}
+              transition={{
+                delay: 0.2,
+                duration: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className='mb-4 text-[13px] font-medium text-gray-700'
+            >
+              Tổng {totalItems} tài liệu
+            </motion.p>
 
             {loading ? (
-              <div className='rounded-xl border border-gray-100 py-16 text-center text-[13px] text-gray-500'>
+              <motion.div
+                initial={
+                  prefersReducedMotion
+                    ? false
+                    : {
+                        opacity: 0,
+                      }
+                }
+                animate={{
+                  opacity: 1,
+                }}
+                className='rounded-xl border border-gray-100 py-16 text-center text-[13px] text-gray-500'
+              >
                 Đang tải dữ liệu...
-              </div>
+              </motion.div>
             ) : documents.length > 0 ? (
-              <div className='grid gap-4 md:grid-cols-2'>
+              <motion.div
+                key={`${page}-${search}-${type}-${sort}`}
+                initial='hidden'
+                animate='visible'
+                variants={{
+                  hidden: {},
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.08,
+                      delayChildren: 0.04,
+                    },
+                  },
+                }}
+                className='grid gap-4 md:grid-cols-2'
+              >
                 {documents.map((doc) => (
                   <DocumentCard
                     key={doc.id}
@@ -208,11 +296,29 @@ const AdmissionDocuments = () => {
                     onDownload={handleDownload}
                   />
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className='rounded-xl border border-dashed border-gray-200 py-16 text-center text-[13px] text-gray-500'>
+              <motion.div
+                initial={
+                  prefersReducedMotion
+                    ? false
+                    : {
+                        opacity: 0,
+                        y: 10,
+                      }
+                }
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  duration: 0.4,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className='rounded-xl border border-dashed border-gray-200 py-16 text-center text-[13px] text-gray-500'
+              >
                 Không tìm thấy tài liệu phù hợp.
-              </div>
+              </motion.div>
             )}
 
             {!loading && documents.length > 0 && (
@@ -220,10 +326,30 @@ const AdmissionDocuments = () => {
             )}
           </div>
 
-          <div className='space-y-4'>
+          <motion.div
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    x: 20,
+                  }
+            }
+            animate={{
+              opacity: 1,
+              x: 0,
+            }}
+            transition={{
+              delay: 0.28,
+              duration: 0.55,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className='space-y-4'
+          >
             <LatestDocuments documents={latestDocuments} onSelect={setPreviewDocument} />
+
             <HelpCard />
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -237,4 +363,3 @@ const AdmissionDocuments = () => {
 };
 
 export default AdmissionDocuments;
-

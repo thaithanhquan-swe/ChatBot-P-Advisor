@@ -153,25 +153,27 @@ const FAQ = () => {
   };
 
   return (
-    <main className='mx-auto max-w-225 px-5 py-10'>
-      <FAQHeader />
+    <main className='bg-gray-50/40'>
+      <div className='mx-auto max-w-225 px-5 py-10 lg:py-12'>
+        <FAQHeader />
 
-      <FAQControls
-        categories={categories}
-        searchTerm={searchTerm}
-        activeCategory={activeCategory}
-        onSearch={setSearchTerm}
-        onCategoryChange={handleCategoryChange}
-      />
+        <FAQControls
+          categories={categories}
+          searchTerm={searchTerm}
+          activeCategory={activeCategory}
+          onSearch={setSearchTerm}
+          onCategoryChange={handleCategoryChange}
+        />
 
-      <FAQList
-        faqs={faqs}
-        isLoading={isLoading}
-        expandedId={expandedId}
-        searchTerm={searchTerm}
-        onToggle={handleToggle}
-        onAskInChat={handleAskInChat}
-      />
+        <FAQList
+          faqs={faqs}
+          isLoading={isLoading}
+          expandedId={expandedId}
+          searchTerm={searchTerm}
+          onToggle={handleToggle}
+          onAskInChat={handleAskInChat}
+        />
+      </div>
     </main>
   );
 };

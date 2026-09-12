@@ -20,7 +20,7 @@ const FloatingChatPromo = () => {
       <Link
         to='/chatai'
         aria-label='Đi tới trang chatbot tư vấn tuyển sinh'
-        className='group relative flex h-14 w-14 items-center justify-center rounded-full bg-(--primary-color) text-white shadow-(--shadow-card-hover) transition-all duration-300 hover:-translate-y-1 hover:scale-105'
+        className='group relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-(--primary-color) text-white shadow-(--shadow-card-hover) transition-all duration-300 hover:-translate-y-1 hover:scale-105'
       >
         <span className='absolute inset-0 rounded-full bg-(--primary-color) opacity-20 group-hover:animate-ping' />
 
