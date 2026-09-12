@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getApiErrorMessage } from '@/lib/http';
+import { authStorage } from '@/lib/auth-storage';
 import { createConsultationRequest } from '@/services/consultation-request-service';
+import { getCurrentUser } from '@/services/user-service';
 import ConsultationForm from './components/ConsultationForm/ConsultationForm';
 import ConsultationIntro from './components/ConsultationIntro/ConsultationIntro';
 import ConsultationProcess from './components/ConsultationProcess/ConsultationProcess';
@@ -10,7 +12,6 @@ import SupportChannels from './components/SupportChannels/SupportChannels';
 const initialFormData = {
   question: '',
   phone: '',
-  email: '',
 };
 
 const ConsultationRequestPage = () => {
@@ -18,20 +19,33 @@ const ConsultationRequestPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+
+  useEffect(() => {
+    if (!authStorage.getToken()) return;
+
+    let active = true;
+    getCurrentUser()
+      .then((user) => {
+        if (active) setUserEmail(user?.email ?? null);
+      })
+      .catch(() => {
+        if (active) setUserEmail(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const validate = () => {
     const newErrors = {};
     if (!formData.question.trim()) newErrors.question = 'Vui lòng nhập câu hỏi cần tư vấn';
 
-    if (!formData.phone.trim() && !formData.email.trim()) {
-      newErrors.contact = 'Vui lòng cung cấp SĐT hoặc Email để chúng tôi liên hệ';
-    } else {
-      if (formData.phone && !/^(?:\+?84|0)[35789][0-9]{8}$/.test(formData.phone)) {
-        newErrors.phone = 'Số điện thoại không hợp lệ';
-      }
-      if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = 'Email không hợp lệ';
-      }
+    if (!formData.phone.trim() && !userEmail) {
+      newErrors.contact = 'Vui lòng cung cấp số điện thoại để chúng tôi liên hệ';
+    } else if (formData.phone && !/^(?:\+?84|0)[35789][0-9]{8}$/.test(formData.phone)) {
+      newErrors.phone = 'Số điện thoại không hợp lệ';
     }
 
     setErrors(newErrors);
@@ -46,7 +60,7 @@ const ConsultationRequestPage = () => {
     try {
       await createConsultationRequest({
         question: formData.question.trim(),
-        email: formData.email.trim() || undefined,
+        email: userEmail || undefined,
         phone: formData.phone.trim() || undefined,
       });
       setIsSuccess(true);
@@ -86,6 +100,7 @@ const ConsultationRequestPage = () => {
                 formData={formData}
                 errors={errors}
                 isSubmitting={isSubmitting}
+                userEmail={userEmail}
                 handleChange={handleChange}
                 handleSubmit={handleSubmit}
               />

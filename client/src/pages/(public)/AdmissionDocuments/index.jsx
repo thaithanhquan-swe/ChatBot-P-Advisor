@@ -11,7 +11,7 @@ import HelpCard from './components/HelpCard/HelpCard';
 import DocumentPagination from './components/DocumentPagination/DocumentPagination';
 import DocumentPreviewModal from './components/DocumentPreviewModal/DocumentPreviewModal';
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 6;
 
 const AdmissionDocuments = () => {
   const [search, setSearch] = useState('');

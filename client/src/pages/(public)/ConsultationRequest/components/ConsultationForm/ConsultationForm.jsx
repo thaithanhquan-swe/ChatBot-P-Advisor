@@ -1,6 +1,14 @@
 import { Lock, Mail, MessageSquareText, Phone, Send, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handleSubmit }) => {
+const ConsultationForm = ({
+  formData,
+  errors,
+  isSubmitting,
+  userEmail,
+  handleChange,
+  handleSubmit,
+}) => {
   return (
     <div>
       {/* Header Form */}
@@ -29,9 +37,8 @@ const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handle
             rows='4'
             maxLength={5000}
             placeholder='Nhập nội dung bạn cần cán bộ tuyển sinh tư vấn'
-            className={`w-full resize-y rounded-xl border p-3 text-sm text-gray-700 outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${
-              errors.question ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
-            }`}
+            className={`w-full resize-y rounded-xl border p-3 text-sm text-gray-700 outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${errors.question ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
+              }`}
           />
           {errors.question && <p className='mt-1 text-xs text-red-500'>{errors.question}</p>}
         </div>
@@ -47,41 +54,35 @@ const ConsultationForm = ({ formData, errors, isSubmitting, handleChange, handle
               value={formData.phone}
               onChange={handleChange}
               placeholder='Nhập số điện thoại của bạn'
-              className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${
-                errors.phone ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
-              }`}
+              className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${errors.phone ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
+                }`}
             />
           </div>
-          <p className='mt-1 text-xs text-gray-400'>
-            Nhập số điện thoại hoặc email để cán bộ liên hệ lại
-          </p>
           {errors.phone && <p className='mt-1 text-xs text-red-500'>{errors.phone}</p>}
         </div>
 
-        {/* Divider hoặc */}
-        <div className='relative my-1 flex items-center justify-center'>
-          <div className='w-full border-t border-gray-200'></div>
-          <span className='absolute bg-white px-3 text-xs text-gray-400'>hoặc</span>
-        </div>
-
-        {/* Email */}
+        {/* Email từ tài khoản */}
         <div>
-          <label className='mb-1.5 block text-sm font-semibold text-gray-800'>Email</label>
-          <div className='relative'>
-            <Mail size={18} className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400' />
-            <input
-              type='email'
-              name='email'
-              value={formData.email}
-              onChange={handleChange}
-              placeholder='Nhập email của bạn (nếu có)'
-              className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-[#c8102e] focus:ring-1 focus:ring-[#c8102e] ${
-                errors.email ? 'border-red-500 bg-red-50/20' : 'border-gray-200'
-              }`}
-            />
-          </div>
-          <p className='mt-1 text-xs text-gray-400'>Vui lòng nhập địa chỉ email hợp lệ</p>
-          {errors.email && <p className='mt-1 text-xs text-red-500'>{errors.email}</p>}
+          <label className='mb-1.5 block text-sm font-semibold text-gray-800'>Email liên hệ</label>
+          {userEmail ? (
+            <div className='flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 relative'>
+              <Mail
+                size={18}
+                className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400'
+              />
+              <span className='text-sm text-gray-700'>{userEmail}</span>
+            </div>
+          ) : (
+            <div className='flex items-center gap-2 rounded-xl border border-dashed border-gray-200 bg-gray-50/80 px-4 py-2.5'>
+              <Mail size={16} className='shrink-0 text-gray-400' />
+              <span className='text-sm text-gray-500'>
+                <Link to='/login' className='font-medium text-[#c8102e] hover:underline'>
+                  Đăng nhập
+                </Link>{' '}
+                để tự động điền email liên hệ từ tài khoản của bạn
+              </span>
+            </div>
+          )}
         </div>
 
         {errors.contact && <p className='text-xs text-red-500'>{errors.contact}</p>}

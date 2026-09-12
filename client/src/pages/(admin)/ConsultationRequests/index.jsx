@@ -1,4 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+
+import { getCurrentUser } from '@/services/user-service';
+import {
+  assignConsultationRequest,
+  getConsultationRequests,
+  resolveConsultationRequest,
+} from '@/services/consultation-request-service';
 import ConsultationRequestFilter from './components/ConsultationRequestFilter/ConsultationRequestFilter';
 import ConsultationRequestHeader from './components/ConsultationRequestHeader/ConsultationRequestHeader';
 import ConsultationRequestTable from './components/ConsultationRequestTable/ConsultationRequestTable';
@@ -12,116 +20,161 @@ const emptyFilters = {
   sortBy: 'createdAt',
   sortDirection: 'DESC',
 };
-const initialRequests = [
-  {
-    id: 'CR-2026-001',
-    question: 'Em muốn được tư vấn về ngành Công nghệ thông tin.',
-    email: 'minhan@gmail.com',
-    phone: '0912345678',
-    status: 'PENDING',
-    assignedStaffId: null,
-    createdAt: '2026-08-30T09:30:00',
-    resolvedAt: null,
-  },
-  {
-    id: 'CR-2026-002',
-    question: 'Cho em hỏi về học phí và chính sách học bổng.',
-    email: 'thutrang@gmail.com',
-    phone: '0987654321',
-    status: 'IN_PROGRESS',
-    assignedStaffId: 'current-advisor',
-    createdAt: '2026-08-29T14:15:00',
-    resolvedAt: null,
-  },
-  {
-    id: 'CR-2026-003',
-    question: 'Em cần tư vấn các phương thức xét tuyển năm nay.',
-    email: 'quanghuy@gmail.com',
-    phone: null,
-    status: 'RESOLVED',
-    assignedStaffId: 'advisor-02',
-    createdAt: '2026-08-28T08:45:00',
-    resolvedAt: '2026-08-29T10:20:00',
-  },
-  {
-    id: 'CR-2026-004',
-    question: 'Nhờ thầy cô tư vấn về ký túc xá.',
-    email: null,
-    phone: '0905123456',
-    status: 'CANCELLED',
-    assignedStaffId: null,
-    createdAt: '2026-08-27T16:00:00',
-    resolvedAt: null,
-  },
-];
+
+const PAGE_SIZE = 10;
 
 function ConsultationRequests() {
   const [filters, setFilters] = useState(emptyFilters);
-  const [appliedFilters, setAppliedFilters] = useState(emptyFilters);
-  const [requests, setRequests] = useState(initialRequests);
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [page, setPage] = useState(0);
-  const currentUser = { id: 'current-advisor', roles: [{ name: 'ADVISOR' }] };
+  const keywordTimerRef = useRef(null);
 
-  const filteredRequests = useMemo(() => {
-    const keyword = appliedFilters.keyword.trim().toLowerCase();
-    return requests
-      .filter((item) => {
-        const matchesKeyword =
-          !keyword ||
-          [item.question, item.email, item.phone].some((value) =>
-            value?.toLowerCase().includes(keyword)
-          );
-        const matchesStatus = !appliedFilters.status || item.status === appliedFilters.status;
-        const createdDate = item.createdAt.slice(0, 10);
-        return (
-          matchesKeyword &&
-          matchesStatus &&
-          (!appliedFilters.createdFrom || createdDate >= appliedFilters.createdFrom) &&
-          (!appliedFilters.createdTo || createdDate <= appliedFilters.createdTo)
-        );
-      })
-      .sort((a, b) => {
-        const result = String(a[appliedFilters.sortBy] || '').localeCompare(
-          String(b[appliedFilters.sortBy] || '')
-        );
-        return appliedFilters.sortDirection === 'ASC' ? result : -result;
-      });
-  }, [requests, appliedFilters]);
-
-  const counts = { total: requests.length, PENDING: 0, IN_PROGRESS: 0, RESOLVED: 0, CANCELLED: 0 };
-  requests.forEach((item) => {
-    counts[item.status] += 1;
-  });
-  const pageData = {
-    content: filteredRequests,
-    pageNumber: page,
-    totalElements: filteredRequests.length,
+  const [pageData, setPageData] = useState({
+    content: [],
+    pageNumber: 0,
+    pageSize: PAGE_SIZE,
+    totalElements: 0,
     totalPages: 1,
     last: true,
+  });
+
+  const [counts, setCounts] = useState({
+    total: 0,
+    PENDING: 0,
+    IN_PROGRESS: 0,
+    RESOLVED: 0,
+    CANCELLED: 0,
+  });
+
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [actionId, setActionId] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!cancelled) {
+          setCurrentUser(user);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error(error);
+        }
+      }
+    };
+
+    loadUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const loadData = async (filterParams = filters, pageIndex = page) => {
+    try {
+      setLoading(true);
+
+      const [dataResult, totalRes, pendingRes, inProgressRes, resolvedRes] = await Promise.all([
+        getConsultationRequests({
+          keyword: filterParams.keyword?.trim() || undefined,
+          status: filterParams.status || undefined,
+          createdFrom: filterParams.createdFrom || undefined,
+          createdTo: filterParams.createdTo || undefined,
+          sortBy: filterParams.sortBy || 'createdAt',
+          sortDirection: filterParams.sortDirection || 'DESC',
+          page: pageIndex,
+          size: PAGE_SIZE,
+        }),
+        getConsultationRequests({ size: 1 }),
+        getConsultationRequests({ status: 'PENDING', size: 1 }),
+        getConsultationRequests({ status: 'IN_PROGRESS', size: 1 }),
+        getConsultationRequests({ status: 'RESOLVED', size: 1 }),
+      ]);
+
+      setPageData({
+        content: dataResult?.content || [],
+        pageNumber: dataResult?.pageNumber ?? pageIndex,
+        pageSize: dataResult?.pageSize ?? PAGE_SIZE,
+        totalElements: dataResult?.totalElements ?? 0,
+        totalPages: dataResult?.totalPages ?? 1,
+        last: dataResult?.last ?? true,
+      });
+
+      setCounts({
+        total: totalRes?.totalElements ?? 0,
+        PENDING: pendingRes?.totalElements ?? 0,
+        IN_PROGRESS: inProgressRes?.totalElements ?? 0,
+        RESOLVED: resolvedRes?.totalElements ?? 0,
+        CANCELLED: 0,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể tải danh sách yêu cầu tư vấn');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateStatus = (item, status) =>
-    setRequests((items) =>
-      items.map((request) =>
-        request.id === item.id
-          ? {
-              ...request,
-              status,
-              assignedStaffId: status === 'IN_PROGRESS' ? currentUser.id : request.assignedStaffId,
-              resolvedAt: status === 'RESOLVED' ? new Date().toISOString() : request.resolvedAt,
-            }
-          : request
-      )
-    );
-  const applyFilters = (event) => {
-    event.preventDefault();
-    setPage(0);
-    setAppliedFilters({ ...filters });
+  // Debounce keyword 400ms, các field khác apply ngay
+  const handleFiltersChange = (updater) => {
+    setFilters((current) => {
+      const next = typeof updater === 'function' ? updater(current) : updater;
+      const keywordChanged = next.keyword !== current.keyword;
+
+      if (keywordChanged) {
+        clearTimeout(keywordTimerRef.current);
+        keywordTimerRef.current = setTimeout(() => {
+          setDebouncedKeyword(next.keyword);
+          setPage(0);
+        }, 400);
+      } else {
+        setPage(0);
+      }
+
+      return next;
+    });
   };
-  const resetFilters = () => {
+
+  useEffect(() => {
+    loadData({ ...filters, keyword: debouncedKeyword }, page);
+  }, [debouncedKeyword, filters.status, filters.createdFrom, filters.createdTo, filters.sortBy, filters.sortDirection, page]);
+
+  const handleResetFilters = () => {
+    clearTimeout(keywordTimerRef.current);
     setFilters(emptyFilters);
-    setAppliedFilters(emptyFilters);
+    setDebouncedKeyword('');
     setPage(0);
+  };
+
+  const handleAssign = async (item) => {
+    try {
+      setActionId(item.id);
+      await assignConsultationRequest(item.id);
+      toast.success('Đã nhận xử lý yêu cầu tư vấn');
+      await loadData({ ...filters, keyword: debouncedKeyword }, page);
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể nhận xử lý yêu cầu tư vấn');
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const handleResolve = async (item) => {
+    try {
+      setActionId(item.id);
+      await resolveConsultationRequest(item.id);
+      toast.success('Đã hoàn thành tư vấn');
+      await loadData({ ...filters, keyword: debouncedKeyword }, page);
+    } catch (error) {
+      console.error(error);
+      toast.error('Không thể hoàn thành yêu cầu tư vấn');
+    } finally {
+      setActionId(null);
+    }
   };
 
   return (
@@ -130,18 +183,17 @@ function ConsultationRequests() {
       <ConsultationRequestStatistics counts={counts} />
       <ConsultationRequestFilter
         filters={filters}
-        onChange={setFilters}
-        onApply={applyFilters}
-        onReset={resetFilters}
+        onChange={handleFiltersChange}
+        onReset={handleResetFilters}
       />
       <div className='mt-5'>
         <ConsultationRequestTable
           pageData={pageData}
-          loading={false}
-          actionId={null}
+          loading={loading}
+          actionId={actionId}
           currentUser={currentUser}
-          onAssign={(item) => updateStatus(item, 'IN_PROGRESS')}
-          onResolve={(item) => updateStatus(item, 'RESOLVED')}
+          onAssign={handleAssign}
+          onResolve={handleResolve}
           onPageChange={setPage}
         />
       </div>
@@ -150,3 +202,4 @@ function ConsultationRequests() {
 }
 
 export default ConsultationRequests;
+
