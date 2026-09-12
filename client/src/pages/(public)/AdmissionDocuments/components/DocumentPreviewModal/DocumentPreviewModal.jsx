@@ -32,8 +32,8 @@ const DocumentPreviewModal = ({ document, onClose, onDownload }) => {
         }
       }}
     >
-      <DialogContent className='max-w-xl rounded-2xl p-6'>
-        <DialogHeader>
+      <DialogContent className='w-[calc(100vw-2rem)] max-w-xl overflow-hidden rounded-2xl p-0 gap-0'>
+        <DialogHeader className='p-6 pb-0 pr-12'>
           <div className='flex gap-3 text-left'>
             <div className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-(--primary-color)'>
               <FileText size={24} />
@@ -59,21 +59,21 @@ const DocumentPreviewModal = ({ document, onClose, onDownload }) => {
           </div>
         </DialogHeader>
 
-        <div className='mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4'>
+        <div className='mx-6 mt-5 min-w-0 rounded-xl border border-gray-200 bg-gray-50 p-4'>
           <p className='text-[13px] font-normal leading-6 text-gray-700'>
             {document.description || 'Không có mô tả chi tiết cho tài liệu này.'}
           </p>
 
           {document.fileName && (
-            <div className='mt-3 flex items-center gap-2 text-[12px] text-gray-500'>
-              <span className='font-medium text-gray-700'>Tên file:</span>
+            <div className='mt-3 flex min-w-0 items-center gap-2 text-[12px] text-gray-500'>
+              <span className='shrink-0 font-medium text-gray-700'>Tên file:</span>
 
-              <span className='truncate'>{document.fileName}</span>
+              <span className='min-w-0 flex-1 truncate'>{document.fileName}</span>
             </div>
           )}
         </div>
 
-        <DialogFooter className='mt-4 gap-2 sm:gap-2'>
+        <DialogFooter className='mt-6 !mx-0 !mb-0 gap-2 rounded-none px-6 py-4 sm:gap-2'>
           <Button type='button' variant='outline' onClick={onClose} className='h-9 text-[12.5px]'>
             Đóng
           </Button>
