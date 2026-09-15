@@ -5,13 +5,15 @@ import FAQItem from '../FAQItem/FAQItem';
 const FAQList = ({ faqs, isLoading, expandedId, searchTerm, onToggle, onAskInChat }) => {
   if (isLoading) {
     return (
-      <div className='py-10 text-center text-sm font-medium text-gray-600'>Đang tải dữ liệu...</div>
+      <div className='px-4 py-8 text-center text-sm font-medium text-gray-600 sm:py-10'>
+        Đang tải dữ liệu...
+      </div>
     );
   }
 
   if (faqs.length === 0) {
     return (
-      <div className='rounded-xl border border-dashed border-gray-300 bg-white py-10 text-center text-sm font-medium text-gray-600'>
+      <div className='rounded-xl border border-dashed border-gray-300 bg-white px-4 py-8 text-center text-sm leading-6 font-medium text-gray-600 sm:py-10'>
         Không tìm thấy câu hỏi phù hợp
         {searchTerm ? ` với từ khóa "${searchTerm}".` : '.'}
       </div>
@@ -30,7 +32,7 @@ const FAQList = ({ faqs, isLoading, expandedId, searchTerm, onToggle, onAskInCha
           },
         },
       }}
-      className='flex flex-col gap-3'
+      className='flex flex-col gap-2.5 sm:gap-3'
     >
       {faqs.map((faq) => (
         <FAQItem

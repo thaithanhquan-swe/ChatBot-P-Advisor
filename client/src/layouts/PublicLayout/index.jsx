@@ -7,9 +7,11 @@ import { SystemConfigProvider } from '@/contexts/system-config-context';
 function PublicLayout() {
   return (
     <SystemConfigProvider>
-      <div className=''>
+      <div className='flex min-h-screen flex-col overflow-x-hidden'>
         <Header />
-        <main><Outlet /></main>
+        <main className='flex-1'>
+          <Outlet />
+        </main>
         <Footer />
         <GoToTop />
       </div>

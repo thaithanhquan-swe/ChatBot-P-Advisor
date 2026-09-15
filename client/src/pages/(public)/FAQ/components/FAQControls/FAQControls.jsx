@@ -13,13 +13,13 @@ const FAQControls = ({ categories, searchTerm, activeCategory, onSearch, onCateg
         duration: 0.45,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className='mb-8 flex flex-col gap-4'
+      className='mb-6 flex flex-col gap-3 sm:mb-8 sm:gap-4'
     >
       <div className='relative'>
         <Search
           aria-hidden='true'
           size={18}
-          className='pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-500'
+          className='pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-500 sm:left-4'
         />
 
         <input
@@ -28,7 +28,7 @@ const FAQControls = ({ categories, searchTerm, activeCategory, onSearch, onCateg
           placeholder='Tìm kiếm câu hỏi, từ khóa...'
           value={searchTerm}
           onChange={(event) => onSearch(event.target.value)}
-          className='h-12 w-full rounded-xl border border-gray-200 bg-white pl-11 pr-4 text-[14px] text-gray-800 shadow-sm outline-none transition-all duration-300 placeholder:text-gray-400 hover:border-gray-300 focus:border-(--primary-color) focus:ring-3 focus:ring-red-50'
+          className='h-11 w-full rounded-xl border border-gray-200 bg-white pr-3 pl-10 text-[14px] text-gray-800 shadow-sm outline-none transition-all duration-300 placeholder:text-gray-400 hover:border-gray-300 focus:border-(--primary-color) focus:ring-3 focus:ring-red-50 sm:h-12 sm:pr-4 sm:pl-11'
         />
       </div>
 
@@ -44,7 +44,7 @@ const FAQControls = ({ categories, searchTerm, activeCategory, onSearch, onCateg
             },
           },
         }}
-        className='flex flex-wrap justify-center gap-2'
+        className='flex flex-wrap justify-start gap-2 sm:justify-center'
       >
         <CategoryButton active={activeCategory === 'ALL'} onClick={() => onCategoryChange('ALL')}>
           Tất cả
@@ -90,7 +90,7 @@ const CategoryButton = ({ active, onClick, children }) => (
     }}
     whileHover={{ y: -1 }}
     whileTap={{ scale: 0.97 }}
-    className={`cursor-pointer rounded-full border px-4 py-2 text-[13px] font-semibold transition-all duration-200 ${
+    className={`shrink-0 cursor-pointer rounded-full border px-3 py-2 text-[13px] font-semibold whitespace-nowrap transition-all duration-200 sm:px-4 ${
       active
         ? 'border-(--primary-color) bg-(--primary-color) text-white shadow-sm'
         : 'border-gray-200 bg-white text-gray-700 hover:border-(--primary-color) hover:text-(--primary-color)'

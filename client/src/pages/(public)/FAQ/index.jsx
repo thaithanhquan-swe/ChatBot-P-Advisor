@@ -154,7 +154,7 @@ const FAQ = () => {
 
   return (
     <main className='bg-gray-50/40'>
-      <div className='mx-auto max-w-225 px-5 py-10 lg:py-12'>
+      <div className='mx-auto max-w-225 px-4 py-7 sm:px-5 sm:py-10 lg:py-12'>
         <FAQHeader />
 
         <FAQControls
