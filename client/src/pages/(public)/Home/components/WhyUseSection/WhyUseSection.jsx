@@ -55,7 +55,7 @@ const WhyUseSection = () => {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <section className='py-16 lg:py-20'>
+    <section className='py-12 sm:py-16 lg:py-20'>
       <div className='container'>
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
@@ -65,7 +65,7 @@ const WhyUseSection = () => {
             duration: 0.65,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className='rounded-(--radius-panel) border border-(--border-subtle) bg-white p-8 shadow-(--shadow-card) lg:p-12'
+          className='rounded-(--radius-panel) border border-(--border-subtle) bg-white p-5 shadow-(--shadow-card) sm:p-8 lg:p-12'
         >
           <motion.h2
             initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
@@ -76,7 +76,7 @@ const WhyUseSection = () => {
               delay: 0.1,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className='text-center text-[22px] font-bold text-gray-900 sm:text-[24px]'
+            className='text-center text-[20px] leading-snug font-bold text-gray-900 sm:text-[24px]'
           >
             Vì sao nên sử dụng Chatbot tư vấn tuyển sinh PTIT?
           </motion.h2>
@@ -86,7 +86,7 @@ const WhyUseSection = () => {
             initial={prefersReducedMotion ? false : 'hidden'}
             whileInView='visible'
             viewport={{ once: true, amount: 0.25 }}
-            className='mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4'
+            className='mt-7 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4'
           >
             {reasons.map(({ icon: Icon, title, desc }) => (
               <motion.div
