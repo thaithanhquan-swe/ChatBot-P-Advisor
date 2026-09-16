@@ -2,6 +2,8 @@
 
 Tài liệu này cung cấp danh mục chi tiết toàn bộ các RESTful API Endpoints, giao thức WebSocket thời gian thực, quy chuẩn dữ liệu Request/Response và bảng mã lỗi chuẩn (`ErrorCode`) của hệ thống **ChatBot P-Advisor**.
 
+> Swagger UI là cách thuận tiện nhất để thử API theo schema đang chạy: `http://localhost:8080/chatbot-advisor/swagger-ui/index.html`. Hướng dẫn lấy JWT và dùng nút **Authorize** nằm ở [docs/setup.md](setup.md#5-sử-dụng-swagger--openapi).
+
 ---
 
 ## 1. Quy Chuẩn API Request & Response (API Envelopes)

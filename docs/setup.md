@@ -1,192 +1,208 @@
-# ⚙️ Setup & Deployment Guide - ChatBot P-Advisor
+# Hướng dẫn cài đặt và chạy ChatBot P-Advisor
 
-Tài liệu này hướng dẫn chi tiết từng bước chuẩn bị môi trường, cấu hình biến môi trường, khởi chạy hệ thống ở môi trường phát triển (Development) cũng như đóng gói triển khai (Production) cho dự án **ChatBot P-Advisor**.
+Tài liệu này hướng dẫn một thành viên mới chuẩn bị môi trường, cấu hình, chạy backend/frontend và dùng Swagger để kiểm tra API.
 
----
+## 1. Chuẩn bị môi trường
 
-## 1. Yêu Cầu Tiền Đề (System Prerequisites)
+| Thành phần | Phiên bản khuyến nghị | Mục đích |
+| --- | --- | --- |
+| JDK | 21 | Chạy backend Spring Boot. |
+| Node.js | 18 trở lên | Chạy frontend Vite. |
+| npm | Đi kèm Node.js | Cài thư viện frontend. |
+| MySQL | 8 trở lên | Cơ sở dữ liệu chính. |
+| Tesseract OCR | 5.x | Tùy chọn; đọc tài liệu scan/ảnh. |
 
-Trước khi bắt đầu cài đặt, hãy đảm bảo máy tính/server của bạn đã được cài đặt các công cụ sau:
+Kiểm tra nhanh:
 
-- **Java Development Kit (JDK)**: **JDK 21 LTS** (Khuyên dùng OpenJDK 21 hoặc Oracle JDK 21).
-- **Build Tool**: **Maven 3.9+** (Đã tích hợp sẵn `mvnw` trong dự án).
-- **Node.js Environment**: **Node.js 18.x trở lên** & **npm 9.x+**.
-- **Database Engine**: **MySQL 8.0+** hoặc MariaDB 10.5+.
-- **OCR Engine (Tesseract)**: Thư viện **Tesseract OCR v5.x** kèm dữ liệu ngôn ngữ tiếng Việt & tiếng Anh (`vie.traineddata`, `eng.traineddata`).
+```powershell
+java -version
+node --version
+npm --version
+mysql --version
+```
 
----
+## 2. Cấu hình backend
 
-## 2. Cấu Hình Cơ Sở Dữ Liệu MySQL
+### 2.1. Tạo cơ sở dữ liệu
 
-### Bước 2.1. Tạo Database
-Mở MySQL Client (MySQL Workbench, DBeaver hoặc Command Line) và chạy lệnh SQL:
+Đăng nhập MySQL và chạy:
 
 ```sql
-CREATE DATABASE chatbot_p_advisor 
-CHARACTER SET utf8mb4 
+CREATE DATABASE chatbot_p_advisor
+CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 ```
 
----
+### 2.2. Tạo cấu hình cục bộ
 
-## 3. Cấu Hình Backend Server (`/server`)
-
-### Bước 3.1. Cấu hình file `application-local.properties`
-Chỉnh sửa file `server/src/main/resources/application-local.properties` để thiết lập thông số kết nối:
+Tạo tệp `server/src/main/resources/application-local.properties`. Tệp này đã nằm trong `.gitignore`; không commit tệp có thông tin bí mật.
 
 ```properties
-# Server Port & Context Path
+# Máy chủ
 app.config.server-port=8080
 app.config.context-path=/chatbot-advisor
 app.config.application-name=chatbot-advisor-api
+app.config.frontend-url=http://localhost:5173
 
-# MySQL Database Configuration
+# MySQL
 app.config.datasource-url=jdbc:mysql://localhost:3306/chatbot_p_advisor?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 app.config.datasource-driver=com.mysql.cj.jdbc.Driver
 app.config.datasource-username=root
-app.config.datasource-password=your_mysql_password
+app.config.datasource-password=<MAT_KHAU_MYSQL>
 app.config.jpa-ddl-auto=update
 app.config.jpa-show-sql=true
 
-# JWT Token Security (Thay thế bằng chuỗi bí mật tối thiểu 64 ký tự)
-app.config.jwt-signer-key=ybCAfgVhcqoNUieblt5TucacDf7a66Pyo95bm6CZjcRevhtrDD99be7YozxogRfV
+# JWT: dùng chuỗi ngẫu nhiên mạnh, tối thiểu 64 ký tự
+app.config.jwt-signer-key=<JWT_SIGNER_KEY>
 app.config.jwt-valid-duration=3600
 app.config.jwt-refreshable-duration=604800
 
-# Client App URL (CORS Frontend)
-app.config.frontend-url=http://localhost:5173
-app.config.password-reset-expiration-minutes=15
-app.config.email-verification-expiration-minutes=1440
-
-# Firebase Admin SDK Configuration
-app.firebase.project-id=chatbot-p-advisor
-app.firebase.service-account-path=classpath:chatbot-p-advisor-firebase-adminsdk-fbsvc-1a5c1e7e19.json
-
-# Gmail SMTP Mail Service (Sử dụng App Password của Google)
+# Email (điền khi cần chức năng xác thực email/đặt lại mật khẩu)
 app.config.mail-host=smtp.gmail.com
 app.config.mail-port=587
-app.config.mail-username=your_email@gmail.com
-app.config.mail-password=your_gmail_app_password
+app.config.mail-username=<EMAIL_GUI>
+app.config.mail-password=<GOOGLE_APP_PASSWORD>
 app.config.mail-smtp-auth=true
 app.config.mail-starttls-enable=true
 
-# Spring AI / Google Gemini / OpenAI Configuration
-spring.ai.openai.api-key=YOUR_GEMINI_OR_OPENAI_API_KEY
-spring.ai.openai.chat.base-url=https://generativelanguage.googleapis.com/v1beta/openai
-spring.ai.openai.chat.model=gemini-3.5-flash-lite
-
-# Tesseract OCR Configuration
+# Lưu tệp và OCR
+app.document.storage-location=uploads/documents
+app.chat-message.storage-location=uploads/chat-messages
+app.system-config.storage-location=uploads/system-config
 app.document.ocr.enabled=true
 app.document.ocr.languages=vie+eng
 app.document.ocr.data-path=tessdata
 app.document.ocr.max-pages=30
+
+# Firebase (cần cho đăng nhập Google)
+app.firebase.project-id=<FIREBASE_PROJECT_ID>
+app.firebase.service-account-path=classpath:<TEN_FILE_SERVICE_ACCOUNT>.json
 ```
 
-> [!IMPORTANT]
-> - Nếu sử dụng **Google Gemini API**, cấu hình `spring.ai.openai.chat.base-url=https://generativelanguage.googleapis.com/v1beta/openai` giúp Spring AI gọi Gemini API theo giao thức tương thích OpenAI.
-> - File Service Account của Firebase (`chatbot-p-advisor-firebase-adminsdk-....json`) phải được đặt trong thư mục `server/src/main/resources/`.
+Thiết lập API key AI bằng biến môi trường, không ghi vào tệp cấu hình. Trên PowerShell của phiên terminal hiện tại:
 
----
+```powershell
+$env:OPENAI_API_KEY = "<API_KEY>"
+$env:OPENAI_CHAT_MODEL = "gpt-4o-mini"
+```
 
-## 4. Cấu Hình Frontend Client (`/client`)
+Nếu dùng Gemini qua API tương thích OpenAI, cấu hình thêm URL base và model phù hợp trong `application-local.properties` hoặc biến môi trường triển khai. Kiểm tra nhà cung cấp để dùng đúng model/API key.
 
-Tạo hoặc chỉnh sửa file `client/.env.local`:
+### 2.3. Thiết lập OCR (tùy chọn)
+
+Tạo thư mục `server/tessdata/`, sau đó đặt `vie.traineddata` và `eng.traineddata` vào đó. Nếu không dùng OCR, đặt `app.document.ocr.enabled=false`.
+
+## 3. Cấu hình frontend
+
+Tại thư mục `client/`, tạo tệp `.env.local` từ `.env.example`:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+Điền các giá trị cần thiết:
 
 ```env
-# Backend Base API Endpoint
-VITE_API_BASE_URL=http://localhost:8080/chatbot-advisor
-
-# Firebase Client Web Config
-VITE_FIREBASE_API_KEY=AIzaSy...
-VITE_FIREBASE_AUTH_DOMAIN=chatbot-p-advisor.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=chatbot-p-advisor
-VITE_FIREBASE_STORAGE_BUCKET=chatbot-p-advisor.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
+VITE_API_URL=http://localhost:8080/chatbot-advisor
+VITE_FIREBASE_API_KEY=<FIREBASE_WEB_API_KEY>
+VITE_FIREBASE_AUTH_DOMAIN=<PROJECT_ID>.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=<PROJECT_ID>
+VITE_FIREBASE_APP_ID=<FIREBASE_APP_ID>
 ```
 
----
+Firebase chỉ cần thiết nếu sử dụng đăng nhập Google. Dù không dùng Firebase, `VITE_API_URL` vẫn bắt buộc để frontend gọi backend.
 
-## 5. Cài Đặt Dữ Liệu Tesseract OCR (`tessdata`)
+## 4. Chạy dự án
 
-Để tính năng OCR đọc tài liệu và ảnh quét tiếng Việt hoạt động:
-1. Tải hai tệp dữ liệu ngôn ngữ Tesseract:
-   - `vie.traineddata` (Tiếng Việt)
-   - `eng.traineddata` (Tiếng Anh)
-2. Tạo thư mục `tessdata/` tại thư mục gốc Backend hoặc trỏ đường dẫn trong `app.document.ocr.data-path`.
-3. Đặt hai tệp `.traineddata` vào thư mục `tessdata/`.
+Mở hai terminal từ thư mục gốc dự án.
 
----
+### Terminal 1: backend
 
-## 6. Khởi Chạy Môi Trường Phát Triển (Development)
+Windows:
 
-### Bước 6.1. Khởi chạy Backend Server
-Mở Cửa sổ Dòng lệnh / Terminal tại thư mục `server/`:
+```powershell
+cd server
+.\mvnw.cmd spring-boot:run
+```
 
-- **Trên Windows**:
-  ```cmd
-  cd server
-  .\mvnw.cmd spring-boot:run
-  ```
-- **Trên Linux / macOS**:
-  ```bash
-  cd server
-  ./mvnw spring-boot:run
-  ```
-*Backend khởi chạy thành công tại: `http://localhost:8080/chatbot-advisor`*
-
-### Bước 6.2. Khởi chạy Frontend Client
-Mở Cửa sổ Dòng lệnh / Terminal thứ hai tại thư mục `client/`:
+Linux/macOS:
 
 ```bash
-cd client
-# Cài đặt thư viện phụ thuộc
-npm install
+cd server
+./mvnw spring-boot:run
+```
 
-# Khởi chạy Vite Dev Server
+Khi log cho biết ứng dụng đã khởi động, kiểm tra API tại `http://localhost:8080/chatbot-advisor`.
+
+### Terminal 2: frontend
+
+```powershell
+cd client
+npm install
 npm run dev
 ```
-*Frontend ứng dụng truy cập tại: `http://localhost:5173`*
 
----
+Mở địa chỉ Vite hiển thị trên terminal, thông thường là `http://localhost:5173`.
 
-## 7. Đóng Gói & Triển Khai Production
+### Kiểm tra nhanh sau khi chạy
 
-### 7.1. Đóng gói Backend thành tệp JAR
-Tại thư mục `server/`:
-```bash
-./mvnw clean package -DskipTests
-```
-File thực thi JAR sẽ tạo ra tại `server/target/server-0.0.1-SNAPSHOT.jar`.
+1. Mở Swagger UI theo URL ở phần dưới.
+2. Gọi `POST /auth/login` bằng một tài khoản đã có.
+3. Dùng token nhận được để gọi `GET /users/me`.
+4. Mở frontend và thử gửi một tin nhắn chatbot.
 
-Chạy ứng dụng Production:
-```bash
-java -jar -DSPRING_PROFILES_ACTIVE=prod target/server-0.0.1-SNAPSHOT.jar
-```
+## 5. Sử dụng Swagger / OpenAPI
 
-### 7.2. Đóng gói Frontend tĩnh
-Tại thư mục `client/`:
-```bash
+Swagger được cung cấp bởi `springdoc-openapi`. Backend phải chạy trước khi truy cập các URL sau:
+
+| Tài nguyên | URL mặc định |
+| --- | --- |
+| Swagger UI | `http://localhost:8080/chatbot-advisor/swagger-ui/index.html` |
+| OpenAPI JSON | `http://localhost:8080/chatbot-advisor/v3/api-docs` |
+
+### Gọi API công khai
+
+1. Mở Swagger UI.
+2. Chọn endpoint, ví dụ `POST /auth/login`.
+3. Nhấn **Try it out**.
+4. Nhập request body rồi nhấn **Execute**.
+5. Xem `Response body`, `Response headers` và lệnh cURL mà Swagger sinh ra.
+
+### Gọi API cần JWT
+
+1. Gọi `POST /auth/login` để lấy giá trị `result.token`.
+2. Nhấn nút **Authorize** ở đầu trang Swagger.
+3. Ở mục `bearerAuth`, dán **chỉ JWT token**; Swagger tự thêm tiền tố `Bearer` khi gửi request.
+4. Nhấn **Authorize**, đóng hộp thoại và gọi endpoint có biểu tượng khóa.
+5. Muốn đổi tài khoản hoặc xóa token, mở lại **Authorize** và nhấn **Logout**.
+
+`@SecurityRequirement(name = "bearerAuth")` được đặt trên từng endpoint cần xác thực. Vì vậy Swagger chỉ hiển thị yêu cầu token tại những endpoint đó; quyền `ADMIN`/`ADVISOR` vẫn được backend kiểm tra thực tế.
+
+Nếu nhận `401 Unauthorized`, kiểm tra token đã hết hạn/chưa được nhập. Nếu nhận `403 Forbidden`, token hợp lệ nhưng tài khoản không có role phù hợp.
+
+## 6. Kiểm thử và đóng gói
+
+```powershell
+# Backend
+cd server
+.\mvnw.cmd test
+.\mvnw.cmd clean package
+
+# Frontend
+cd ..\client
+npm run lint
 npm run build
 ```
-Thư mục `client/dist/` chứa toàn bộ mã nguồn HTML/JS/CSS tĩnh đã được tối ưu hóa. Bạn có thể upload thư mục này lên Nginx, Apache hoặc Static Hosting (Vercel, Netlify).
 
----
+File JAR được tạo trong `server/target/`; frontend build được tạo trong `client/dist/`.
 
-## 8. Xử Lý Sự Cố Thường Gặp (Troubleshooting & FAQs)
+## 7. Sự cố thường gặp
 
-### ❓ Lỗi 1: CORS Error khi Frontend gọi API Backend
-- **Nguyên nhân**: Mới đổi Port Frontend nhưng chưa cập nhật trong config Backend.
-- **Khắc phục**: Kiểm tra thuộc tính `app.config.frontend-url` trong `application-local.properties` đảm bảo trùng khớp chính xác với URL Frontend (ví dụ `http://localhost:5173`).
-
-### ❓ Lỗi 2: OCR Tesseract Crash / Không trích xuất được tiếng Việt
-- **Nguyên nhân**: Thiếu tệp `vie.traineddata` hoặc sai đường dẫn `tessdata`.
-- **Khắc phục**: Kiểm tra logs server. Đảm bảo thư mục `tessdata/` chứa đúng file `vie.traineddata` và `eng.traineddata`.
-
-### ❓ Lỗi 3: Firebase Admin SDK Init Failure
-- **Nguyên nhân**: Không tìm thấy tệp JSON Service Account trong `src/main/resources/`.
-- **Khắc phục**: Tải tệp mới từ Firebase Console -> Project Settings -> Service Accounts -> Generate new private key và lưu vào `server/src/main/resources/`.
-
-### ❓ Lỗi 4: Không nhận được thông báo WebSocket trên Admin Dashboard
-- **Nguyên nhân**: Chưa kết nối thành công hoặc chưa gửi payload xác thực `AUTHENTICATE`.
-- **Khắc phục**: Mở DevTools phần Network -> WS, kiểm tra kết nối `/ws/admin/chat` đã nhận message `{"type":"AUTHENTICATED"}` chưa.
+| Hiện tượng | Cách xử lý |
+| --- | --- |
+| Backend không kết nối được MySQL | Kiểm tra MySQL đã chạy, tên database, user/password và `app.config.datasource-url`. |
+| Frontend bị CORS | Bảo đảm `VITE_API_URL` và `app.config.frontend-url` dùng đúng URL/port; khởi động lại backend sau khi đổi cấu hình. |
+| Swagger trả 404 | Kiểm tra backend đã chạy, context path là `/chatbot-advisor` và dùng URL `/swagger-ui/index.html`. |
+| Swagger trả 401/403 | Đăng nhập lại, nhập JWT qua **Authorize** và kiểm tra role của tài khoản. |
+| OCR không đọc được tiếng Việt | Kiểm tra `vie.traineddata`, `eng.traineddata` và `app.document.ocr.data-path`. |
+| Đăng nhập Firebase lỗi | Kiểm tra các biến `VITE_FIREBASE_*`, project ID và đường dẫn tệp Firebase Service Account. |
