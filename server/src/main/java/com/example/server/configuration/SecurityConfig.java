@@ -59,7 +59,11 @@ public class SecurityConfig {
                         "/uploads/system-config/**",
                         "/documents"
                 ).permitAll()
-                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers(
+                        "/ws/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.DELETE, "/chat-sessions/*").permitAll()
                 .anyRequest()
                 .authenticated());

@@ -6,6 +6,7 @@ import com.example.server.dto.response.ConsultationRequestResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.enums.ConsultationRequestStatus;
 import com.example.server.service.ConsultationRequestService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +32,7 @@ public class ConsultationRequestController {
     }
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<ConsultationRequestResponse>> getAll(
             @RequestParam(required = false) String keyword,
@@ -57,6 +59,7 @@ public class ConsultationRequestController {
     }
 
     @PostMapping("/{id}/assign")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<ConsultationRequestResponse> assign(@PathVariable String id) {
         return ApiResponse.<ConsultationRequestResponse>builder()
@@ -66,6 +69,7 @@ public class ConsultationRequestController {
     }
 
     @PostMapping("/{id}/resolve")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<ConsultationRequestResponse> resolve(@PathVariable String id) {
         return ApiResponse.<ConsultationRequestResponse>builder()

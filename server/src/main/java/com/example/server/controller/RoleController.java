@@ -5,6 +5,7 @@ import com.example.server.dto.request.RoleRequest;
 import com.example.server.dto.response.RoleResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.service.RoleService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +22,7 @@ public class RoleController {
     RoleService roleService;
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<RoleResponse> create(@RequestBody RoleRequest request){
         return ApiResponse.<RoleResponse>builder()
@@ -29,6 +31,7 @@ public class RoleController {
     }
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<PageResponse<RoleResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -39,6 +42,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{roleId}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable String roleId){
         roleService.delete(roleId);

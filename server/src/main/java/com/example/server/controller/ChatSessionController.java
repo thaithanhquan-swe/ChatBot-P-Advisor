@@ -5,6 +5,7 @@ import com.example.server.dto.request.ChatSessionCreateRequest;
 import com.example.server.dto.response.ChatSessionResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.service.ChatSessionService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class ChatSessionController {
     }
 
     @GetMapping("/me/history")
+    @SecurityRequirement(name = "bearerAuth")
     public ApiResponse<PageResponse<ChatSessionResponse>> getCurrentUserHistory(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
@@ -52,6 +54,7 @@ public class ChatSessionController {
     }
 
     @PostMapping("/{sessionToken}/attach")
+    @SecurityRequirement(name = "bearerAuth")
     public ApiResponse<ChatSessionResponse> attach(@PathVariable String sessionToken) {
         return ApiResponse.<ChatSessionResponse>builder()
                 .result(chatSessionService.attachGuestSession(sessionToken))
@@ -73,6 +76,7 @@ public class ChatSessionController {
     }
 
     @GetMapping("/staff/waiting")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<ChatSessionResponse>> getWaitingForStaff(
             @RequestParam(defaultValue = "0") int page,
@@ -83,6 +87,7 @@ public class ChatSessionController {
     }
 
     @GetMapping("/staff/registered-users")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<ChatSessionResponse>> getRegisteredUserSessions(
             @RequestParam(defaultValue = "0") int page,
@@ -93,6 +98,7 @@ public class ChatSessionController {
     }
 
     @GetMapping("/staff/assigned-to-me")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<ChatSessionResponse>> getAssignedToMe(
             @RequestParam(defaultValue = "0") int page,
@@ -103,6 +109,7 @@ public class ChatSessionController {
     }
 
     @PostMapping("/staff/{sessionId}/assign")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<ChatSessionResponse> assign(@PathVariable String sessionId) {
         return ApiResponse.<ChatSessionResponse>builder()
@@ -111,6 +118,7 @@ public class ChatSessionController {
     }
 
     @PostMapping("/staff/{sessionId}/return-to-bot")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<ChatSessionResponse> returnToBot(@PathVariable String sessionId) {
         return ApiResponse.<ChatSessionResponse>builder()

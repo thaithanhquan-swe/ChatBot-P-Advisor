@@ -4,6 +4,7 @@ import com.example.server.dto.ApiResponse;
 import com.example.server.dto.request.UserUpdateRequest;
 import com.example.server.dto.response.*;
 import com.example.server.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 public class UserController {
     UserService userService;
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ApiResponse<CurrentUserResponse> getCurrentUser() {
         return ApiResponse.<CurrentUserResponse>builder()
@@ -29,6 +31,7 @@ public class UserController {
     }
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<PageResponse<AdminUserResponse>> getUsers(
             @RequestParam(required = false) String keyword,
@@ -50,6 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/statistics")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<UserStatisticsResponse> getStatistics() {
         return ApiResponse.<UserStatisticsResponse>builder()
@@ -58,6 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<AdminUserResponse> getUserById(@PathVariable String id) {
         return ApiResponse.<AdminUserResponse>builder()
@@ -66,6 +71,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<UserResponse> adminUpdateUser(@PathVariable String userId, @RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()

@@ -6,6 +6,7 @@ import com.example.server.dto.response.FaqResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.enums.FaqStatus;
 import com.example.server.service.FaqService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class FaqController {
     FaqService faqService;
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<FaqResponse> create(@RequestBody @Valid FaqRequest request) {
         return ApiResponse.<FaqResponse>builder()
@@ -59,6 +61,7 @@ public class FaqController {
     }
 
     @GetMapping("/management")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<PageResponse<FaqResponse>> getForManagement(
             @RequestParam(required = false) String keyword,
@@ -89,6 +92,7 @@ public class FaqController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<FaqResponse> update(
             @PathVariable String id,
@@ -99,6 +103,7 @@ public class FaqController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<Void> delete(@PathVariable String id) {
         faqService.delete(id);

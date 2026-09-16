@@ -7,6 +7,7 @@ import com.example.server.dto.response.DocumentResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.enums.DocumentStatus;
 import com.example.server.service.DocumentService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class DocumentController {
     DocumentService documentService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<DocumentResponse> create(
             @RequestPart("file") MultipartFile file,
@@ -58,6 +60,7 @@ public class DocumentController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{id}")
     public ApiResponse<DocumentResponse> getById(@PathVariable String id) {
         return ApiResponse.<DocumentResponse>builder()
@@ -66,6 +69,7 @@ public class DocumentController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{id}")
     public ApiResponse<DocumentResponse> update(
             @PathVariable String id,
@@ -76,6 +80,7 @@ public class DocumentController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable String id) {
         documentService.delete(id);

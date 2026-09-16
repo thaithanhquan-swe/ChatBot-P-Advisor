@@ -5,6 +5,7 @@ import com.example.server.dto.response.ChatExchangeResponse;
 import com.example.server.dto.response.ChatMessageResponse;
 import com.example.server.service.ChatMessageService;
 import com.example.server.service.ChatAiService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -46,6 +47,7 @@ public class ChatMessageController {
     }
 
     @PostMapping(value = "/staff/{sessionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<ChatMessageResponse> sendStaffMessage(
             @PathVariable String sessionId,

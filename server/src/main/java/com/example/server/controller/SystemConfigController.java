@@ -5,6 +5,7 @@ import com.example.server.dto.request.SystemConfigRequest;
 import com.example.server.dto.response.SystemConfigResponse;
 import com.example.server.dto.response.SystemConfigImageResponse;
 import com.example.server.service.SystemConfigService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,7 @@ public class SystemConfigController {
     }
 
     @PutMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<SystemConfigResponse> update(@RequestBody @Valid SystemConfigRequest request) {
         return ApiResponse.<SystemConfigResponse>builder()
@@ -40,6 +42,7 @@ public class SystemConfigController {
     }
 
     @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<SystemConfigImageResponse> uploadImage(@RequestPart("file") MultipartFile file) {
         return ApiResponse.<SystemConfigImageResponse>builder()

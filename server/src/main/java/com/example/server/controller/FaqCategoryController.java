@@ -5,6 +5,7 @@ import com.example.server.dto.request.FaqCategoryRequest;
 import com.example.server.dto.response.FaqCategoryResponse;
 import com.example.server.dto.response.PageResponse;
 import com.example.server.service.FaqCategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class FaqCategoryController {
     FaqCategoryService faqCategoryService;
 
     @PostMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<FaqCategoryResponse> create(@RequestBody @Valid FaqCategoryRequest request) {
         return ApiResponse.<FaqCategoryResponse>builder()
@@ -52,6 +54,7 @@ public class FaqCategoryController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<FaqCategoryResponse> update(
             @PathVariable String id,
@@ -62,6 +65,7 @@ public class FaqCategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'ADVISOR')")
     public ApiResponse<Void> delete(@PathVariable String id) {
         faqCategoryService.delete(id);
