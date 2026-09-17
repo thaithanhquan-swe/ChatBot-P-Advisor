@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquareText,
+  X,
   Settings,
   Users,
 } from 'lucide-react';
@@ -18,7 +19,7 @@ import { getCurrentUser } from '@/services/user-service';
 
 import AdminFooter from '../AdminFooter/AdminFooter';
 
-function AdminSidebar() {
+function AdminSidebar({ open, onClose }) {
   const [currentUser, setCurrentUser] = useState(null);
 
   const navigate = useNavigate();
@@ -115,7 +116,20 @@ function AdminSidebar() {
   };
 
   return (
-    <aside className='absolute inset-y-0 left-0 z-50 flex w-67.5 flex-col border-r border-slate-200 bg-white shadow-[8px_0_30px_-24px_rgba(15,23,42,0.28)]'>
+    <>
+      {open && (
+        <button
+          type='button'
+          className='fixed inset-0 z-40 bg-slate-950/35 lg:hidden'
+          onClick={onClose}
+          aria-label='Đóng menu quản trị'
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-67.5 max-w-[calc(100vw-2rem)] flex-col border-r border-slate-200 bg-white shadow-[8px_0_30px_-24px_rgba(15,23,42,0.28)] transition-transform duration-300 ease-out lg:absolute lg:translate-x-0 ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
       {/* Brand */}
       <div className='border-b border-slate-100 px-5 py-4'>
         <div className='flex items-center gap-3'>
@@ -141,6 +155,14 @@ function AdminSidebar() {
               Tư vấn tuyển sinh PTIT
             </p>
           </div>
+          <button
+            type='button'
+            onClick={onClose}
+            className='ml-auto rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-[#D71920] lg:hidden'
+            aria-label='Đóng menu quản trị'
+          >
+            <X size={19} />
+          </button>
         </div>
       </div>
 
@@ -213,6 +235,7 @@ function AdminSidebar() {
                 key={item.path}
                 to={item.path}
                 end
+                onClick={onClose}
                 className={({ isActive }) =>
                   `
                     group flex items-center gap-3
@@ -237,7 +260,8 @@ function AdminSidebar() {
       </div>
 
       <AdminFooter compact />
-    </aside>
+      </aside>
+    </>
   );
 }
 
