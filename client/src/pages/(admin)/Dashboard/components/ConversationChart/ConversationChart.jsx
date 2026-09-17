@@ -58,14 +58,15 @@ function ConversationChart({ sessions = [] }) {
 
   return (
     <div>
-      <div className='mb-5 flex items-center justify-between'>
-        <h2 className='text-[15px] font-bold text-slate-900'>Lượt trò chuyện theo ngày</h2>
+      <div className='mb-4 flex items-center justify-between gap-3 sm:mb-5'>
+        <h2 className='text-[14px] font-bold text-slate-900 sm:text-[15px]'>Lượt trò chuyện theo ngày</h2>
 
         <button
           type='button'
           className='rounded-lg border border-slate-200 px-3 py-2 text-[11px] text-slate-600'
         >
-          7 ngày qua
+          <span className='sm:hidden'>7 ngày</span>
+          <span className='hidden sm:inline'>7 ngày qua</span>
         </button>
       </div>
 
@@ -100,7 +101,7 @@ function ConversationChart({ sessions = [] }) {
         ))}
       </div>
 
-      <div className='relative h-[260px] w-full'>
+      <div className='relative h-55 w-full sm:h-[260px]'>
         <div className='absolute inset-y-0 left-0 flex w-8 flex-col justify-between py-2 text-[10px] text-slate-400'>
           <span>{maxValue}</span>
           <span>{Math.ceil(maxValue / 2)}</span>

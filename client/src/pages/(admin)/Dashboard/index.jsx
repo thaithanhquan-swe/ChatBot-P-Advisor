@@ -27,11 +27,11 @@ const getItems = (page) => page?.content ?? page?.data ?? page?.items ?? [];
 
 function DashboardLoading() {
   return (
-    <div className='space-y-5'>
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5'>
+    <div className='space-y-4 sm:space-y-5'>
+      <div className='grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5'>
         {Array.from({ length: 5 }).map((_, index) => (
           <Card key={index}>
-            <CardContent className='space-y-4 p-5'>
+            <CardContent className='space-y-3 p-4 sm:space-y-4 sm:p-5'>
               <Skeleton className='h-11 w-11 rounded-full' />
               <Skeleton className='h-8 w-24' />
               <Skeleton className='h-4 w-32' />
@@ -40,10 +40,10 @@ function DashboardLoading() {
         ))}
       </div>
 
-      <div className='grid grid-cols-1 gap-5 xl:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-2'>
         {Array.from({ length: 4 }).map((_, index) => (
           <Card key={index} className='min-h-72'>
-            <CardContent className='space-y-4 p-5'>
+            <CardContent className='space-y-4 p-4 sm:p-5'>
               <Skeleton className='h-5 w-48' />
               <Skeleton className='h-52 w-full' />
             </CardContent>
@@ -210,16 +210,16 @@ function Dashboard() {
                 },
               },
             }}
-            className='mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.35fr_1fr]'
+            className='mt-4 grid grid-cols-1 gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-[1.35fr_1fr]'
           >
             <Card className='transition-shadow duration-300 hover:shadow-md'>
-              <CardContent className='p-5'>
+              <CardContent className='p-4 sm:p-5'>
                 <ConversationChart sessions={data.chats} />
               </CardContent>
             </Card>
 
             <Card className='transition-shadow duration-300 hover:shadow-md'>
-              <CardContent className='p-5'>
+              <CardContent className='p-4 sm:p-5'>
                 <CategoryChart
                   consultations={data.consultations}
                   consultationStats={data.consultationStats}
@@ -243,16 +243,16 @@ function Dashboard() {
                 },
               },
             }}
-            className='mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2'
+            className='mt-4 grid grid-cols-1 gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-2'
           >
             <Card className='transition-shadow duration-300 hover:shadow-md'>
-              <CardContent className='p-5'>
+              <CardContent className='p-4 sm:p-5'>
                 <PendingQuestionList items={data.waiting} />
               </CardContent>
             </Card>
 
             <Card className='transition-shadow duration-300 hover:shadow-md'>
-              <CardContent className='p-5'>
+              <CardContent className='p-4 sm:p-5'>
                 <ActivityList faqs={data.faqs} consultations={data.consultations} />
               </CardContent>
             </Card>

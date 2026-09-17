@@ -22,8 +22,8 @@ const formatTime = (value) =>
 function PendingQuestionList({ items = [] }) {
   return (
     <div>
-      <div className='mb-5 flex items-center justify-between'>
-        <h2 className='text-[15px] font-bold text-slate-900'>Lượt hỏi dạo gần đây</h2>
+      <div className='mb-4 flex items-center justify-between gap-3 sm:mb-5'>
+        <h2 className='text-[14px] font-bold text-slate-900 sm:text-[15px]'>Lượt hỏi dạo gần đây</h2>
 
         <Link
           to='/admin/messages'
@@ -40,7 +40,7 @@ function PendingQuestionList({ items = [] }) {
 
             <TableHead>Phiên chat</TableHead>
 
-            <TableHead className='text-right'>Thời gian</TableHead>
+            <TableHead className='hidden text-right sm:table-cell'>Thời gian</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -66,15 +66,17 @@ function PendingQuestionList({ items = [] }) {
               }}
               className='border-b transition-colors hover:bg-slate-50'
             >
-              <TableCell className='font-medium'>
+              <TableCell className='max-w-28 truncate font-medium sm:max-w-none'>
                 {item.username || item.userEmail || 'Khách'}
               </TableCell>
 
               <TableCell>
-                <Badge className='bg-red-50 text-[#D71920]'>{item.title || 'Cần tư vấn'}</Badge>
+                <Badge className='block max-w-30 truncate bg-red-50 text-[#D71920] sm:inline-block sm:max-w-48'>
+                  {item.title || 'Cần tư vấn'}
+                </Badge>
               </TableCell>
 
-              <TableCell className='text-right text-xs text-muted-foreground'>
+              <TableCell className='hidden text-right text-xs text-muted-foreground sm:table-cell'>
                 {formatTime(item.createdAt)}
               </TableCell>
             </motion.tr>

@@ -73,7 +73,7 @@ function StatisticCard({ title, value, change, description, icon: Icon, positive
         stiffness: 240,
         damping: 23,
       }}
-      className='group rounded-xl border border-slate-200 bg-white p-5 shadow-[0_2px_8px_rgba(15,23,42,0.02)] transition-[border-color,box-shadow] duration-300 hover:border-red-100 hover:shadow-[0_10px_28px_rgba(15,23,42,0.07)]'
+      className='group rounded-xl border border-slate-200 bg-white p-3.5 shadow-[0_2px_8px_rgba(15,23,42,0.02)] transition-[border-color,box-shadow] duration-300 hover:border-red-100 hover:shadow-[0_10px_28px_rgba(15,23,42,0.07)] sm:p-5'
     >
       <motion.div
         whileHover={
@@ -89,17 +89,18 @@ function StatisticCard({ title, value, change, description, icon: Icon, positive
           stiffness: 260,
           damping: 20,
         }}
-        className='flex h-11 w-11 items-center justify-center rounded-full border border-red-100 bg-red-50 text-[#D71920]'
+        className='flex h-9 w-9 items-center justify-center rounded-full border border-red-100 bg-red-50 text-[#D71920] sm:h-11 sm:w-11'
       >
-        <Icon size={22} strokeWidth={1.8} />
+        <Icon size={19} strokeWidth={1.8} className='sm:hidden' />
+        <Icon size={22} strokeWidth={1.8} className='hidden sm:block' />
       </motion.div>
 
-      <div className='mt-5'>
-        <p className='text-[28px] font-bold leading-none tracking-tight text-slate-900'>
+      <div className='mt-3 sm:mt-5'>
+        <p className='text-[24px] font-bold leading-none tracking-tight text-slate-900 sm:text-[28px]'>
           <AnimatedNumber value={value} />
         </p>
 
-        <p className='mt-2 text-[13px] font-medium text-slate-700'>{title}</p>
+        <p className='mt-1.5 text-[12px] leading-snug font-medium text-slate-700 sm:mt-2 sm:text-[13px]'>{title}</p>
 
         {change ? (
           <div className='mt-3 flex items-center gap-1.5 text-[11px]'>
