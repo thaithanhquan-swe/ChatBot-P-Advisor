@@ -36,7 +36,7 @@ const ConsultationProcess = () => {
         stiffness: 220,
         damping: 24,
       }}
-      className='rounded-2xl border border-gray-100 bg-white p-6 shadow-sm'
+      className='rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6'
     >
       <h2 className='mb-5 text-base font-bold text-gray-900'>Quy trình xử lý yêu cầu</h2>
 
@@ -52,7 +52,7 @@ const ConsultationProcess = () => {
             },
           },
         }}
-        className='relative space-y-6 pl-2'
+        className='relative space-y-5 pl-1 sm:space-y-6 sm:pl-2'
       >
         <motion.div
           initial={

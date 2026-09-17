@@ -113,13 +113,13 @@ const ConsultationRequestPage = () => {
   };
 
   return (
-    <main className='relative min-h-[calc(100vh-80px)] overflow-hidden bg-gray-50/60 px-4 py-10 sm:px-6 lg:px-8'>
+    <main className='relative min-h-[calc(100vh-4rem)] overflow-hidden bg-gray-50/60 px-3 py-6 sm:px-6 sm:py-8 lg:min-h-[calc(100vh-4.6875rem)] lg:px-8 lg:py-10'>
       <div className='pointer-events-none absolute left-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-100/40 blur-3xl' />
 
       <div className='pointer-events-none absolute bottom-[-140px] right-[-100px] h-96 w-96 rounded-full bg-red-50/60 blur-3xl' />
 
       <div className='relative z-10 mx-auto max-w-7xl'>
-        <div className='grid grid-cols-1 gap-8 lg:grid-cols-12'>
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8'>
           <ConsultationIntro />
 
           <motion.section
@@ -142,7 +142,7 @@ const ConsultationRequestPage = () => {
               duration: 0.6,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className='relative z-10 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_8px_30px_rgba(15,23,42,0.05)] sm:p-8 lg:col-span-6'
+            className='relative z-10 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] sm:p-6 lg:col-span-6 lg:p-8'
           >
             {isSuccess ? (
               <SuccessState onClose={handleReset} />
@@ -176,7 +176,7 @@ const ConsultationRequestPage = () => {
               duration: 0.6,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className='relative z-10 flex flex-col gap-6 lg:col-span-3'
+            className='relative z-10 flex flex-col gap-4 sm:gap-6 lg:col-span-3'
           >
             <ConsultationProcess />
             <SupportChannels />

@@ -24,7 +24,7 @@ const ConsultationIntro = () => {
         duration: 0.65,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className='relative flex h-full flex-col pt-4 lg:col-span-3'
+      className='relative flex h-full flex-col pt-0 sm:pt-2 lg:col-span-3 lg:pt-4'
     >
       <div className='relative z-10'>
         <motion.div
@@ -47,9 +47,10 @@ const ConsultationIntro = () => {
             duration: 0.5,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className='relative mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50 text-[#c8102e]'
+          className='relative mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-[#c8102e] sm:mb-6 sm:h-20 sm:w-20'
         >
-          <Mail size={40} />
+          <Mail size={28} className='sm:hidden' />
+          <Mail size={40} className='hidden sm:block' />
 
           <motion.div
             initial={
@@ -70,9 +71,10 @@ const ConsultationIntro = () => {
               stiffness: 260,
               damping: 18,
             }}
-            className='absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-[#c8102e] text-white shadow-md'
+            className='absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#c8102e] text-white shadow-md sm:h-8 sm:w-8'
           >
-            <HelpCircle size={18} />
+            <HelpCircle size={14} className='sm:hidden' />
+            <HelpCircle size={18} className='hidden sm:block' />
           </motion.div>
         </motion.div>
 
@@ -94,9 +96,9 @@ const ConsultationIntro = () => {
             duration: 0.55,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className='mb-6 text-4xl font-extrabold leading-tight tracking-tight text-gray-900'
+          className='mb-4 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 sm:mb-6 sm:text-4xl'
         >
-          Gửi yêu cầu <br />
+          Gửi yêu cầu <br className='hidden sm:block' />
           <span className='text-[#c8102e]'>tư vấn</span>
         </motion.h1>
 

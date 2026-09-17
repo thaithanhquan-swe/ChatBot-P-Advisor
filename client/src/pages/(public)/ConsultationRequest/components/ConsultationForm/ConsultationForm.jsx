@@ -28,7 +28,7 @@ const ConsultationForm = ({
         duration: 0.35,
       }}
     >
-      <div className='mb-6 flex items-start gap-3'>
+      <div className='mb-5 flex items-start gap-3 sm:mb-6'>
         <motion.div
           initial={
             prefersReducedMotion
@@ -53,7 +53,7 @@ const ConsultationForm = ({
         </motion.div>
 
         <div>
-          <h2 className='text-xl font-bold text-gray-900'>Thông tin yêu cầu tư vấn</h2>
+          <h2 className='text-lg font-bold text-gray-900 sm:text-xl'>Thông tin yêu cầu tư vấn</h2>
 
           <p className='text-sm text-gray-500'>
             Vui lòng cung cấp thông tin để chúng tôi hỗ trợ bạn tốt hơn
@@ -74,7 +74,7 @@ const ConsultationForm = ({
             rows='4'
             maxLength={5000}
             placeholder='Nhập nội dung bạn cần cán bộ tuyển sinh tư vấn'
-            className={`w-full resize-y rounded-xl border p-3 text-sm text-gray-700 outline-none transition-all duration-300 focus:border-[#c8102e] focus:ring-2 focus:ring-red-100 ${
+            className={`min-h-28 w-full resize-y rounded-xl border p-3 text-sm text-gray-700 outline-none transition-all duration-300 focus:border-[#c8102e] focus:ring-2 focus:ring-red-100 ${
               errors.question
                 ? 'border-red-500 bg-red-50/20'
                 : 'border-gray-200 hover:border-gray-300'
@@ -133,13 +133,13 @@ const ConsultationForm = ({
                 className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400'
               />
 
-              <span className='text-sm text-gray-700'>{userEmail}</span>
+              <span className='min-w-0 break-all text-sm text-gray-700'>{userEmail}</span>
             </div>
           ) : (
-            <div className='flex items-center gap-2 rounded-xl border border-dashed border-gray-200 bg-gray-50/80 px-4 py-2.5'>
+            <div className='flex items-start gap-2 rounded-xl border border-dashed border-gray-200 bg-gray-50/80 px-3 py-2.5 sm:px-4'>
               <Mail size={16} className='shrink-0 text-gray-400' />
 
-              <span className='text-sm text-gray-500'>
+              <span className='min-w-0 text-sm text-gray-500'>
                 <Link to='/login' className='font-medium text-[#c8102e] hover:underline'>
                   Đăng nhập
                 </Link>{' '}
@@ -229,13 +229,15 @@ const ConsultationForm = ({
           {isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu tư vấn'}
         </motion.button>
 
-        <p className='mt-2 flex items-center justify-center gap-1 text-center text-xs text-gray-500'>
-          <Lock size={12} className='text-gray-400' />
-          Bằng việc gửi thông tin, bạn đồng ý với{' '}
-          <a href='#' className='font-medium text-red-600 underline hover:text-red-700'>
-            Chính sách bảo mật
-          </a>{' '}
-          của PTIT.
+        <p className='mt-2 flex items-start justify-center gap-1 text-center text-xs leading-relaxed text-gray-500'>
+          <Lock size={12} className='mt-0.5 shrink-0 text-gray-400' />
+          <span>
+            Bằng việc gửi thông tin, bạn đồng ý với{' '}
+            <a href='#' className='font-medium text-red-600 underline hover:text-red-700'>
+              Chính sách bảo mật
+            </a>{' '}
+            của PTIT.
+          </span>
         </p>
       </form>
     </motion.div>

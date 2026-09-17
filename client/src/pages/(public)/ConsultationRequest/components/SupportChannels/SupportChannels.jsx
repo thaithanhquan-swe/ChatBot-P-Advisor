@@ -29,7 +29,7 @@ const SupportChannels = () => {
         stiffness: 220,
         damping: 24,
       }}
-      className='rounded-2xl border border-gray-100 bg-white p-6 shadow-sm'
+      className='rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-6'
     >
       <h2 className='mb-4 text-base font-bold text-gray-900'>Các kênh hỗ trợ khác</h2>
 
@@ -87,12 +87,12 @@ const SupportChannels = () => {
               <Icon size={14} />
             </motion.div>
 
-            <div>
+            <div className='min-w-0'>
               <p className='font-semibold text-gray-800 transition-colors group-hover:text-[#c8102e]'>
                 {label}
               </p>
 
-              <p className='text-gray-900'>{value}</p>
+              <p className='wrap-anywhere text-gray-900'>{value}</p>
             </div>
           </motion.div>
         ))}
@@ -135,12 +135,12 @@ const SupportChannels = () => {
             <FacebookIcon size={14} aria-hidden='true' />
           </motion.div>
 
-          <div>
+          <div className='min-w-0'>
             <p className='font-semibold text-gray-800 transition-colors group-hover:text-blue-600'>
               Facebook
             </p>
 
-            <a href={config.facebookUrl} target='_blank' rel='noreferrer' className='font-medium text-gray-900'>
+            <a href={config.facebookUrl} target='_blank' rel='noreferrer' className='wrap-anywhere font-medium text-gray-900'>
               {config.facebookUrl.replace(/^https?:\/\//, '')}
             </a>
           </div>
