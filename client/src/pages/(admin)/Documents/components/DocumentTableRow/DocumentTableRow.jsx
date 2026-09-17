@@ -30,7 +30,7 @@ function DocumentTableRow({ document, onEdit, onDelete, onDownload }) {
       <TableCell className='align-top'>
         <p className='truncate text-[12px] font-semibold text-slate-800'>{document.title}</p>
         {document.description && (
-          <p className='mt-1 line-clamp-2 text-[10px] leading-4 text-slate-400 sm:max-w-[270px] sm:truncate'>
+          <p className='mt-1 line-clamp-2 text-[10px] leading-4 text-slate-400 lg:max-w-[270px] lg:truncate'>
             {document.description}
           </p>
         )}

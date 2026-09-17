@@ -32,7 +32,7 @@ function DocumentTable({
       </CardHeader>
 
       <div className='overflow-x-auto'>
-        <Table className='table-fixed border-collapse [&_tr>*:first-child]:w-[72%] [&_tr>*:last-child]:w-[28%] [&_tr>*:nth-child(n+2):nth-child(-n+6)]:hidden sm:[&_tr>*:first-child]:w-[28%] sm:[&_tr>*:last-child]:w-[11%] sm:[&_tr>*:nth-child(n+2):nth-child(-n+6)]:table-cell'>
+        <Table className='table-fixed border-collapse [&_tr>*:first-child]:w-[72%] [&_tr>*:last-child]:w-[28%] [&_tr>*:nth-child(n+2):nth-child(-n+6)]:hidden 2xl:min-w-[1100px] 2xl:table-auto 2xl:[&_tr>*:first-child]:w-auto 2xl:[&_tr>*:last-child]:w-auto 2xl:[&_tr>*:nth-child(n+2):nth-child(-n+6)]:table-cell'>
           <TableHeader>
             <TableRow className='bg-slate-50/80 hover:bg-slate-50/80'>
               {[
