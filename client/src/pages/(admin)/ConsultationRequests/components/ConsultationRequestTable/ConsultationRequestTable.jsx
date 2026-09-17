@@ -47,7 +47,7 @@ function ConsultationRequestTable({
   return (
     <Card className='overflow-hidden rounded-xl border-slate-200 bg-white shadow-none'>
       <div className='overflow-x-auto'>
-        <Table className='w-full min-w-[1000px]'>
+        <Table className='w-full table-fixed [&_tr>*:first-child]:w-[72%] [&_tr>*:last-child]:w-[28%] [&_tr>*:nth-child(n+2):nth-child(-n+4)]:hidden 2xl:min-w-[1000px] 2xl:table-auto 2xl:[&_tr>*:first-child]:w-auto 2xl:[&_tr>*:last-child]:w-auto 2xl:[&_tr>*:nth-child(n+2):nth-child(-n+4)]:table-cell'>
           <TableHeader>
             <TableRow className='border-b border-slate-200 bg-slate-50/70 text-[10px] font-semibold text-slate-600'>
               <TableHead className='w-[36%] px-5 py-3'>Nội dung yêu cầu</TableHead>
@@ -92,7 +92,7 @@ function ConsultationRequestTable({
                   >
                     <TableCell className='px-5 py-4 align-top'>
                       <p className='font-medium leading-5 text-slate-800'>{item.question}</p>
-                      <p className='mt-1 text-[9px] text-slate-400'>#{item.id}</p>
+                      <p className='mt-1 break-all whitespace-normal text-[9px] text-slate-400'>#{item.id}</p>
                     </TableCell>
 
                     <TableCell className='px-3 py-4 align-top'>
@@ -121,7 +121,7 @@ function ConsultationRequestTable({
                       )}
                     </TableCell>
 
-                    <TableCell className='px-3 py-4 text-center align-top'>
+                    <TableCell className='px-3 py-4 text-center align-top whitespace-normal'>
                       {canAssign && (
                         <Button
                           size='sm'
@@ -156,7 +156,7 @@ function ConsultationRequestTable({
         </Table>
       </div>
 
-      <div className='flex items-center justify-between border-t border-slate-100 p-4 text-[10px] text-slate-500'>
+      <div className='flex flex-col gap-3 border-t border-slate-100 p-4 text-[10px] text-slate-500 sm:flex-row sm:items-center sm:justify-between'>
         <span>{pageData.totalElements || 0} yêu cầu</span>
         <div className='flex items-center gap-2'>
           <Button

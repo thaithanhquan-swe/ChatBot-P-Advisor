@@ -35,18 +35,18 @@ function DocumentStatistics({ documents, totalItems }) {
   ];
 
   return (
-    <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+    <div className='grid grid-cols-2 gap-3 xl:grid-cols-4'>
       {cards.map(({ label, value, icon: Icon, iconClass }) => (
-        <div key={label} className='rounded-xl border border-slate-200 bg-white p-4'>
+        <div key={label} className='rounded-xl border border-slate-200 bg-white p-3 sm:p-4'>
           <div className='flex items-center justify-between'>
             <div>
-              <p className='text-[11px] font-medium text-slate-500'>{label}</p>
+              <p className='text-[10px] font-medium text-slate-500 sm:text-[11px]'>{label}</p>
 
-              <p className='mt-1 text-2xl font-bold text-slate-900'>{value}</p>
+              <p className='mt-1 text-xl font-bold text-slate-900 sm:text-2xl'>{value}</p>
             </div>
 
-            <div className={`rounded-xl p-3 ${iconClass}`}>
-              <Icon size={20} />
+            <div className={`rounded-xl p-2.5 sm:p-3 ${iconClass}`}>
+              <Icon size={18} className='sm:hidden' />
             </div>
           </div>
         </div>

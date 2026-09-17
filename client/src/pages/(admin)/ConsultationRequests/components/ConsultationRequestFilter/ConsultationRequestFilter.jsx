@@ -21,14 +21,14 @@ function ConsultationRequestFilter({ filters, onChange, onReset }) {
 
   return (
     <Card className='mt-5 rounded-xl border-slate-200 bg-white shadow-none'>
-      <CardContent className='p-4'>
+      <CardContent className='p-3 sm:p-4'>
         <div className='mb-4 flex items-center justify-between'>
           <h2 className='text-[15px] font-bold text-slate-900'>Bộ lọc yêu cầu tư vấn</h2>
 
           <SlidersHorizontal size={18} className='text-slate-500' />
         </div>
 
-        <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_1fr_1fr_0.8fr_auto]'>
+        <div className='grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[1.6fr_1fr_1fr_1fr_1fr_0.8fr_auto]'>
           <FilterLabel label='Tìm kiếm'>
             <div className='relative flex items-center'>
               <Input
@@ -142,7 +142,7 @@ function ConsultationRequestFilter({ filters, onChange, onReset }) {
             </Select>
           </FilterLabel>
 
-          <div className='flex justify-end'>
+          <div className='flex justify-end max-sm:col-span-full'>
             <Button
               type='button'
               variant='outline'

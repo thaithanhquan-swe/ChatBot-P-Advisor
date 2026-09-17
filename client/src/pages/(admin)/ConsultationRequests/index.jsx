@@ -186,7 +186,7 @@ function ConsultationRequests() {
         onChange={handleFiltersChange}
         onReset={handleResetFilters}
       />
-      <div className='mt-5'>
+      <div className='mt-4 sm:mt-5'>
         <ConsultationRequestTable
           pageData={pageData}
           loading={loading}

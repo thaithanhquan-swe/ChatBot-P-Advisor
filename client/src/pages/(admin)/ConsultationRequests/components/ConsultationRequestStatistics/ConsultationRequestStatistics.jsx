@@ -11,16 +11,16 @@ function ConsultationRequestStatistics({ counts = {} }) {
   ];
 
   return (
-    <section className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5'>
+    <section className='grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5'>
       {statistics.map(([label, value, Icon, tone]) => (
         <Card key={label} className='rounded-xl border-slate-200 bg-white shadow-none'>
-          <CardContent className='flex min-h-28 items-center gap-4 p-4'>
-            <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${tone}`}>
-              <Icon size={25} />
+          <CardContent className='flex min-h-20 items-center gap-3 p-3 sm:min-h-28 sm:gap-4 sm:p-4'>
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full sm:h-14 sm:w-14 ${tone}`}>
+              <Icon size={19} className='sm:hidden' />
             </div>
             <div>
-              <p className='text-[22px] font-bold leading-none text-slate-900'>{value}</p>
-              <p className='mt-2 text-[11px] font-medium text-slate-600'>{label}</p>
+              <p className='text-xl font-bold leading-none text-slate-900 sm:text-[22px]'>{value}</p>
+              <p className='mt-1.5 text-[10px] leading-tight font-medium text-slate-600 sm:mt-2 sm:text-[11px]'>{label}</p>
             </div>
           </CardContent>
         </Card>
