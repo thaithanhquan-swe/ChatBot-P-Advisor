@@ -40,10 +40,10 @@ const FAQItem = ({ faq, isExpanded, onToggle, onAskInChat }) => {
         aria-expanded={isExpanded}
         aria-controls={answerId}
         onClick={onToggle}
-        className='flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left'
+        className='flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3.5 text-left sm:gap-4 sm:px-5 sm:py-4'
       >
         <span
-          className={`text-[15px] font-semibold leading-6 transition-colors duration-200 ${
+          className={`min-w-0 break-words text-[14px] leading-5 font-semibold transition-colors duration-200 sm:text-[15px] sm:leading-6 ${
             isExpanded ? 'text-(--primary-color)' : 'text-gray-800'
           }`}
         >
@@ -59,7 +59,7 @@ const FAQItem = ({ faq, isExpanded, onToggle, onAskInChat }) => {
             stiffness: 320,
             damping: 22,
           }}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8 ${
             isExpanded ? 'bg-(--primary-color) text-white' : 'bg-gray-100 text-gray-600'
           }`}
         >
@@ -98,13 +98,13 @@ const FAQItem = ({ faq, isExpanded, onToggle, onAskInChat }) => {
             }}
             className='overflow-hidden'
           >
-            <div className='px-5 pb-5'>
-              <div className='border-t border-gray-100 pt-4'>
-                <p className='whitespace-pre-wrap text-[14px] leading-6 text-gray-700'>
+            <div className='px-4 pb-4 sm:px-5 sm:pb-5'>
+              <div className='border-t border-gray-100 pt-3.5 sm:pt-4'>
+                <p className='break-words whitespace-pre-wrap text-[14px] leading-6 text-gray-700 [overflow-wrap:anywhere]'>
                   {faq.answer}
                 </p>
 
-                <div className='mt-4 flex justify-end border-t border-dashed border-gray-200 pt-4'>
+                <div className='mt-3.5 flex justify-end border-t border-dashed border-gray-200 pt-3.5 sm:mt-4 sm:pt-4'>
                   <motion.button
                     type='button'
                     onClick={handleAskAI}
@@ -116,7 +116,7 @@ const FAQItem = ({ faq, isExpanded, onToggle, onAskInChat }) => {
                           }
                     }
                     whileTap={{ scale: 0.97 }}
-                    className='flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-[13px] font-semibold text-(--primary-color) transition-colors duration-200 hover:border-(--primary-color) hover:bg-(--primary-color) hover:text-white'
+                    className='flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-[13px] font-semibold text-(--primary-color) transition-colors duration-200 hover:border-(--primary-color) hover:bg-(--primary-color) hover:text-white sm:w-auto'
                   >
                     <MessageCircle aria-hidden='true' size={16} />
                     Hỏi AI chi tiết hơn

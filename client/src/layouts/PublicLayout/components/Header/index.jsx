@@ -27,7 +27,7 @@ const Navbar = () => {
         isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className='mx-auto flex h-18.75 max-w-350 items-center justify-between px-8'>
+      <div className='mx-auto flex h-16 max-w-350 items-center justify-between px-4 sm:px-6 lg:h-18.75 lg:px-8'>
         <Logo />
         <Nav />
       </div>

@@ -19,7 +19,7 @@ const Hero = () => {
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef(null);
 
-  if (loading) return <section className='h-160 animate-pulse bg-slate-50' aria-label='Đang tải nội dung trang chủ' />;
+  if (loading) return <section className='h-105 animate-pulse bg-slate-50 sm:h-130 lg:h-160' aria-label='Đang tải nội dung trang chủ' />;
   if (!config) return null;
   const heroSlides = config.heroSlides ?? [];
 
@@ -62,27 +62,27 @@ const Hero = () => {
       <div className='pointer-events-none absolute -top-32 -right-24 h-80 w-80 rounded-full bg-[#f7c9ce]/45 blur-3xl' />
       <div className='pointer-events-none absolute bottom-0 left-0 h-44 w-44 rounded-full bg-[#fff]/80 blur-2xl' />
 
-      <div className='container relative py-12 lg:py-18'>
-        <div className='grid grid-cols-1 items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16'>
-          <div className='max-w-145'>
-            <span className='inline-flex items-center gap-2 rounded-(--radius-pill) border border-(--primary-color-border) bg-white/80 px-4 py-2 text-[12px] font-bold tracking-[0.04em] text-(--primary-color) shadow-sm'>
+      <div className='container relative py-8 sm:py-10 lg:py-18'>
+        <div className='grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16'>
+          <div className='min-w-0 max-w-145'>
+            <span className='inline-flex items-center gap-2 rounded-(--radius-pill) border border-(--primary-color-border) bg-white/80 px-3 py-1.5 text-[11px] font-bold tracking-[0.04em] text-(--primary-color) shadow-sm sm:px-4 sm:py-2 sm:text-[12px]'>
               <Bot size={15} />
               {config.heroBadge}
             </span>
 
-            <h1 className='mt-6 text-[34px] leading-[1.15] font-extrabold tracking-[-0.02em] text-gray-950 sm:text-[44px] lg:text-[52px]'>
+            <h1 className='mt-5 text-[30px] leading-[1.15] font-extrabold tracking-[-0.02em] text-gray-950 [overflow-wrap:anywhere] sm:mt-6 sm:text-[44px] lg:text-[52px]'>
               {config.heroTitle}
               {config.heroHighlightedTitle && <span className='block text-(--primary-color)'>{config.heroHighlightedTitle}</span>}
             </h1>
 
-            <p className='mt-5 max-w-135 text-[15px] leading-7 text-(--text-secondary) sm:text-[16px]'>
+            <p className='mt-4 max-w-135 text-[14px] leading-6 text-(--text-secondary) [overflow-wrap:anywhere] sm:mt-5 sm:text-[16px] sm:leading-7'>
               {config.heroDescription}
             </p>
 
-            <div className='mt-8 flex flex-wrap items-center gap-3'>
+            <div className='mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center'>
               <Link
                 to='/chatai'
-                className='inline-flex items-center gap-2.5 rounded-xl bg-(--primary-color) px-5 py-3.5 text-[14px] font-bold text-white shadow-[0_12px_24px_-10px_rgba(200,16,46,0.7)] transition-all hover:-translate-y-0.5 hover:bg-[#a90d27]'
+                className='inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-(--primary-color) px-5 py-3.5 text-[14px] font-bold text-white shadow-[0_12px_24px_-10px_rgba(200,16,46,0.7)] transition-all hover:-translate-y-0.5 hover:bg-[#a90d27] sm:w-auto'
               >
                 <MessageCircle size={18} />
                 Bắt đầu trò chuyện
@@ -90,13 +90,13 @@ const Hero = () => {
               </Link>
               <Link
                 to='/documents'
-                className='inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3.5 text-[14px] font-bold text-gray-700 transition-colors hover:border-(--primary-color-border) hover:text-(--primary-color)'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3.5 text-center text-[14px] font-bold text-gray-700 transition-colors hover:border-(--primary-color-border) hover:text-(--primary-color) sm:w-auto'
               >
                 Xem tài liệu tuyển sinh
               </Link>
             </div>
 
-            <div className='mt-9 grid max-w-130 grid-cols-1 gap-3 sm:grid-cols-3'>
+            <div className='mt-7 grid max-w-130 grid-cols-1 gap-2.5 sm:mt-9 sm:grid-cols-3 sm:gap-3'>
               {[
                 { icon: Zap, label: 'Phản hồi tức thì' },
                 { icon: ShieldCheck, label: 'Nguồn tin tin cậy' },
@@ -117,7 +117,7 @@ const Hero = () => {
 
           {!!heroSlides.length && <div className='relative mx-auto w-full max-w-155 lg:pr-5'>
             <div
-              className='relative aspect-[1.08/1] touch-none select-none perspective-distant'
+              className='relative aspect-[1.08/1] touch-pan-y select-none perspective-distant'
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
@@ -135,7 +135,7 @@ const Hero = () => {
                   return (
                     <div
                       key={`${slide.imageUrl}-${slide.displayOrder ?? index}`}
-                      className={`absolute inset-0 cursor-grab overflow-hidden rounded-[1.75rem] border-8 border-white bg-(--surface-muted) shadow-[0_24px_60px_-24px_rgba(98,17,28,0.45)] [transform-style:preserve-3d] active:cursor-grabbing ${
+                      className={`absolute inset-0 cursor-grab overflow-hidden rounded-2xl border-4 border-white bg-(--surface-muted) shadow-[0_24px_60px_-24px_rgba(98,17,28,0.45)] [transform-style:preserve-3d] active:cursor-grabbing sm:rounded-[1.75rem] sm:border-8 ${
                         isDragging ? '' : 'transition-transform duration-300 ease-out'
                       }`}
                       style={{ transform, zIndex: isFront ? 2 : 1 }}
@@ -159,13 +159,13 @@ const Hero = () => {
                 })}
               </div>
 
-              <div className='absolute top-5 right-5 z-10 flex gap-2'>
+              <div className='absolute top-3 right-3 z-10 flex gap-2 sm:top-5 sm:right-5'>
                 <button
                   type='button'
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => changeSlide(-1)}
                   aria-label='Ảnh trước'
-                  className='flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color)'
+                  className='flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color) sm:h-9 sm:w-9'
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -174,7 +174,7 @@ const Hero = () => {
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={() => changeSlide(1)}
                   aria-label='Ảnh tiếp theo'
-                  className='flex h-9 w-9 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color)'
+                  className='flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color) sm:h-9 sm:w-9'
                 >
                   <ChevronRight size={18} />
                 </button>

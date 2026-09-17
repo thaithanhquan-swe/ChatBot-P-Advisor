@@ -37,8 +37,8 @@ const ChatHeader = ({
 
   return (
     <>
-      <div className='flex items-center justify-between gap-3 border-b border-(--border-subtle) px-4 py-3 sm:px-6'>
-        <div className='flex min-w-0 items-center gap-3'>
+      <div className='flex items-center justify-between gap-2 border-b border-(--border-subtle) px-3 py-2.5 md:gap-3 md:px-6 md:py-3'>
+        <div className='flex min-w-0 items-center gap-2 sm:gap-3'>
           <button
             type='button'
             onClick={onOpenSidebar}
@@ -56,47 +56,50 @@ const ChatHeader = ({
             )}
           </div>
 
-          <div className='min-w-0'>
+          <div className='hidden min-w-0 md:block'>
             <p className='truncate text-[14px] font-semibold text-gray-900'>
               {isStaff ? 'Cán bộ tư vấn PTIT' : 'PTIT Admission Assistant'}
             </p>
-            <p role='status' className='text-[12px] text-(--text-tertiary)'>
+            <p role='status' className='truncate text-[11px] text-(--text-tertiary) sm:text-[12px]'>
               {statusLabel}
             </p>
           </div>
         </div>
 
-        <div className='flex shrink-0 items-center gap-2'>
+        <div className='flex shrink-0 items-center gap-1 md:gap-2'>
           {(!status || status === 'BOT_HANDLING') && (
             <button
               type='button'
               onClick={onRequestAdvisor}
               disabled={disabled}
-              className='flex items-center gap-1.5 rounded-(--radius-card) border border-red-200 bg-red-50 px-3 py-2 text-[12.5px] font-semibold text-(--primary-color) transition-colors hover:bg-red-100 disabled:opacity-40'
+              className='flex h-10 w-10 items-center justify-center rounded-full border border-red-200 bg-red-50 text-(--primary-color) transition-colors hover:bg-red-100 disabled:opacity-40 min-[430px]:w-auto min-[430px]:gap-1.5 min-[430px]:rounded-(--radius-card) min-[430px]:px-3 min-[430px]:text-[12.5px] min-[430px]:font-semibold md:h-auto md:py-2'
+              aria-label='Gặp cán bộ tư vấn'
             >
               <Headset size={15} />
+              <span className='hidden min-[430px]:inline md:hidden'>Gặp cán bộ tuyển sinh</span>
               <span className='hidden md:inline'>Gặp cán bộ tư vấn</span>
-              <span className='md:hidden'>Tư vấn viên</span>
             </button>
           )}
           <button
             type='button'
             onClick={handleClearClick}
             disabled={disabled || !hasSession}
-            className='flex items-center gap-1.5 rounded-(--radius-card) px-3 py-2 text-[12.5px] font-medium text-gray-500 transition-colors hover:text-(--primary-color) disabled:cursor-not-allowed disabled:opacity-40'
+            className='flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-50 hover:text-(--primary-color) disabled:cursor-not-allowed disabled:opacity-40 md:h-auto md:w-auto md:gap-1.5 md:rounded-(--radius-card) md:px-3 md:py-2 md:text-[12.5px] md:font-medium'
+            aria-label='Xóa đoạn chat'
           >
             <Trash2 size={14} />
-            <span className='hidden sm:inline'>Xóa đoạn chat</span>
+            <span className='hidden md:inline'>Xóa đoạn chat</span>
           </button>
 
           <button
             type='button'
             onClick={onNewChat}
             disabled={disabled}
-            className='flex items-center gap-1.5 rounded-(--radius-card) border border-(--border-subtle) px-3 py-2 text-[12.5px] font-medium text-gray-600 transition-colors hover:border-(--primary-color) hover:text-(--primary-color)'
+            className='flex h-10 w-10 items-center justify-center rounded-full border border-(--border-subtle) text-gray-600 transition-colors hover:border-(--primary-color) hover:text-(--primary-color) md:h-auto md:w-auto md:gap-1.5 md:rounded-(--radius-card) md:px-3 md:py-2 md:text-[12.5px] md:font-medium'
+            aria-label='Trò chuyện mới'
           >
             <SquarePen size={14} />
-            <span className='hidden sm:inline'>Trò chuyện mới</span>
+            <span className='hidden md:inline'>Trò chuyện mới</span>
           </button>
         </div>
       </div>
