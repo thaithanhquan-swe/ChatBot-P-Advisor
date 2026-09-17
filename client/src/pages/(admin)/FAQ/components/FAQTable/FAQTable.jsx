@@ -67,17 +67,17 @@ function FaqTable({
           <Table className='table-fixed'>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-[72%] sm:w-[38%]'>Câu hỏi</TableHead>
+                <TableHead className='w-[72%] sm:w-[32%]'>Câu hỏi</TableHead>
 
                 <TableHead className='hidden w-[14%] sm:table-cell'>Danh mục</TableHead>
 
-                <TableHead className='hidden w-[15%] sm:table-cell'>Trạng thái</TableHead>
+                <TableHead className='hidden w-[14%] sm:table-cell'>Trạng thái</TableHead>
 
                 <TableHead className='hidden w-[12%] sm:table-cell'>Ngày tạo</TableHead>
 
                 <TableHead className='hidden w-[12%] sm:table-cell'>Cập nhật</TableHead>
 
-                <TableHead className='w-[28%] text-right sm:w-[9%]'>Thao tác</TableHead>
+                <TableHead className='w-[28%] text-right sm:w-[16%]'>Thao tác</TableHead>
               </TableRow>
             </TableHeader>
 
