@@ -233,7 +233,7 @@ function Documents() {
 
       <DocumentFilter filters={filters} onChange={handleFilterChange} onReset={handleResetFilter} />
 
-      <div className='mt-5'>
+      <div className='mt-4 sm:mt-5'>
         <DocumentTable
           documents={documents}
           totalItems={totalItems}

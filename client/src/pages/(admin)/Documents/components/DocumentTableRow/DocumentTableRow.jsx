@@ -27,9 +27,10 @@ const fileTypeClass = {
 function DocumentTableRow({ document, onEdit, onDelete, onDownload }) {
   return (
     <TableRow className='border-slate-100'>
-      <TableCell>
+      <TableCell className='align-top'>
+        <p className='truncate text-[12px] font-semibold text-slate-800'>{document.title}</p>
         {document.description && (
-          <p className='mt-1 max-w-[270px] truncate text-[10px] text-slate-400'>
+          <p className='mt-1 line-clamp-2 text-[10px] leading-4 text-slate-400 sm:max-w-[270px] sm:truncate'>
             {document.description}
           </p>
         )}
@@ -66,7 +67,7 @@ function DocumentTableRow({ document, onEdit, onDelete, onDownload }) {
       </TableCell>
 
       <TableCell>
-        <div className='flex justify-end gap-1'>
+        <div className='flex flex-wrap justify-end gap-1'>
           <ActionButton title='Chỉnh sửa' onClick={() => onEdit(document)}>
             <Pencil size={14} />
           </ActionButton>

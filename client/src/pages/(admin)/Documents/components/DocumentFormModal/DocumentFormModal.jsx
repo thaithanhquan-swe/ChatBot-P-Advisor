@@ -80,7 +80,7 @@ function DocumentFormModal({ open, document, loading, onClose, onSubmit }) {
         }
       }}
     >
-      <DialogContent className='max-w-2xl'>
+      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Chỉnh sửa tài liệu' : 'Thêm tài liệu mới'}</DialogTitle>
 
@@ -91,7 +91,7 @@ function DocumentFormModal({ open, document, loading, onClose, onSubmit }) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className='space-y-5'>
+        <form onSubmit={handleSubmit} className='space-y-4 sm:space-y-5'>
           {!isEdit && (
             <div className='space-y-2'>
               <Label>

@@ -16,14 +16,14 @@ function DocumentFilter({ filters, onChange, onReset }) {
   };
 
   return (
-    <aside className='mt-5 rounded-xl border border-slate-200 bg-white p-4'>
+    <aside className='mt-4 rounded-xl border border-slate-200 bg-white p-3 sm:mt-5 sm:p-4'>
       <div className='mb-4 flex items-center gap-2'>
         <SlidersHorizontal size={16} className='text-[#D71920]' />
 
         <h2 className='text-[14px] font-bold text-slate-900'>Bộ lọc tài liệu</h2>
       </div>
 
-      <div className='grid grid-cols-1 items-end gap-3 md:grid-cols-2 xl:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(150px,1fr))_auto]'>
+      <div className='grid grid-cols-1 items-end gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(150px,1fr))_auto]'>
         <div>
           <label className='mb-2 block text-[11px] font-medium text-slate-600'>Tìm kiếm</label>
 
@@ -100,7 +100,7 @@ function DocumentFilter({ filters, onChange, onReset }) {
           <SelectItem value='ASC'>ASC - Tăng dần</SelectItem>
         </FilterSelect>
 
-        <Button type='button' variant='outline' onClick={onReset} className='h-10 text-[11px]'>
+        <Button type='button' variant='outline' onClick={onReset} className='h-10 w-full text-[11px] sm:w-auto'>
           <RotateCcw size={14} />
           Xóa bộ lọc
         </Button>

@@ -17,12 +17,12 @@ function DocumentPagination({ page, totalPages, totalItems, pageSize, onPageChan
   ).filter((item) => item === 1 || item === safeTotalPages || Math.abs(item - page) <= 1);
 
   return (
-    <div className='flex flex-col gap-3 border-t border-slate-100 px-5 py-3 sm:flex-row sm:items-center sm:justify-between'>
+    <div className='flex flex-col gap-3 border-t border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5'>
       <p className='text-[10px] text-slate-500'>
         Hiển thị {start}-{end} trên {totalItems} tài liệu · {pageSize} tài liệu/trang
       </p>
 
-      <div className='flex items-center gap-1'>
+      <div className='flex flex-wrap items-center gap-1'>
         <Button
           type='button'
           disabled={page <= 1}

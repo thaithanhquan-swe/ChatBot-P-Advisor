@@ -23,7 +23,7 @@ function DocumentTable({
 }) {
   return (
     <Card className='min-w-0 overflow-hidden'>
-      <CardHeader className='flex-row items-center justify-between space-y-0 border-b border-slate-100 px-5 py-4'>
+      <CardHeader className='flex-row items-center justify-between space-y-0 border-b border-slate-100 px-4 py-4 sm:px-5'>
         <div>
           <CardTitle>Danh sách tài liệu</CardTitle>
 
@@ -32,7 +32,7 @@ function DocumentTable({
       </CardHeader>
 
       <div className='overflow-x-auto'>
-        <Table className='min-w-[1100px] border-collapse'>
+        <Table className='table-fixed border-collapse [&_tr>*:first-child]:w-[72%] [&_tr>*:last-child]:w-[28%] [&_tr>*:nth-child(n+2):nth-child(-n+6)]:hidden sm:[&_tr>*:first-child]:w-[28%] sm:[&_tr>*:last-child]:w-[11%] sm:[&_tr>*:nth-child(n+2):nth-child(-n+6)]:table-cell'>
           <TableHeader>
             <TableRow className='bg-slate-50/80 hover:bg-slate-50/80'>
               {[
