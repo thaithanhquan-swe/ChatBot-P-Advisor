@@ -1,4 +1,4 @@
-import { MessageSquareText, PanelLeftClose, PanelLeftOpen, Plus } from 'lucide-react';
+import { MessageSquareText, PanelLeftClose, PanelLeftOpen, Plus, X } from 'lucide-react';
 
 const Sidebar = ({
   open,
@@ -27,11 +27,11 @@ const Sidebar = ({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-(--border-subtle) bg-white transition-all duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(18rem,calc(100vw-2rem))] flex-col border-r border-(--border-subtle) bg-white shadow-xl transition-all duration-300 ease-out lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none ${
           collapsed ? 'lg:w-16' : 'lg:w-64'
         } ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className='flex items-center justify-between px-4 py-4 lg:px-4'>
+        <div className='flex items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4 lg:p-4'>
           <h2
             className={`text-[13.5px] font-semibold whitespace-nowrap text-gray-900 ${
               collapsed ? 'lg:hidden' : ''
@@ -47,6 +47,14 @@ const Sidebar = ({
             title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
           >
             {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
+          <button
+            type='button'
+            onClick={onClose}
+            className='rounded-(--radius-card) p-1.5 text-gray-500 transition-colors hover:bg-gray-100 lg:hidden'
+            aria-label='Đóng lịch sử hội thoại'
+          >
+            <X size={18} />
           </button>
         </div>
 

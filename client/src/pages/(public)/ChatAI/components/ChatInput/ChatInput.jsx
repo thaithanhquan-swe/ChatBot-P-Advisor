@@ -34,7 +34,7 @@ const ChatInput = ({
   disabled,
   file,
   onFileChange,
-  placeholder = 'Nhập câu hỏi về tuyển sinh PTIT...',
+  placeholder = 'Nhập câu hỏi...',
 }) => {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -57,7 +57,7 @@ const ChatInput = ({
   };
 
   return (
-    <div className='border-t border-(--border-subtle) bg-white/95 px-4 py-3 backdrop-blur sm:px-6 sm:py-4'>
+    <div className='shrink-0 border-t border-(--border-subtle) bg-white/95 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:px-6 sm:py-4'>
       <input
         ref={fileInputRef}
         type='file'
@@ -87,10 +87,10 @@ const ChatInput = ({
           e.preventDefault();
           if (!disabled && value.trim()) onSubmit();
         }}
-        className='mx-auto max-w-160 rounded-3xl border border-(--border-subtle) bg-white px-3 py-2 shadow-(--shadow-card) transition-colors focus-within:border-(--primary-color) sm:px-4'
+        className='mx-auto max-w-160 rounded-3xl border border-(--border-subtle) bg-white px-2 py-1.5 shadow-(--shadow-card) transition-colors focus-within:border-(--primary-color) sm:px-4 sm:py-2'
       >
         {file && (
-          <div className='relative mb-2 ml-10 w-fit max-w-[calc(100%-2.5rem)]'>
+          <div className='relative mb-2 ml-9 w-fit max-w-[calc(100%-2.25rem)] sm:ml-10'>
             <SelectedImagePreview
               key={`${file.name}-${file.size}-${file.lastModified}`}
               file={file}

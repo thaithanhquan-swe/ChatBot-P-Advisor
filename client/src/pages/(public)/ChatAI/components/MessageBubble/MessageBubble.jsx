@@ -103,15 +103,19 @@ const MessageBubble = ({ message }) => {
   }
 
   return (
-    <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''}`}>
+    <div className={`flex items-start gap-2.5 sm:gap-3 ${isUser ? 'justify-end' : ''}`}>
       {!isUser && (
         <div className='flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--primary-color-soft) text-(--primary-color)'>
           {isStaff ? <Headset size={16} /> : <Bot size={16} />}
         </div>
       )}
-      <div className={`flex min-w-0 max-w-135 flex-col gap-2 ${isUser ? 'items-end' : ''}`}>
+      <div
+        className={`flex min-w-0 max-w-[calc(100%-2.625rem)] flex-col gap-2 sm:max-w-135 ${
+          isUser ? 'ml-auto max-w-[min(33.75rem,calc(100%-1rem))] items-end sm:max-w-135' : ''
+        }`}
+      >
         <div
-          className={`max-w-full rounded-(--radius-card) px-4 py-3 ${isUser ? 'bg-(--primary-color) text-white' : 'border border-(--border-subtle) bg-white text-gray-800'}`}
+          className={`max-w-full rounded-(--radius-card) px-3 py-2.5 sm:px-4 sm:py-3 ${isUser ? 'bg-(--primary-color) text-white' : 'border border-(--border-subtle) bg-white text-gray-800'}`}
         >
           <p className='whitespace-pre-wrap wrap-anywhere text-[14.5px] leading-relaxed'>
             <MessageContent content={message.content} />

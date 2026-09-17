@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import FAQControls from './components/FAQControls/FAQControls';
@@ -18,6 +18,15 @@ const FAQ = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    const scrollToTop = () => window.scrollTo(0, 0);
+
+    scrollToTop();
+    const frameId = window.requestAnimationFrame(scrollToTop);
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {

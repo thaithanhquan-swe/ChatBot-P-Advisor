@@ -59,7 +59,7 @@ function ChatAI() {
   };
 
   return (
-    <div className='flex h-[calc(100dvh-86px)] w-full overflow-hidden bg-white'>
+    <div className='flex h-[calc(100dvh-4rem)] w-full overflow-hidden bg-white lg:h-[calc(100dvh-4.6875rem)]'>
       <Sidebar
         open={sidebarOpen}
         collapsed={sidebarCollapsed}
@@ -95,7 +95,7 @@ function ChatAI() {
           disabled={busy}
         />
         {chat.error && (
-          <p role='alert' className='px-4 py-2 text-sm text-red-700'>
+          <p role='alert' className='shrink-0 px-4 py-2 text-sm text-red-700 sm:px-6'>
             {chat.error}
           </p>
         )}
@@ -120,7 +120,7 @@ function ChatAI() {
           ) : (
             <>
               {chat.messages.length === 0 && <WelcomeIntro />}
-              <div className='mx-auto flex max-w-160 flex-col gap-5 px-4 py-6 sm:px-6'>
+              <div className='mx-auto flex w-full max-w-160 flex-col gap-5 px-3 py-4 sm:px-6 sm:py-6'>
                 {chat.messages.map((message) => (
                   <MessageBubble key={message.id} message={message} />
                 ))}
@@ -138,7 +138,7 @@ function ChatAI() {
           )}
         </div>
         {chat.session && !chat.session.userId && (
-          <p className='px-4 py-2 text-center text-xs text-gray-600'>
+          <p className='shrink-0 px-4 py-2 text-center text-xs text-gray-600 sm:px-6'>
             {quotaReached
               ? 'Bạn đã dùng hết lượt hỏi dành cho khách.'
               : `Bạn còn ${chat.session.remainingGuestQuestions} lượt hỏi dành cho khách.`}{' '}
@@ -171,7 +171,7 @@ function ChatAI() {
               ? 'Nhập tin nhắn cho cán bộ tư vấn...'
               : chat.session?.status === 'WAITING_FOR_STAFF'
                 ? 'Hỏi chatbot trong lúc chờ cán bộ tư vấn...'
-              : 'Nhập câu hỏi về tuyển sinh PTIT...'
+              : 'Nhập câu hỏi...'
           }
         />
       </div>
