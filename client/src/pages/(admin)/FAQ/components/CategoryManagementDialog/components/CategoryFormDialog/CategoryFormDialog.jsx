@@ -102,11 +102,12 @@ function CategoryFormDialog({
               variant='outline'
               disabled={saving}
               onClick={() => onOpenChange(false)}
+              className='w-full sm:w-auto'
             >
               Hủy
             </Button>
 
-            <Button type='submit' disabled={saving}>
+            <Button type='submit' disabled={saving} className='w-full sm:w-auto'>
               {saving ? 'Đang lưu...' : selectedCategory ? 'Lưu thay đổi' : 'Thêm danh mục'}
             </Button>
           </DialogFooter>

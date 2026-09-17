@@ -17,7 +17,7 @@ const statusLabel = {
 function FaqDetailDialog({ faq, category, onOpenChange }) {
   return (
     <Dialog open={Boolean(faq)} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-2xl'>
+      <DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>Chi tiết FAQ</DialogTitle>
           <DialogDescription>
@@ -38,14 +38,14 @@ function FaqDetailDialog({ faq, category, onOpenChange }) {
 
             <section className='space-y-2'>
               <h3 className='text-sm font-semibold'>Câu hỏi</h3>
-              <p className='whitespace-pre-wrap text-sm leading-6'>{faq.question}</p>
+              <p className='wrap-anywhere whitespace-pre-wrap text-sm leading-6'>{faq.question}</p>
             </section>
 
             <Separator />
 
             <section className='space-y-2'>
               <h3 className='text-sm font-semibold'>Câu trả lời</h3>
-              <p className='max-h-[45vh] overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-muted-foreground'>
+              <p className='max-h-[45vh] overflow-y-auto wrap-anywhere whitespace-pre-wrap text-sm leading-6 text-muted-foreground'>
                 {faq.answer}
               </p>
             </section>

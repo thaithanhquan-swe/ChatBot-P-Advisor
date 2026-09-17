@@ -269,7 +269,7 @@ function FAQ() {
   };
 
   return (
-    <div className='mx-auto max-w-[1600px] space-y-5'>
+    <div className='mx-auto max-w-[1600px] space-y-4 sm:space-y-5'>
       <FAQHeader
         onManageCategories={() => setCategoryDialogOpen(true)}
         onCreateFaq={() =>
@@ -281,8 +281,8 @@ function FAQ() {
       />
 
       <Card>
-        <CardContent className='flex items-center gap-4 p-5'>
-          <div className='flex size-10 items-center justify-center rounded-lg bg-muted'>
+        <CardContent className='flex items-center gap-3 p-4 sm:gap-4 sm:p-5'>
+          <div className='flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted sm:size-10'>
             <HelpCircle className='size-5' />
           </div>
 

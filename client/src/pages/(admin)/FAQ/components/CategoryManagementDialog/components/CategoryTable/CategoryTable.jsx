@@ -30,13 +30,13 @@ function CategoryTable({ categories, onEdit, onDelete }) {
       <Table className='table-fixed'>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-[24%]'>Tên danh mục</TableHead>
+            <TableHead className='w-[72%] sm:w-[24%]'>Tên danh mục</TableHead>
 
-            <TableHead className='w-[42%]'>Mô tả</TableHead>
+            <TableHead className='hidden w-[42%] sm:table-cell'>Mô tả</TableHead>
 
-            <TableHead className='w-[18%]'>Trạng thái</TableHead>
+            <TableHead className='hidden w-[18%] sm:table-cell'>Trạng thái</TableHead>
 
-            <TableHead className='w-[16%] text-right'>Thao tác</TableHead>
+            <TableHead className='w-[28%] text-right sm:w-[16%]'>Thao tác</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -53,15 +53,24 @@ function CategoryTable({ categories, onEdit, onDelete }) {
             <TableRow key={category.id}>
               <TableCell className='font-medium'>
                 <p className='truncate'>{category.name}</p>
+                <p className='mt-1 line-clamp-2 text-xs leading-4 font-normal text-muted-foreground sm:hidden'>
+                  {category.description || 'Chưa có mô tả'}
+                </p>
+                <Badge
+                  variant={category.status === 'ACTIVE' ? 'default' : 'secondary'}
+                  className='mt-2 sm:hidden'
+                >
+                  {category.status === 'ACTIVE' ? 'Đang dùng' : 'Ngừng dùng'}
+                </Badge>
               </TableCell>
 
-              <TableCell>
+              <TableCell className='hidden sm:table-cell'>
                 <p className='line-clamp-2 text-sm leading-5 text-muted-foreground'>
                   {category.description || '—'}
                 </p>
               </TableCell>
 
-              <TableCell>
+              <TableCell className='hidden sm:table-cell'>
                 <Badge variant={category.status === 'ACTIVE' ? 'default' : 'secondary'}>
                   {category.status === 'ACTIVE' ? 'Đang dùng' : 'Ngừng dùng'}
                 </Badge>

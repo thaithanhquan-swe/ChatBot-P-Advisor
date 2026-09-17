@@ -128,7 +128,7 @@ function CategoryManagementDialog({ open, categories, onOpenChange, onChanged })
           </DialogHeader>
 
           <div className='flex justify-end py-2'>
-            <Button onClick={openCreate}>
+            <Button onClick={openCreate} className='w-full sm:w-auto'>
               <Plus className='size-4' />
               Thêm danh mục
             </Button>

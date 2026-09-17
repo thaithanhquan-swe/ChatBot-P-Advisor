@@ -21,15 +21,15 @@ function AdminLayout() {
         <div
           className={
             isMessagesPage
-              ? 'flex min-h-0 flex-1 flex-col overflow-hidden lg:pl-67.5'
-              : 'min-h-full flex-1 lg:pl-67.5'
+              ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:pl-67.5'
+              : 'min-h-full min-w-0 flex-1 lg:pl-67.5'
           }
         >
           <main
             className={
               isMessagesPage
-                ? 'flex min-h-0 flex-1 flex-col px-4 py-3 sm:px-6 lg:px-8 lg:py-2'
-                : 'min-h-screen px-4 py-5 sm:px-6 lg:px-8 lg:py-7'
+                ? 'flex min-h-0 min-w-0 flex-1 flex-col px-4 py-3 sm:px-6 lg:px-8 lg:py-2'
+                : 'min-h-screen min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-7'
             }
           >
             <div className='mb-4 flex lg:hidden'>

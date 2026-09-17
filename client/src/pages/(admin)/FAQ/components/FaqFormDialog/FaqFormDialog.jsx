@@ -121,7 +121,7 @@ function FaqFormDialog({ open, faq, categories, saving, onOpenChange, onSubmit }
             </DialogDescription>
           </DialogHeader>
 
-          <div className='space-y-6 py-6'>
+          <div className='space-y-5 py-5 sm:space-y-6 sm:py-6'>
             <div className='space-y-2'>
               <Label htmlFor='question'>Câu hỏi</Label>
 
@@ -216,11 +216,12 @@ function FaqFormDialog({ open, faq, categories, saving, onOpenChange, onSubmit }
               variant='outline'
               disabled={saving}
               onClick={() => onOpenChange(false)}
+              className='w-full sm:w-auto'
             >
               Hủy
             </Button>
 
-            <Button type='submit' disabled={saving || activeCategories.length === 0}>
+            <Button type='submit' disabled={saving || activeCategories.length === 0} className='w-full sm:w-auto'>
               {saving ? 'Đang lưu...' : faq ? 'Lưu thay đổi' : 'Thêm FAQ'}
             </Button>
           </DialogFooter>

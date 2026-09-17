@@ -54,7 +54,7 @@ function FaqTable({
 
   return (
     <Card className='overflow-hidden'>
-      <CardHeader className='border-b py-4'>
+      <CardHeader className='border-b px-4 py-4 sm:px-6'>
         <div className='flex items-center justify-between gap-3'>
           <CardTitle className='text-base'>Danh sách FAQ</CardTitle>
 
@@ -67,17 +67,17 @@ function FaqTable({
           <Table className='table-fixed'>
             <TableHeader>
               <TableRow>
-                <TableHead className='w-[38%]'>Câu hỏi</TableHead>
+                <TableHead className='w-[72%] sm:w-[38%]'>Câu hỏi</TableHead>
 
-                <TableHead className='w-[14%]'>Danh mục</TableHead>
+                <TableHead className='hidden w-[14%] sm:table-cell'>Danh mục</TableHead>
 
-                <TableHead className='w-[15%]'>Trạng thái</TableHead>
+                <TableHead className='hidden w-[15%] sm:table-cell'>Trạng thái</TableHead>
 
-                <TableHead className='w-[12%]'>Ngày tạo</TableHead>
+                <TableHead className='hidden w-[12%] sm:table-cell'>Ngày tạo</TableHead>
 
-                <TableHead className='w-[12%]'>Cập nhật</TableHead>
+                <TableHead className='hidden w-[12%] sm:table-cell'>Cập nhật</TableHead>
 
-                <TableHead className='w-[9%] text-right'>Thao tác</TableHead>
+                <TableHead className='w-[28%] text-right sm:w-[9%]'>Thao tác</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -117,10 +117,19 @@ function FaqTable({
                           <p className='mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground'>
                             {faq.answer}
                           </p>
+                          <div className='mt-2 flex flex-wrap items-center gap-1.5 sm:hidden'>
+                            <Badge variant='secondary' className='max-w-full truncate text-[10px]'>
+                              {faq.categoryName || category?.name || 'Chưa có danh mục'}
+                            </Badge>
+                            <Badge className='text-[10px]'>{STATUS_LABEL[faq.status] || faq.status}</Badge>
+                            <span className='text-[10px] text-muted-foreground'>
+                              Cập nhật {formatDate(faq.updatedAt)}
+                            </span>
+                          </div>
                         </button>
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell className='hidden sm:table-cell'>
                         <Badge variant='outline' className='max-w-full'>
                           <span className='truncate'>
                             {faq.categoryName || category?.name || '—'}
@@ -128,7 +137,7 @@ function FaqTable({
                         </Badge>
                       </TableCell>
 
-                      <TableCell>
+                      <TableCell className='hidden sm:table-cell'>
                         <Select
                           value={faq.status}
                           disabled={loading}
@@ -148,11 +157,11 @@ function FaqTable({
                         </Select>
                       </TableCell>
 
-                      <TableCell className='whitespace-nowrap text-xs text-muted-foreground'>
+                      <TableCell className='hidden whitespace-nowrap text-xs text-muted-foreground sm:table-cell'>
                         {formatDate(faq.createdAt)}
                       </TableCell>
 
-                      <TableCell className='whitespace-nowrap text-xs text-muted-foreground'>
+                      <TableCell className='hidden whitespace-nowrap text-xs text-muted-foreground sm:table-cell'>
                         {formatDate(faq.updatedAt)}
                       </TableCell>
 
@@ -223,14 +232,14 @@ function FaqTable({
         </div>
       </CardContent>
 
-      <CardFooter className='flex flex-col gap-3 border-t py-4 sm:flex-row sm:items-center sm:justify-between'>
+      <CardFooter className='flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6'>
         <p className='text-sm text-muted-foreground'>
           Hiển thị {from} - {to} / {totalElements} FAQ
         </p>
 
-        <div className='flex flex-wrap items-center gap-2'>
+        <div className='flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center'>
           <Select value={String(size)} onValueChange={(value) => onSizeChange(Number(value))}>
-            <SelectTrigger className='w-[120px]'>
+            <SelectTrigger className='w-full sm:w-[120px]'>
               <span>{size} / trang</span>
             </SelectTrigger>
 
@@ -243,27 +252,29 @@ function FaqTable({
             </SelectContent>
           </Select>
 
-          <Button
-            variant='outline'
-            size='sm'
-            disabled={page === 0}
-            onClick={() => onPageChange(page - 1)}
-          >
-            Trước
-          </Button>
+          <div className='flex items-center justify-between gap-2 sm:justify-start'>
+            <Button
+              variant='outline'
+              size='sm'
+              disabled={page === 0}
+              onClick={() => onPageChange(page - 1)}
+            >
+              Trước
+            </Button>
 
-          <span className='min-w-14 text-center text-sm'>
-            {totalPages === 0 ? 0 : page + 1} / {totalPages}
-          </span>
+            <span className='min-w-14 text-center text-sm'>
+              {totalPages === 0 ? 0 : page + 1} / {totalPages}
+            </span>
 
-          <Button
-            variant='outline'
-            size='sm'
-            disabled={totalPages === 0 || page >= totalPages - 1}
-            onClick={() => onPageChange(page + 1)}
-          >
-            Sau
-          </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              disabled={totalPages === 0 || page >= totalPages - 1}
+              onClick={() => onPageChange(page + 1)}
+            >
+              Sau
+            </Button>
+          </div>
         </div>
       </CardFooter>
     </Card>

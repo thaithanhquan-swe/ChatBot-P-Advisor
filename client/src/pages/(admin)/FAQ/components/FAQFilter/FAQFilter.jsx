@@ -34,9 +34,9 @@ function FaqFilters({ filters, categories, onChange, onReset }) {
 
   return (
     <Card>
-      <CardContent className='space-y-3 p-4'>
-        <div className='grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr]'>
-          <div className='relative'>
+      <CardContent className='space-y-3 p-3 sm:p-4'>
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[2fr_1fr_1fr]'>
+          <div className='relative sm:col-span-2 xl:col-span-1'>
             <Search className='absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground' />
 
             <Input
@@ -130,7 +130,7 @@ function FaqFilters({ filters, categories, onChange, onReset }) {
             </SelectContent>
           </Select>
 
-          <Button type='button' variant='outline' onClick={onReset} className='gap-2'>
+          <Button type='button' variant='outline' onClick={onReset} className='w-full gap-2 sm:w-auto'>
             <RotateCcw className='size-4' />
             Đặt lại
           </Button>
