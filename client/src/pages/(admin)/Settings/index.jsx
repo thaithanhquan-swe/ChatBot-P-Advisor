@@ -81,7 +81,7 @@ function Settings() {
   };
 
   return (
-    <div className='mx-auto max-w-[1400px]'>
+    <div className='mx-auto w-full max-w-6xl'>
       <SettingsHeader
         dirty={isDirty}
         loading={loading}

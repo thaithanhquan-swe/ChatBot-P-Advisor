@@ -48,23 +48,23 @@ function UserTable({ page, loading, onPageChange, onView, onEdit }) {
 
   return (
     <div className='overflow-hidden rounded-md border'>
-      <div className='overflow-x-auto'>
-        <Table>
+      <div className='w-full'>
+        <Table className='table-auto'>
           <TableHeader>
             <TableRow>
               <TableHead>Người dùng</TableHead>
 
-              <TableHead>Liên hệ</TableHead>
+              <TableHead className='hidden md:table-cell'>Liên hệ</TableHead>
 
-              <TableHead>Vai trò</TableHead>
+              <TableHead className='hidden sm:table-cell'>Vai trò</TableHead>
 
-              <TableHead>Xác thực</TableHead>
+              <TableHead className='hidden lg:table-cell'>Xác thực</TableHead>
 
-              <TableHead>Phiên chat</TableHead>
+              <TableHead className='hidden 2xl:table-cell'>Phiên chat</TableHead>
 
-              <TableHead>Ngày tạo</TableHead>
+              <TableHead className='hidden 2xl:table-cell'>Ngày tạo</TableHead>
 
-              <TableHead>Cập nhật</TableHead>
+              <TableHead className='hidden 2xl:table-cell'>Cập nhật</TableHead>
 
               <TableHead className='text-right'>Thao tác</TableHead>
             </TableRow>
@@ -84,7 +84,7 @@ function UserTable({ page, loading, onPageChange, onView, onEdit }) {
               users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
-                    <p className='font-medium'>{user.username || 'Chưa đặt tên'}</p>
+                    <p className='truncate font-medium'>{user.username || 'Chưa đặt tên'}</p>
 
                     <p
                       className='mt-1 max-w-40 truncate text-xs text-muted-foreground'
@@ -94,15 +94,17 @@ function UserTable({ page, loading, onPageChange, onView, onEdit }) {
                     </p>
                   </TableCell>
 
-                  <TableCell>
-                    <p>{user.email || '—'}</p>
+                  <TableCell className='hidden md:table-cell'>
+                    <p className='max-w-64 truncate' title={user.email}>
+                      {user.email || '—'}
+                    </p>
 
                     <p className='mt-1 text-xs text-muted-foreground'>
                       {user.phone || 'Chưa có SĐT'}
                     </p>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className='hidden sm:table-cell'>
                     <div className='flex flex-wrap gap-1'>
                       {user.roles?.length ? (
                         user.roles.map((role) => (
@@ -120,7 +122,7 @@ function UserTable({ page, loading, onPageChange, onView, onEdit }) {
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className='hidden lg:table-cell'>
                     <Badge
                       variant='outline'
                       className={
@@ -133,11 +135,13 @@ function UserTable({ page, loading, onPageChange, onView, onEdit }) {
                     </Badge>
                   </TableCell>
 
-                  <TableCell>{user.chatSessionCount ?? 0}</TableCell>
+                  <TableCell className='hidden 2xl:table-cell'>
+                    {user.chatSessionCount ?? 0}
+                  </TableCell>
 
-                  <TableCell>{formatDate(user.createdAt)}</TableCell>
+                  <TableCell className='hidden 2xl:table-cell'>{formatDate(user.createdAt)}</TableCell>
 
-                  <TableCell>{formatDate(user.updatedAt)}</TableCell>
+                  <TableCell className='hidden 2xl:table-cell'>{formatDate(user.updatedAt)}</TableCell>
 
                   <TableCell className='text-right'>
                     <div className='flex justify-end gap-1'>

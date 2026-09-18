@@ -18,12 +18,19 @@ function AdmissionLinksEditor({ links, disabled, onChange }) {
 
   return (
     <div className='border-t border-slate-100 pt-6'>
-      <div className='mb-4 flex items-center justify-between gap-4'>
+      <div className='mb-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
         <div>
           <h3 className='text-sm font-bold text-slate-800'>Thông tin tuyển sinh</h3>
           <p className='mt-1 text-xs text-slate-500'>Các link hiển thị ở cột thứ hai của Footer.</p>
         </div>
-        <Button type='button' variant='outline' size='sm' disabled={disabled} onClick={add}>
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          className='w-full sm:w-auto'
+          disabled={disabled}
+          onClick={add}
+        >
           <Link2 size={15} /> Thêm link
         </Button>
       </div>
@@ -31,7 +38,7 @@ function AdmissionLinksEditor({ links, disabled, onChange }) {
         {links.map((link, index) => (
           <div
             key={`${link.displayOrder}-${index}`}
-            className='grid gap-3 rounded-lg border border-slate-200 p-3 md:grid-cols-[1fr_1.5fr_90px_32px]'
+            className='grid gap-3 rounded-lg border border-slate-200 p-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)_90px_40px]'
           >
             <SettingsField label='Tiêu đề' required>
               <Input
@@ -61,8 +68,8 @@ function AdmissionLinksEditor({ links, disabled, onChange }) {
             <Button
               type='button'
               variant='ghost'
-              size='icon-sm'
-              className='self-end'
+              size='icon'
+              className='w-full self-end sm:ml-auto sm:w-8 lg:ml-0 lg:w-10'
               disabled={disabled}
               onClick={() => remove(index)}
               aria-label={`Xóa link ${index + 1}`}

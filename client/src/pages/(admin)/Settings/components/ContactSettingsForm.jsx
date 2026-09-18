@@ -8,13 +8,13 @@ function ContactSettingsForm({ config, disabled, onChange }) {
     onChange((current) => ({ ...current, [field]: event.target.value }));
   return (
     <section className='overflow-hidden rounded-lg border border-slate-200 bg-white'>
-      <header className='border-b border-slate-200 px-6 py-5'>
+      <header className='border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5'>
         <h2 className='text-base font-bold text-slate-900'>Liên hệ và Footer</h2>
         <p className='mt-1 text-xs text-slate-500'>
           Thông tin hiển thị tại khối hỗ trợ và chân trang.
         </p>
       </header>
-      <div className='grid gap-5 p-6 md:grid-cols-2'>
+      <div className='grid gap-5 p-4 sm:p-6 md:grid-cols-2'>
         <div className='md:col-span-2'>
           <SettingsField label='Giới thiệu Footer' required>
             <Textarea

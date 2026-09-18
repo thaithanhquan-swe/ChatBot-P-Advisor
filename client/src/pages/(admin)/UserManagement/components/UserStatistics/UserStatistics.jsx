@@ -40,12 +40,12 @@ function UserStatistics({ data, loading }) {
   ];
 
   return (
-    <section className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4'>
+    <section className='grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:gap-4 xl:grid-cols-4'>
       {items.map(({ label, value, description, icon: Icon, iconClassName }) => (
         <Card key={label}>
-          <CardContent className='flex items-center gap-4 p-5'>
+          <CardContent className='flex items-center gap-3 p-3 sm:gap-4 sm:p-5'>
             <div
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${iconClassName}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-11 sm:w-11 ${iconClassName}`}
             >
               <Icon className='h-5 w-5' />
             </div>
@@ -56,7 +56,9 @@ function UserStatistics({ data, loading }) {
               {loading ? (
                 <Skeleton className='my-1 h-7 w-20' />
               ) : (
-                <p className='text-2xl font-bold'>{Number(value).toLocaleString('vi-VN')}</p>
+                <p className='text-xl font-bold sm:text-2xl'>
+                  {Number(value).toLocaleString('vi-VN')}
+                </p>
               )}
 
               <p className='text-xs text-muted-foreground'>{description}</p>

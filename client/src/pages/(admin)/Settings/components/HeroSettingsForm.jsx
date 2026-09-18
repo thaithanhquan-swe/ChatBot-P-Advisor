@@ -9,11 +9,11 @@ function HeroSettingsForm({ config, disabled, onChange }) {
 
   return (
     <section className='overflow-hidden rounded-lg border border-slate-200 bg-white'>
-      <header className='border-b border-slate-200 px-6 py-5'>
+      <header className='border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5'>
         <h2 className='text-base font-bold text-slate-900'>Khu vực giới thiệu</h2>
         <p className='mt-1 text-xs text-slate-500'>Slogan và hình ảnh carousel ở đầu trang chủ.</p>
       </header>
-      <div className='space-y-6 p-6'>
+      <div className='space-y-5 p-4 sm:space-y-6 sm:p-6'>
         <div className='grid gap-5 md:grid-cols-2'>
           <SettingsField label='Nhãn giới thiệu' required>
             <Input value={config.heroBadge} onChange={setField('heroBadge')} disabled={disabled} />
