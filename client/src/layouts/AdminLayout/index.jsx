@@ -28,18 +28,18 @@ function AdminLayout() {
           <main
             className={
               isMessagesPage
-                ? 'flex min-h-0 min-w-0 flex-1 flex-col px-4 py-3 sm:px-6 lg:px-8 lg:py-2'
+                ? 'flex min-h-0 min-w-0 flex-1 flex-col px-3 py-2 sm:px-6 lg:px-8 lg:py-2'
                 : 'min-h-screen min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-7'
             }
           >
-            <div className='mb-4 flex lg:hidden'>
+            <div className={isMessagesPage ? 'mb-2.5 flex lg:hidden' : 'mb-4 flex lg:hidden'}>
               <button
                 type='button'
                 onClick={() => setSidebarOpen(true)}
-                className='inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-red-200 hover:text-[#D71920]'
+                className='inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-red-200 hover:text-[#D71920]'
                 aria-label='Mở menu quản trị'
               >
-                <Menu size={19} />
+                <Menu size={18} />
                 Menu
               </button>
             </div>
