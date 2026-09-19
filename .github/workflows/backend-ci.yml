@@ -60,18 +60,21 @@ jobs:
           test -n "$DOCKER_USERNAME" || { echo "Missing DOCKER_USERNAME secret." >&2; exit 1; }
           test -n "$DOCKER_PASSWORD" || { echo "Missing DOCKER_PASSWORD secret." >&2; exit 1; }
 
-          if [[ ! "$DOCKER_USERNAME" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
-            echo "DOCKER_USERNAME must be a valid lowercase Docker Hub username." >&2
+          docker_username=$(printf '%s' "$DOCKER_USERNAME" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+
+          if [[ ! "$docker_username" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
+            echo "DOCKER_USERNAME contains invalid characters. Use only letters, digits, dots, underscores, or hyphens." >&2
             exit 1
           fi
 
-          echo "image=${DOCKER_USERNAME}/backend-service" >> "$GITHUB_OUTPUT"
+          echo "username=$docker_username" >> "$GITHUB_OUTPUT"
+          echo "image=${docker_username}/backend-service" >> "$GITHUB_OUTPUT"
 
       - name: Login to Docker Hub
         if: ${{ github.event_name == 'push' }}
         uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: ${{ steps.docker-image.outputs.username }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
