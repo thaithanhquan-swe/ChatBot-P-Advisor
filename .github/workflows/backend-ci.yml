@@ -24,8 +24,6 @@ permissions:
 jobs:
   backend-ci:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/backend-service
 
     defaults:
       run:
@@ -52,7 +50,8 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: docker/setup-buildx-action@v4
 
-      - name: Validate Docker Hub credentials
+      - name: Prepare Docker image tag
+        id: docker-image
         if: ${{ github.event_name == 'push' }}
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -60,6 +59,14 @@ jobs:
         run: |
           test -n "$DOCKER_USERNAME" || { echo "Missing DOCKER_USERNAME secret." >&2; exit 1; }
           test -n "$DOCKER_PASSWORD" || { echo "Missing DOCKER_PASSWORD secret." >&2; exit 1; }
+
+          if [[ ! "$DOCKER_USERNAME" =~ ^[a-z0-9][a-z0-9._-]*$ ]]; then
+            echo "DOCKER_USERNAME must be a valid lowercase Docker Hub username." >&2
+            exit 1
+          fi
+
+          echo "image=${DOCKER_USERNAME}/backend-service" >> "$GITHUB_OUTPUT"
+
       - name: Login to Docker Hub
         if: ${{ github.event_name == 'push' }}
         uses: docker/login-action@v4
@@ -74,4 +81,4 @@ jobs:
           context: ./server
           file: ./server/Dockerfile
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+          tags: ${{ steps.docker-image.outputs.image }}:${{ github.sha }}
