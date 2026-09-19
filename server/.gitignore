@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local configuration and secrets
+src/main/resources/application-local.properties
+src/main/resources/*firebase-adminsdk*.json

@@ -1,12 +1,15 @@
-import { Link } from 'react-router-dom';
+import Hero from './components/Hero/Hero';
+import FaqSection from './components/FaqSection/FaqSection';
+import WhyUseSection from './components/WhyUseSection/WhyUseSection';
+import FloatingChatPromo from './components/FloatingChatPromo/FloatingChatPromo';
 
 function Home() {
   return (
-    <div>
-      <h1 className='text-red-300'>Home page</h1>
-      <Link to='/chatai'>
-        <button type='button'>Go to ChatAI</button>
-      </Link>
+    <div className=''>
+      <Hero />
+      <FaqSection />
+      <WhyUseSection />
+      <FloatingChatPromo />
     </div>
   );
 }

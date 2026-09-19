@@ -1,0 +1,208 @@
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getSystemConfigImageUrl, useSystemConfig } from '@/contexts/system-config-context';
+import {
+  ArrowRight,
+  Bot,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+  ShieldCheck,
+  UserCheck,
+  Zap,
+} from 'lucide-react';
+
+const Hero = () => {
+  const { config, loading } = useSystemConfig();
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef(null);
+
+  if (loading) return <section className='h-105 animate-pulse bg-slate-50 sm:h-130 lg:h-160' aria-label='Đang tải nội dung trang chủ' />;
+  if (!config) return null;
+  const heroSlides = config.heroSlides ?? [];
+
+  const changeSlide = (direction) => {
+    setSelectedIndex(
+      (currentIndex) => (currentIndex + direction + heroSlides.length) % heroSlides.length
+    );
+    setDragOffset(0);
+  };
+
+  const handlePointerDown = (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    dragStart.current = event.clientX;
+    setIsDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (dragStart.current === null) return;
+
+    setDragOffset(event.clientX - dragStart.current);
+  };
+
+  const handlePointerUp = () => {
+    if (dragStart.current === null) return;
+
+    if (Math.abs(dragOffset) > 70) {
+      changeSlide(dragOffset > 0 ? -1 : 1);
+    } else {
+      setDragOffset(0);
+    }
+
+    dragStart.current = null;
+    setIsDragging(false);
+  };
+
+  return (
+    <section className='relative overflow-hidden bg-[linear-gradient(135deg,#fff_0%,#fff7f7_52%,#fdecee_100%)]'>
+      <div className='pointer-events-none absolute -top-32 -right-24 h-80 w-80 rounded-full bg-[#f7c9ce]/45 blur-3xl' />
+      <div className='pointer-events-none absolute bottom-0 left-0 h-44 w-44 rounded-full bg-[#fff]/80 blur-2xl' />
+
+      <div className='container relative py-8 sm:py-10 lg:py-18'>
+        <div className='grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16'>
+          <div className='min-w-0 max-w-145'>
+            <span className='inline-flex items-center gap-2 rounded-(--radius-pill) border border-(--primary-color-border) bg-white/80 px-3 py-1.5 text-[11px] font-bold tracking-[0.04em] text-(--primary-color) shadow-sm sm:px-4 sm:py-2 sm:text-[12px]'>
+              <Bot size={15} />
+              {config.heroBadge}
+            </span>
+
+            <h1 className='mt-5 text-[30px] leading-[1.15] font-extrabold tracking-[-0.02em] text-gray-950 [overflow-wrap:anywhere] sm:mt-6 sm:text-[44px] lg:text-[52px]'>
+              {config.heroTitle}
+              {config.heroHighlightedTitle && <span className='block text-(--primary-color)'>{config.heroHighlightedTitle}</span>}
+            </h1>
+
+            <p className='mt-4 max-w-135 text-[14px] leading-6 text-(--text-secondary) [overflow-wrap:anywhere] sm:mt-5 sm:text-[16px] sm:leading-7'>
+              {config.heroDescription}
+            </p>
+
+            <div className='mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center'>
+              <Link
+                to='/chatai'
+                className='inline-flex w-full items-center justify-center gap-2.5 rounded-xl bg-(--primary-color) px-5 py-3.5 text-[14px] font-bold text-white shadow-[0_12px_24px_-10px_rgba(200,16,46,0.7)] transition-all hover:-translate-y-0.5 hover:bg-[#a90d27] sm:w-auto'
+              >
+                <MessageCircle size={18} />
+                Bắt đầu trò chuyện
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                to='/documents'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white/80 px-5 py-3.5 text-center text-[14px] font-bold text-gray-700 transition-colors hover:border-(--primary-color-border) hover:text-(--primary-color) sm:w-auto'
+              >
+                Xem tài liệu tuyển sinh
+              </Link>
+            </div>
+
+            <div className='mt-7 grid max-w-130 grid-cols-1 gap-2.5 sm:mt-9 sm:grid-cols-3 sm:gap-3'>
+              {[
+                { icon: Zap, label: 'Phản hồi tức thì' },
+                { icon: ShieldCheck, label: 'Nguồn tin tin cậy' },
+                { icon: UserCheck, label: 'Luôn có người đồng hành' },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className='flex items-center gap-2 text-[12px] font-semibold text-gray-600'
+                >
+                  <span className='flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-(--primary-color) shadow-sm'>
+                    <Icon size={14} />
+                  </span>
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {!!heroSlides.length && <div className='relative mx-auto w-full max-w-155 lg:pr-5'>
+            <div
+              className='relative aspect-[1.08/1] touch-pan-y select-none perspective-distant'
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
+            >
+              <div className='absolute -inset-2 rounded-[1.75rem] bg-[#f7c9ce]/40 blur-xl' />
+              <div className='relative h-full w-full'>
+                {heroSlides.map((slide, index) => {
+                  const position = (index - selectedIndex + heroSlides.length) % heroSlides.length;
+                  const isFront = position === 0;
+                  const transform = isFront
+                    ? `translate3d(${dragOffset}px, ${Math.abs(dragOffset) * 0.04}px, 40px) rotateY(${dragOffset * -0.045}deg) rotateZ(${dragOffset * 0.012}deg)`
+                    : 'translate3d(48px, 30px, -20px) rotateY(-16deg) rotateZ(5deg) scale(0.96)';
+
+                  return (
+                    <div
+                      key={`${slide.imageUrl}-${slide.displayOrder ?? index}`}
+                      className={`absolute inset-0 cursor-grab overflow-hidden rounded-2xl border-4 border-white bg-(--surface-muted) shadow-[0_24px_60px_-24px_rgba(98,17,28,0.45)] [transform-style:preserve-3d] active:cursor-grabbing sm:rounded-[1.75rem] sm:border-8 ${
+                        isDragging ? '' : 'transition-transform duration-300 ease-out'
+                      }`}
+                      style={{ transform, zIndex: isFront ? 2 : 1 }}
+                    >
+                      <img
+                        src={getSystemConfigImageUrl(slide.imageUrl)}
+                        alt={slide.caption}
+                        className='h-full w-full object-cover'
+                      />
+                      <div className='absolute inset-0 bg-linear-to-t from-[#2d0d12]/70 via-transparent to-transparent' />
+                      <div className='absolute right-5 bottom-5 left-5 flex items-end justify-between gap-4 text-white'>
+                        <div>
+                          <p className='text-[11px] font-bold tracking-[0.16em] text-white/70'>
+                            {slide.eyebrow}
+                          </p>
+                          <p className='mt-1 text-[16px] font-bold'>{slide.caption}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className='absolute top-3 right-3 z-10 flex gap-2 sm:top-5 sm:right-5'>
+                <button
+                  type='button'
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => changeSlide(-1)}
+                  aria-label='Ảnh trước'
+                  className='flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color) sm:h-9 sm:w-9'
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type='button'
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => changeSlide(1)}
+                  aria-label='Ảnh tiếp theo'
+                  className='flex h-8 w-8 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur transition-colors hover:bg-(--primary-color) sm:h-9 sm:w-9'
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+
+              <div className='absolute right-5 bottom-5 z-10 flex gap-1.5' aria-label='Chọn ảnh'>
+                {heroSlides.map((slide, index) => (
+                  <button
+                    key={`${slide.imageUrl}-${slide.displayOrder ?? index}`}
+                    type='button'
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={() => {
+                      setSelectedIndex(index);
+                      setDragOffset(0);
+                    }}
+                    aria-label={`Xem ảnh ${index + 1}`}
+                    className={`h-1.5 rounded-full transition-all ${
+                      selectedIndex === index ? 'w-6 bg-white' : 'w-1.5 bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;

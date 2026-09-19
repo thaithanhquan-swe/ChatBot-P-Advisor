@@ -1,26 +1,51 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
-
-import AdminHeader from '@/layouts/AdminLayout/components/AdminHeader';
-import AdminSidebar from '@/layouts/AdminLayout/components/AdminSidebar';
-
-import '@/styles/admin.css';
-import { Toaster } from '@/components/ui/sonner';
+import { Menu } from 'lucide-react';
+import { Outlet, useMatch } from 'react-router-dom';
+import AdminSidebar from './components/AdminSidebar/AdminSidebar';
 
 function AdminLayout() {
+  const isMessagesPage = useMatch('/admin/messages');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className='fixed inset-0 flex overflow-hidden admin-font bg-background text-foreground'>
-      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div
+      className={
+        isMessagesPage
+          ? 'flex h-dvh flex-col overflow-hidden bg-[#FAFAFA]'
+          : 'flex min-h-screen flex-col bg-[#FAFAFA]'
+      }
+    >
+      <div className='relative flex min-h-0 flex-1'>
+        <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className='flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden'>
-        <AdminHeader onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-
-        <main className='flex-1 min-h-0 p-4 overflow-y-auto md:p-5 lg:p-6'>
-          <Outlet />
-        </main>
-        <Toaster />
+        <div
+          className={
+            isMessagesPage
+              ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden lg:pl-67.5'
+              : 'min-h-full min-w-0 flex-1 lg:pl-67.5'
+          }
+        >
+          <main
+            className={
+              isMessagesPage
+                ? 'flex min-h-0 min-w-0 flex-1 flex-col px-3 py-2 sm:px-6 lg:px-8 lg:py-2'
+                : 'min-h-screen min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-7'
+            }
+          >
+            <div className={isMessagesPage ? 'mb-2.5 flex lg:hidden' : 'mb-4 flex lg:hidden'}>
+              <button
+                type='button'
+                onClick={() => setSidebarOpen(true)}
+                className='inline-flex h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:border-red-200 hover:text-[#D71920]'
+                aria-label='Mở menu quản trị'
+              >
+                <Menu size={18} />
+                Menu
+              </button>
+            </div>
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );

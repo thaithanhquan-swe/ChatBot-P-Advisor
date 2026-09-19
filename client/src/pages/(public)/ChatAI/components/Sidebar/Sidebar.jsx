@@ -1,0 +1,150 @@
+import { MessageSquareText, PanelLeftClose, PanelLeftOpen, Plus, X } from 'lucide-react';
+
+const Sidebar = ({
+  open,
+  collapsed,
+  onClose,
+  onToggleCollapse,
+  activeId,
+  onSelect,
+  onNewChat,
+  history,
+  loading,
+  error,
+  hasMore,
+  onLoadMore,
+  onRetry,
+  disabled,
+}) => {
+  return (
+    <>
+      {open && (
+        <div
+          className='fixed inset-0 z-40 bg-black/30 lg:hidden'
+          onClick={onClose}
+          aria-hidden='true'
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(18rem,calc(100vw-2rem))] flex-col border-r border-(--border-subtle) bg-white shadow-xl transition-all duration-300 ease-out lg:static lg:z-auto lg:w-64 lg:translate-x-0 lg:shadow-none ${
+          collapsed ? 'lg:w-16' : 'lg:w-64'
+        } ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className='flex items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4 lg:p-4'>
+          <h2
+            className={`text-[13.5px] font-semibold whitespace-nowrap text-gray-900 ${
+              collapsed ? 'lg:hidden' : ''
+            }`}
+          >
+            Lịch sử hội thoại
+          </h2>
+          <button
+            type='button'
+            onClick={onToggleCollapse}
+            className='hidden rounded-(--radius-card) cursor-pointer p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-(--primary-color) lg:flex'
+            aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+            title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
+          <button
+            type='button'
+            onClick={onClose}
+            className='rounded-(--radius-card) p-1.5 text-gray-500 transition-colors hover:bg-gray-100 lg:hidden'
+            aria-label='Đóng lịch sử hội thoại'
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className={`px-4 pb-3 lg:px-4 ${collapsed ? 'lg:hidden' : ''}`}>
+          <button
+            type='button'
+            onClick={onNewChat}
+            disabled={disabled}
+            className='flex w-full items-center justify-center gap-2 rounded-(--radius-card) bg-(--primary-color) px-4 py-2.5 text-[13px] font-semibold text-white transition-all hover:shadow-(--shadow-card-hover)'
+          >
+            <Plus size={16} strokeWidth={2.2} />
+            Cuộc trò chuyện mới
+          </button>
+        </div>
+
+        <div
+          className={`min-h-0 flex-1 overflow-y-auto px-2 pb-4 lg:px-2 ${
+            collapsed ? 'lg:hidden' : ''
+          }`}
+        >
+          {error && (
+            <div role='alert' className='px-3 py-2 text-xs text-red-700'>
+              <p>{error}</p>
+              <button
+                type='button'
+                onClick={onRetry}
+                disabled={loading || disabled}
+                className='mt-1 underline'
+              >
+                Thử lại
+              </button>
+            </div>
+          )}
+          {loading && (
+            <p role='status' className='px-3 py-2 text-xs text-gray-500'>
+              Đang tải lịch sử...
+            </p>
+          )}
+          {history.length === 0 && !loading && !error ? (
+            <p className='px-3 py-6 text-center text-[13px] text-(--text-tertiary)'>
+              Chưa có cuộc hội thoại nào.
+            </p>
+          ) : (
+            <ul className='flex flex-col gap-1'>
+              {history.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type='button'
+                    onClick={() => onSelect(item.sessionToken)}
+                    disabled={disabled}
+                    className={`flex w-full flex-col items-start gap-0.5 rounded-(--radius-card) px-3 py-2.5 text-left transition-colors ${
+                      activeId === item.id
+                        ? 'bg-(--primary-color-soft) text-(--primary-color)'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span className='line-clamp-1 text-[13px] font-medium'>{item.title}</span>
+                    <span className='text-[11.5px] text-(--text-tertiary)'>
+                      {item.updatedAt && new Date(item.updatedAt).toLocaleString('vi-VN')}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {hasMore && (
+            <button
+              type='button'
+              onClick={onLoadMore}
+              disabled={loading || disabled}
+              className='w-full px-3 py-2 text-sm text-(--primary-color)'
+            >
+              Tải thêm
+            </button>
+          )}
+        </div>
+
+        <div
+          className={`flex items-start gap-2.5 border-t border-(--border-subtle) px-4 py-4 lg:px-4 ${
+            collapsed ? 'lg:hidden' : ''
+          }`}
+        >
+          <MessageSquareText size={15} className='mt-0.5 shrink-0 text-(--primary-color)' />
+          <p className='text-[11.5px] leading-relaxed text-(--text-secondary)'>
+            Trợ lý AI dựa trên dữ liệu tuyển sinh chính thức của PTIT.
+          </p>
+        </div>
+      </aside>
+    </>
+  );
+};
+
+export default Sidebar;

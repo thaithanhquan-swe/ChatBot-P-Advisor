@@ -1,0 +1,190 @@
+import { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+
+import { getApiErrorMessage } from '@/lib/http';
+import { authStorage } from '@/lib/auth-storage';
+import { createConsultationRequest } from '@/services/consultation-request-service';
+import { getCurrentUser } from '@/services/user-service';
+
+import ConsultationForm from './components/ConsultationForm/ConsultationForm';
+import ConsultationIntro from './components/ConsultationIntro/ConsultationIntro';
+import ConsultationProcess from './components/ConsultationProcess/ConsultationProcess';
+import SuccessState from './components/SuccessState/SuccessState';
+import SupportChannels from './components/SupportChannels/SupportChannels';
+
+const initialFormData = {
+  question: '',
+  phone: '',
+};
+
+const ConsultationRequestPage = () => {
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!authStorage.getToken()) return;
+
+    let active = true;
+
+    getCurrentUser()
+      .then((user) => {
+        if (active) {
+          setUserEmail(user?.email ?? null);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setUserEmail(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.question.trim()) {
+      newErrors.question = 'Vui lòng nhập câu hỏi cần tư vấn';
+    }
+
+    if (!formData.phone.trim() && !userEmail) {
+      newErrors.contact = 'Vui lòng cung cấp số điện thoại để chúng tôi liên hệ';
+    } else if (formData.phone && !/^(?:\+?84|0)[35789][0-9]{8}$/.test(formData.phone)) {
+      newErrors.phone = 'Số điện thoại không hợp lệ';
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!validate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      await createConsultationRequest({
+        question: formData.question.trim(),
+        email: userEmail || undefined,
+        phone: formData.phone.trim() || undefined,
+      });
+
+      setIsSuccess(true);
+    } catch (error) {
+      setErrors((current) => ({
+        ...current,
+        submit: getApiErrorMessage(error, 'Không thể gửi yêu cầu tư vấn. Vui lòng thử lại.'),
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = ({ target: { name, value } }) => {
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+
+    if (errors[name] || errors.contact || errors.submit) {
+      setErrors((current) => ({
+        ...current,
+        [name]: '',
+        contact: '',
+        submit: '',
+      }));
+    }
+  };
+
+  const handleReset = () => {
+    setIsSuccess(false);
+    setFormData(initialFormData);
+  };
+
+  return (
+    <main className='relative min-h-[calc(100vh-4rem)] overflow-hidden bg-gray-50/60 px-3 py-6 sm:px-6 sm:py-8 lg:min-h-[calc(100vh-4.6875rem)] lg:px-8 lg:py-10'>
+      <div className='pointer-events-none absolute left-[-120px] top-[-120px] h-80 w-80 rounded-full bg-red-100/40 blur-3xl' />
+
+      <div className='pointer-events-none absolute bottom-[-140px] right-[-100px] h-96 w-96 rounded-full bg-red-50/60 blur-3xl' />
+
+      <div className='relative z-10 mx-auto max-w-7xl'>
+        <div className='grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8'>
+          <ConsultationIntro />
+
+          <motion.section
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    y: 22,
+                    scale: 0.985,
+                  }
+            }
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+            }}
+            transition={{
+              delay: 0.12,
+              duration: 0.6,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className='relative z-10 rounded-2xl border border-gray-100 bg-white p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] sm:p-6 lg:col-span-6 lg:p-8'
+          >
+            {isSuccess ? (
+              <SuccessState onClose={handleReset} />
+            ) : (
+              <ConsultationForm
+                formData={formData}
+                errors={errors}
+                isSubmitting={isSubmitting}
+                userEmail={userEmail}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+              />
+            )}
+          </motion.section>
+
+          <motion.aside
+            initial={
+              prefersReducedMotion
+                ? false
+                : {
+                    opacity: 0,
+                    x: 24,
+                  }
+            }
+            animate={{
+              opacity: 1,
+              x: 0,
+            }}
+            transition={{
+              delay: 0.2,
+              duration: 0.6,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className='relative z-10 flex flex-col gap-4 sm:gap-6 lg:col-span-3'
+          >
+            <ConsultationProcess />
+            <SupportChannels />
+          </motion.aside>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default ConsultationRequestPage;

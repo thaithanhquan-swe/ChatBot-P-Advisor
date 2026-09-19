@@ -1,16 +1,21 @@
 import { Outlet } from 'react-router-dom';
-import Footer from './components/Footer';
-import Header from './components/Header';
+import GoToTop from '@/components/GoToTop';
+import Footer from '@/layouts/PublicLayout/components/Footer';
+import Header from '@/layouts/PublicLayout/components/Header';
+import { SystemConfigProvider } from '@/contexts/system-config-context';
 
 function PublicLayout() {
   return (
-    <div className=''>
-      <Header />
-      <main>
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <SystemConfigProvider>
+      <div className='flex min-h-screen flex-col overflow-x-hidden'>
+        <Header />
+        <main className='flex-1'>
+          <Outlet />
+        </main>
+        <Footer />
+        <GoToTop />
+      </div>
+    </SystemConfigProvider>
   );
 }
 
