@@ -244,7 +244,7 @@ function UserManagement() {
   };
 
   return (
-    <div className='mx-auto w-full max-w-7xl'>
+    <div className='mx-auto w-full max-w-[1600px]'>
       <UserHeader />
 
       <UserStatistics data={statistics} loading={statisticsLoading} />
@@ -257,7 +257,7 @@ function UserManagement() {
         onReset={resetFilters}
       />
 
-      <div className='mt-5 min-w-0 rounded-xl border bg-background p-4 sm:p-5'>
+      <div className='mt-5 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.02)] sm:p-5'>
         <UserToolbar value={keyword} onChange={setKeyword} />
 
         {error && (
