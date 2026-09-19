@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: chatbot_p_advisor
+      MYSQL_USER: chatbot
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-chatbot_dev_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root_dev_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: chatbot-p-advisor-backend:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_CONFIG_SERVER_PORT: 8080
+      APP_CONFIG_CONTEXT_PATH: /chatbot-advisor
+      APP_CONFIG_APPLICATION_NAME: chatbot-advisor-api
+      APP_CONFIG_DATASOURCE_URL: jdbc:mysql://db:3306/chatbot_p_advisor?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      APP_CONFIG_DATASOURCE_DRIVER: com.mysql.cj.jdbc.Driver
+      APP_CONFIG_DATASOURCE_USERNAME: chatbot
+      APP_CONFIG_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-chatbot_dev_password}
+      APP_CONFIG_JPA_DDL_AUTO: update
+      APP_CONFIG_JPA_SHOW_SQL: "false"
+      APP_CONFIG_JWT_SIGNER_KEY: ${JWT_SIGNER_KEY:-change-this-long-development-only-secret-before-production}
+      APP_CONFIG_JWT_VALID_DURATION: 3600
+      APP_CONFIG_JWT_REFRESHABLE_DURATION: 604800
+      APP_CONFIG_FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      APP_CONFIG_PASSWORD_RESET_EXPIRATION_MINUTES: 15
+      APP_CONFIG_EMAIL_VERIFICATION_EXPIRATION_MINUTES: 1440
+      APP_CONFIG_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      APP_CONFIG_MAIL_PORT: ${MAIL_PORT:-587}
+      APP_CONFIG_MAIL_USERNAME: ${MAIL_USERNAME:-}
+      APP_CONFIG_MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      APP_CONFIG_MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      APP_CONFIG_MAIL_STARTTLS_ENABLE: ${MAIL_STARTTLS_ENABLE:-true}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      FIREBASE_SERVICE_ACCOUNT_PATH: ${FIREBASE_SERVICE_ACCOUNT_PATH:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_uploads:/app/uploads
+
+volumes:
+  mysql_data:
+  backend_uploads:

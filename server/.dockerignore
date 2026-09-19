@@ -1,0 +1,8 @@
+.git
+.gitignore
+.idea
+target
+HELP.md
+application-local.properties
+src/main/resources/*firebase-adminsdk*.json
+uploads
