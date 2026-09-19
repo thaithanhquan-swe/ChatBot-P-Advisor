@@ -94,6 +94,7 @@ function AdvisorInbox() {
   const [message, setMessage] = useState('');
   const [file, setFile] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [mobileView, setMobileView] = useState('list');
   const [loading, setLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [action, setAction] = useState(null);
@@ -210,7 +211,19 @@ function AdvisorInbox() {
     setMessage('');
     setFile(null);
     setError('');
+    setMobileView('chat');
   };
+
+  const handleBackToList = () => {
+    setShowDetails(false);
+    setMobileView('list');
+  };
+
+  useEffect(() => {
+    if (!selectedId) {
+      setMobileView('list');
+    }
+  }, [selectedId]);
 
   const handleAssign = async () => {
     if (!selectedConversation || action) return;
@@ -295,12 +308,13 @@ function AdvisorInbox() {
   };
 
   return (
-    <div className='-mx-3 flex min-h-0 w-[calc(100%+1.5rem)] flex-1 flex-col'>
+    <div className='flex min-h-0 w-full flex-1 flex-col'>
       <AdvisorInboxHeader
         waitingCount={waitingCount}
         loading={loading}
         realtimeConnected={realtimeConnected}
         onRefresh={() => loadConversations()}
+        className={mobileView === 'chat' ? 'hidden lg:flex' : ''}
       />
       {error && (
         <div
@@ -311,7 +325,11 @@ function AdvisorInbox() {
         </div>
       )}
       <div
-        className={`relative grid min-h-0 flex-1 grid-cols-[240px_minmax(0,1fr)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm 2xl:grid-cols-[280px_minmax(0,1fr)] ${showDetails ? 'xl:grid-cols-[240px_minmax(0,1fr)_260px] 2xl:grid-cols-[280px_minmax(0,1fr)_280px]' : ''}`}
+        className={`relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[250px_minmax(0,1fr)] 2xl:grid-cols-[290px_minmax(0,1fr)] ${
+          showDetails
+            ? 'xl:grid-cols-[250px_minmax(0,1fr)_260px] 2xl:grid-cols-[290px_minmax(0,1fr)_280px]'
+            : ''
+        }`}
       >
         <ConversationList
           conversations={filteredConversations}
@@ -322,6 +340,7 @@ function AdvisorInbox() {
           onQueryChange={setQuery}
           onFilterChange={setFilter}
           onSelect={handleSelectConversation}
+          mobileView={mobileView}
         />
         {selectedConversation ? (
           <>
@@ -337,11 +356,21 @@ function AdvisorInbox() {
               onAssign={handleAssign}
               onEndConsultation={handleEndConsultation}
               onToggleDetails={() => setShowDetails((value) => !value)}
+              onBack={handleBackToList}
+              mobileView={mobileView}
             />
-            <UserDetailsPanel conversation={selectedConversation} visible={showDetails} />
+            <UserDetailsPanel
+              conversation={selectedConversation}
+              visible={showDetails}
+              onClose={() => setShowDetails(false)}
+            />
           </>
         ) : (
-          <div className='flex min-h-[500px] items-center justify-center text-sm text-slate-400 lg:col-span-2'>
+          <div
+            className={`min-h-[300px] items-center justify-center text-sm text-slate-400 lg:col-span-2 ${
+              mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
+            }`}
+          >
             <p>{loading ? 'Đang tải tin nhắn...' : 'Chưa có cuộc trò chuyện của người dùng.'}</p>
           </div>
         )}

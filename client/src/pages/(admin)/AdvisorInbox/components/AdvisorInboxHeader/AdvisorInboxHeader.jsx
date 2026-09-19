@@ -1,9 +1,17 @@
 import { Clock3, RefreshCw } from 'lucide-react';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb/AdminBreadcrumb';
 
-function AdvisorInboxHeader({ waitingCount, loading, realtimeConnected, onRefresh }) {
+function AdvisorInboxHeader({
+  waitingCount,
+  loading,
+  realtimeConnected,
+  onRefresh,
+  className = '',
+}) {
   return (
-    <div className='mb-2 flex min-h-8 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1'>
+    <div
+      className={`mb-2 flex min-h-8 shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1.5 ${className}`}
+    >
       <div className='[&>div]:mb-0'>
         <AdminBreadcrumb pageTitle='Tin nhắn người dùng' />
       </div>
@@ -23,7 +31,10 @@ function AdvisorInboxHeader({ waitingCount, loading, realtimeConnected, onRefres
           className='flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700'
           role='status'
         >
-          <Clock3 size={14} /> {waitingCount} cuộc chat đang chờ
+          <Clock3 size={14} className='shrink-0' />
+          <span>
+            {waitingCount} <span className='hidden sm:inline'>cuộc chat </span>đang chờ
+          </span>
         </div>
         <button
           type='button'

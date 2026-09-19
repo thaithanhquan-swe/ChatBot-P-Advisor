@@ -42,7 +42,7 @@ function HeroSlidesEditor({ slides, disabled, onChange }) {
 
   return (
     <div className='border-t border-slate-100 pt-6'>
-      <div className='mb-4 flex items-center justify-between gap-4'>
+      <div className='mb-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
         <div>
           <h3 className='text-sm font-bold text-slate-800'>Slide ảnh</h3>
           <p className='mt-1 text-xs text-slate-500'>
@@ -53,6 +53,7 @@ function HeroSlidesEditor({ slides, disabled, onChange }) {
           type='button'
           variant='outline'
           size='sm'
+          className='w-full sm:w-auto'
           disabled={disabled}
           onClick={() => onChange([...slides, newSlide(slides.length + 1)])}
         >
@@ -64,14 +65,14 @@ function HeroSlidesEditor({ slides, disabled, onChange }) {
         {slides.map((slide, index) => (
           <article
             key={`${slide.displayOrder}-${index}`}
-            className='rounded-lg border border-slate-200 p-4'
+            className='rounded-lg border border-slate-200 p-3 sm:p-4'
           >
             <div className='mb-4 flex items-center justify-between'>
               <span className='text-xs font-bold text-slate-700'>Slide {index + 1}</span>
               <Button
                 type='button'
                 variant='ghost'
-                size='icon-sm'
+                size='icon'
                 disabled={disabled}
                 onClick={() => removeSlide(index)}
                 aria-label={`Xóa slide ${index + 1}`}

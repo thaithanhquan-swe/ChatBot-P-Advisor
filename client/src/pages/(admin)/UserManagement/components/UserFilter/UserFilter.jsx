@@ -10,8 +10,32 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from '@/components/ui/select';
+
+const roleLabels = {
+  ALL: 'Tất cả vai trò',
+  USER: 'Người dùng',
+  ADVISOR: 'Tư vấn viên',
+  ADMIN: 'Quản trị viên',
+};
+
+const verificationLabels = {
+  ALL: 'Tất cả trạng thái',
+  true: 'Đã xác thực',
+  false: 'Chưa xác thực',
+};
+
+const sortLabels = {
+  createdAt: 'Ngày tạo',
+  updatedAt: 'Ngày cập nhật',
+  username: 'Tên đăng nhập',
+  email: 'Email',
+};
+
+const directionLabels = {
+  DESC: 'Giảm dần',
+  ASC: 'Tăng dần',
+};
 
 function UserFilter({ filters, statistics, onChange, onReset, loading }) {
   return (
@@ -24,10 +48,11 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
       </CardHeader>
 
       <CardContent>
-        <div className='grid grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-6'>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
           <FilterSelect
             label='Vai trò'
             value={filters.role}
+            displayValue={roleLabels[filters.role]}
             onChange={(value) => onChange('role', value)}
           >
             <SelectItem value='ALL'>Tất cả vai trò</SelectItem>
@@ -42,6 +67,7 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
           <FilterSelect
             label='Xác thực email'
             value={filters.emailVerified}
+            displayValue={verificationLabels[filters.emailVerified]}
             onChange={(value) => onChange('emailVerified', value)}
           >
             <SelectItem value='ALL'>Tất cả trạng thái</SelectItem>
@@ -74,6 +100,7 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
           <FilterSelect
             label='Sắp xếp theo'
             value={filters.sortBy}
+            displayValue={sortLabels[filters.sortBy]}
             onChange={(value) => onChange('sortBy', value)}
           >
             <SelectItem value='createdAt'>Ngày tạo</SelectItem>
@@ -88,6 +115,7 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
           <FilterSelect
             label='Thứ tự'
             value={filters.sortDirection}
+            displayValue={directionLabels[filters.sortDirection]}
             onChange={(value) => onChange('sortDirection', value)}
           >
             <SelectItem value='DESC'>Giảm dần</SelectItem>
@@ -96,8 +124,14 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
           </FilterSelect>
         </div>
 
-        <div className='mt-4 flex justify-end'>
-          <Button type='button' variant='outline' onClick={onReset} disabled={loading}>
+        <div className='mt-4'>
+          <Button
+            type='button'
+            variant='outline'
+            className='w-full'
+            onClick={onReset}
+            disabled={loading}
+          >
             <RotateCcw className='mr-2 h-4 w-4' />
             Xóa bộ lọc
           </Button>
@@ -129,14 +163,14 @@ function UserFilter({ filters, statistics, onChange, onReset, loading }) {
   );
 }
 
-function FilterSelect({ label, value, onChange, children }) {
+function FilterSelect({ label, value, displayValue, onChange, children }) {
   return (
     <div className='space-y-2'>
       <Label>{label}</Label>
 
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className='w-full'>
-          <SelectValue />
+          <span className='truncate'>{displayValue ?? value}</span>
         </SelectTrigger>
 
         <SelectContent>{children}</SelectContent>
