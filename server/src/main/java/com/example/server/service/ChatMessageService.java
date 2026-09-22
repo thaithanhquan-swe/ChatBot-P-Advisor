@@ -27,9 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -116,6 +118,53 @@ public class ChatMessageService {
         fileUrls.stream()
                 .filter(fileUrl -> !fileUrl.isBlank())
                 .forEach(fileUrl -> fileStorageService.deleteQuietly(storageLocation, fileUrl));
+    }
+
+    @Transactional
+    public AiRequestLock acquireAiRequestLock(String sessionToken) {
+        ChatSession session = findByToken(sessionToken);
+        validateReadAccess(session);
+        User currentUser = getCurrentUser().orElse(null);
+        if (currentUser == null) {
+            return new AiRequestLock("guest:" + sessionToken, null, null);
+        }
+
+        User user = userRepository.findByIdForUpdate(currentUser.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
+        Instant now = Instant.now();
+        Instant staleBefore = now.minusSeconds(300);
+        if (user.isAiChatRequestInProgress()
+                && user.getAiChatRequestLockedAt() != null
+                && user.getAiChatRequestLockedAt().isAfter(staleBefore)) {
+            throw new AppException(ErrorCode.CHAT_REQUEST_ALREADY_IN_PROGRESS);
+        }
+
+        Instant windowStartedAt = user.getAiChatQuestionWindowStartedAt();
+        if (windowStartedAt == null || !now.isBefore(windowStartedAt.plusSeconds(600))) {
+            user.setAiChatQuestionCount(0);
+            user.setAiChatQuestionWindowStartedAt(now);
+        }
+        if (user.getAiChatQuestionCount() >= 10) {
+            throw new AppException(ErrorCode.AI_CHAT_RATE_LIMIT_REACHED);
+        }
+
+        String lockToken = UUID.randomUUID().toString();
+        user.setAiChatQuestionCount(user.getAiChatQuestionCount() + 1);
+        user.setAiChatRequestInProgress(true);
+        user.setAiChatRequestLockToken(lockToken);
+        user.setAiChatRequestLockedAt(now);
+        return new AiRequestLock("user:" + user.getId(), user.getId(), lockToken);
+    }
+
+    @Transactional
+    public void releaseAiRequestLock(AiRequestLock lock) {
+        if (lock.userId() == null) return;
+        userRepository.findByIdForUpdate(lock.userId()).ifPresent(user -> {
+            if (!lock.token().equals(user.getAiChatRequestLockToken())) return;
+            user.setAiChatRequestInProgress(false);
+            user.setAiChatRequestLockToken(null);
+            user.setAiChatRequestLockedAt(null);
+        });
     }
 
     @Transactional(readOnly = true)
@@ -293,6 +342,9 @@ public class ChatMessageService {
             throw new AppException(ErrorCode.CHAT_SESSION_NOT_FOUND);
         }
         return new UserMessageContext(session, user.getId(), ChatMessageSender.USER);
+    }
+
+    public record AiRequestLock(String key, String userId, String token) {
     }
 
     private record UserMessageContext(ChatSession session, String senderId, ChatMessageSender sender) {

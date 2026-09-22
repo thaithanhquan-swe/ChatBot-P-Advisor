@@ -3,6 +3,10 @@ package com.example.server.repository;
 import com.example.server.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -13,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
     Optional<User> findByUsername(String username);
     Optional<User> findByEmailIgnoreCase(String email);
     Optional<User> findByFirebaseUid(String firebaseUid);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select user from User user where user.id = :id")
+    Optional<User> findByIdForUpdate(@Param("id") String id);
     long countByEmailVerifiedTrue();
     long countDistinctByRolesName(String roleName);
 }

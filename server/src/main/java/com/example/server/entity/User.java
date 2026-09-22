@@ -36,6 +36,23 @@ public class User {
     @Column(nullable = false)
     boolean emailVerified = false;
 
+    @Builder.Default
+    @Column(name = "ai_chat_request_in_progress", nullable = false)
+    boolean aiChatRequestInProgress = false;
+
+    @Column(name = "ai_chat_request_lock_token", length = 64)
+    String aiChatRequestLockToken;
+
+    @Column(name = "ai_chat_request_locked_at")
+    Instant aiChatRequestLockedAt;
+
+    @Builder.Default
+    @Column(name = "ai_chat_question_count", nullable = false)
+    int aiChatQuestionCount = 0;
+
+    @Column(name = "ai_chat_question_window_started_at")
+    Instant aiChatQuestionWindowStartedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     Instant createdAt;

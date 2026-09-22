@@ -1,4 +1,24 @@
+import { toast } from 'sonner';
+
 const SESSION_KEY = 'p_advisor_chat_session';
+const AI_REQUEST_ALREADY_IN_PROGRESS_CODE = 1034;
+const AI_CHAT_RATE_LIMIT_REACHED_CODE = 1038;
+
+const getChatRequestErrorMessage = (error, errorMessage) => {
+  switch (error.response?.data?.code) {
+    case AI_REQUEST_ALREADY_IN_PROGRESS_CODE:
+      return 'Bạn đang có một yêu cầu gửi tới trợ lý AI. Vui lòng chờ phản hồi trước khi gửi tiếp.';
+    case AI_CHAT_RATE_LIMIT_REACHED_CODE:
+      return 'Bạn đã dùng hết 10 lượt hỏi AI. Vui lòng thử lại sau 10 phút.';
+    default:
+      return errorMessage(error);
+  }
+};
+
+const isChatRequestRejectedBeforeSending = (error) =>
+  [AI_REQUEST_ALREADY_IN_PROGRESS_CODE, AI_CHAT_RATE_LIMIT_REACHED_CODE].includes(
+    error.response?.data?.code
+  );
 
 export function createChatController({ api, storage, isLoggedIn, errorMessage }) {
   let state = {
@@ -226,11 +246,16 @@ export function createChatController({ api, storage, isLoggedIn, errorMessage })
       return true;
     } catch (error) {
       if (!current(version)) return false;
+      const rejectedBeforeSending = isChatRequestRejectedBeforeSending(error);
+      const message = getChatRequestErrorMessage(error, errorMessage);
+      if (rejectedBeforeSending) toast.error(message);
       update({
-        error: errorMessage(error),
-        messages: state.messages.map((message) =>
-          message.id === pendingId ? { ...message, pending: false, failed: true } : message
-        ),
+        error: rejectedBeforeSending ? '' : message,
+        messages: rejectedBeforeSending
+          ? state.messages.filter((message) => message.id !== pendingId)
+          : state.messages.map((message) =>
+              message.id === pendingId ? { ...message, pending: false, failed: true } : message
+            ),
       });
       // The server can save the user message before AI generation fails. Reconcile without resending.
       if (session) {
