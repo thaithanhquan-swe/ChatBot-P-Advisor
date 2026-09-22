@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,7 @@ public class ChatAiService {
     static Pattern SOURCE_LABEL_PATTERN = Pattern.compile(
             "(?iu)(?:nguồn(?:\\s+tham\\s+khảo)?|source)\\s*:");
     static Pattern WEB_URL_PATTERN = Pattern.compile("https?://\\S+", Pattern.CASE_INSENSITIVE);
+    static Set<String> IN_FLIGHT_GUEST_REQUESTS = ConcurrentHashMap.newKeySet();
 
     ChatMessageService chatMessageService;
     KnowledgeRetrievalService knowledgeRetrievalService;
@@ -53,10 +55,20 @@ public class ChatAiService {
     }
 
     public ChatExchangeResponse chat(String sessionToken, String content, MultipartFile file) {
-        MultipartFile image = file == null || file.isEmpty() ? null : file;
-        ChatMessageResponse userMessage = chatMessageService.sendUserMessage(sessionToken, content, image);
+        ChatMessageService.AiRequestLock lock = chatMessageService.acquireAiRequestLock(sessionToken);
+        boolean guestRequest = lock.userId() == null;
+        if (guestRequest && !IN_FLIGHT_GUEST_REQUESTS.add(lock.key())) {
+            throw new AppException(ErrorCode.CHAT_REQUEST_ALREADY_IN_PROGRESS);
+        }
 
-        return reply(sessionToken, userMessage, image);
+        try {
+            MultipartFile image = file == null || file.isEmpty() ? null : file;
+            ChatMessageResponse userMessage = chatMessageService.sendUserMessage(sessionToken, content, image);
+            return reply(sessionToken, userMessage, image);
+        } finally {
+            if (guestRequest) IN_FLIGHT_GUEST_REQUESTS.remove(lock.key());
+            chatMessageService.releaseAiRequestLock(lock);
+        }
     }
 
     private ChatExchangeResponse reply(
